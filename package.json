@@ -4,11 +4,10 @@
   "description": "HR Management System",
   "main": "index.js",
   "scripts": {
-    "sync-materials": "node ./components/builders/sync-materials.js",
     "compile": "webpack --env=build --mode=production",
     "clear": "node ./components/builders/clear-dist.js",
     "build": "npm run clear && npm run compile && gulp build",
-    "watch": "npm run clear && concurrently \"npm run sync-materials\" \"webpack --watch --mode=development\"",
+    "watch": "npm run clear && webpack --watch --mode=development",
     "lint": "eslint ./components/**/*.jsx",
     "lint:fix": "eslint --fix ./components/**/*.jsx",
     "cypress:open": "cypress open --config-file tests/cypress/config.config.js",

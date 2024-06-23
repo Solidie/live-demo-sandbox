@@ -91,12 +91,12 @@ class Scripts {
 					'name' => get_bloginfo( 'name' ),
 				),
 				'user'             => array(
-					'id'                    => $user ? $user->ID : 0,
-					'first_name'            => $user ? $user->first_name : null,
-					'last_name'             => $user ? $user->last_name : null,
-					'email'                 => $user ? $user->user_email : null,
-					'display_name'          => $user ? $user->display_name : null,
-					'avatar_url'            => $user ? get_avatar_url( $user->ID ) : null,
+					'id'           => $user ? $user->ID : 0,
+					'first_name'   => $user ? $user->first_name : null,
+					'last_name'    => $user ? $user->last_name : null,
+					'email'        => $user ? $user->user_email : null,
+					'display_name' => $user ? $user->display_name : null,
+					'avatar_url'   => $user ? get_avatar_url( $user->ID ) : null,
 				),
 				'settings'         => array(
 					
