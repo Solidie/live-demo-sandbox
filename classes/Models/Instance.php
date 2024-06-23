@@ -7,6 +7,8 @@
 
 namespace Solidie_Sandbox\Models;
 
+use Solidie_Sandbox\Main;
+
 /**
  * Instance functions
  */
@@ -22,7 +24,7 @@ class Instance {
 	
 	public static function createMultiSite( $override = false ) {
 
-       /*  $db_name     = DB_NAME;
+        $db_name     = DB_NAME;
         $db_user     = DB_USER;
         $db_password = DB_PASSWORD;
 		$db_host     = DB_HOST;
@@ -59,7 +61,7 @@ class Instance {
         $config_sample = file_get_contents( $subsite_path . '/site/wp-config-sample.php' );
 		$prefix_line   = '$table_prefix = \''. $tbl_prefix .'\';';
         $config        = str_replace(
-            array( "database_name_here", "username_here", "password_here", "localhost", '$table_prefix = \'wp_\';' ),
+            array( "database_name_here", "username_here", "password_here", "localhost", '$table_prefix = \'wp_\';\ndefine(\'WP_ALLOW_MULTISITE\', true);' ),
             array( $db_name, $db_user, $db_password, $db_host, $prefix_line ),
             $config_sample
         );
@@ -72,7 +74,7 @@ class Instance {
         // Create the database and install WordPress
         // require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         $db = new \wpdb( $db_user, $db_password, $db_name, $db_host );
-        $db->query( "CREATE DATABASE IF NOT EXISTS $db_name" ); */
+        $db->query( "CREATE DATABASE IF NOT EXISTS $db_name" );
 
 		// Finalize setup
 		$pass = 'OxzCzuVt6)Txu#Yasw';
@@ -85,10 +87,12 @@ class Instance {
 			'blog_public'     => 0,
 			'Submit'          => 'Install WordPress'
 		);
-		
-		$resp = wp_remote_post( self::getHomeURL() . '/site/wp-admin/install.php?step=2', array( 'body' => $payload ) );
+		wp_remote_post( self::getHomeURL() . '/site/wp-admin/install.php?step=2', array( 'body' => $payload ) );
 
-		error_log( var_export( $resp, true ) );
+		// Install MU plugin that deploy custom theme and plugins
+		$mu_dir = $subsite_path . '/site/wp-content/mu-plugins';
+		wp_mkdir_p( $mu_dir );
+		copy( Main::$configs->dir . '/dist/libraries/sandbox-extension-installer.php', $mu_dir . '/sandbox-extension-installer.php' );
 
         return true;
 	}
