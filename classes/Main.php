@@ -10,6 +10,7 @@ namespace Solidie_Sandbox;
 use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Helpers\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
+use Solidie_Sandbox\Setup\Database;
 use Solidie_Sandbox\Setup\Dispatcher;
 use Solidie_Sandbox\Setup\Scripts;
 
@@ -52,6 +53,7 @@ class Main {
 		register_activation_hook( self::$configs->file, array( $this, 'activate' ) );
 		register_deactivation_hook( self::$configs->file, array( $this, 'deactivate' ) );
 
+		new Database();
 		new Dispatcher();
 		new Scripts();
 		new AdminPage();

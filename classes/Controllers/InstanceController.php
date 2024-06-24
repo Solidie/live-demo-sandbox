@@ -18,6 +18,9 @@ class InstanceController {
 		'initBaseInstance' => array(
 
 		),
+		'deployNetworkConfigs' => array(
+
+		),
 	);
 	
 	/**
@@ -30,12 +33,17 @@ class InstanceController {
 	 */
 	public static function initBaseInstance() {
 
-		$created = Instance::createMultiSite( true );
+		$ret = Instance::createMultiSite( true );
 
-		if ( $created === true ) {
-			wp_send_json_success();
+		if ( ! ( $ret['success'] ?? false ) ) {
+			wp_send_json_error( array( 'message' => $ret['message'] ?? __( 'Something went wrong!', 'live-demo-sandbox' ) ) );
 		} else {
-			wp_send_json_error( array( 'message' => $created ) );
+			wp_send_json_success( array( 'iframe_url' => $ret['iframe_url'] ) );
 		}
+	}
+
+	public static function deployNetworkConfigs() {
+		Instance::deployNetworkConfigs();
+		wp_send_json_success( array( 'iframe_url' => Instance::multiSiteHomeURL() ) );
 	}
 }
