@@ -1,6 +1,6 @@
 RewriteEngine On
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /sandbox/demo-parent/wordpress/
+RewriteBase __site_path__
 RewriteRule ^index\.php$ - [L]
 
 # add a trailing slash to /wp-admin

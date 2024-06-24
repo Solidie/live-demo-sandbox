@@ -8,6 +8,7 @@
 namespace Solidie_Sandbox\Setup;
 
 use Solidie_Sandbox\Main;
+use Solidie_Sandbox\Models\Instance;
 
 /**
  * Admin page setup handlers
@@ -70,7 +71,10 @@ class AdminPage {
 	 * @return void
 	 */
 	public function homePage() {
-		echo '<div id="Solidie_Sandbox_Backend_Dashboard"></div>';
+		echo '<div 
+			id="Solidie_Sandbox_Backend_Dashboard"
+			data-configs="' . esc_attr( wp_json_encode( ( object ) Instance::getConfigs() ) ) . '"
+		></div>';
 	}
 
 	/**

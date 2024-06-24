@@ -37,16 +37,43 @@ class FileManager {
 	 * @param string $dir Dir path to delete including files and sub folders
 	 * @return bool
 	 */
-	public static function deleteDirectory( string $dir ) {
-		if ( ! is_dir( $dir ) ) {
+	public static function deleteDirectory( string $folder ) {
+		// Check if the folder exists
+		if ( ! is_string( $folder ) || !file_exists($folder)) {
 			return false;
 		}
 
-		$files = glob( $dir . '/*' );
-		foreach ( $files as $file ) {
-			is_dir( $file ) ? self::deleteDirectory( $file ) : unlink( $file );
+		// Check if it's a directory
+		if (!is_dir($folder)) {
+			return false;
 		}
 
-		return rmdir( $dir );
+		// Open the directory
+		$dir = opendir($folder);
+
+		// Loop through the contents of the directory
+		while (($file = readdir($dir)) !== false) {
+			// Skip the special '.' and '..' folders
+			if ($file == '.' || $file == '..') {
+				continue;
+			}
+
+			// Build the full path to the item
+			$path = $folder . DIRECTORY_SEPARATOR . $file;
+
+			// Recursively delete directories or just delete files
+			if (is_dir($path)) {
+				self::deleteDirectory($path);
+			} else {
+				unlink($path);
+			}
+		}
+
+		// Close the directory
+		closedir($dir);
+
+		// Delete the folder itself
+		return rmdir($folder);
 	}
+
 }

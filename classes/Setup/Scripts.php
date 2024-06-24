@@ -97,6 +97,7 @@ class Scripts {
 					'email'        => $user ? $user->user_email : null,
 					'display_name' => $user ? $user->display_name : null,
 					'avatar_url'   => $user ? get_avatar_url( $user->ID ) : null,
+					'username'     => $user ? $user->user_login : null,
 				),
 				'settings'         => array(
 					

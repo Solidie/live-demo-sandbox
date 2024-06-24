@@ -7,12 +7,12 @@ import {WpDashboardFullPage} from 'crewhrm-materials/backend-dashboard-container
 import { HomeBackend } from "./pages/home/home.jsx";
 
 const home = document.getElementById('Solidie_Sandbox_Backend_Dashboard');
-console.log(home)
+
 if ( home ) {
 	createRoot(home).render(
 		<MountPoint>
 			<WpDashboardFullPage>
-				<HomeBackend/>
+				<HomeBackend {...getElementDataSet(home)}/>
 			</WpDashboardFullPage>
 		</MountPoint>
 	);

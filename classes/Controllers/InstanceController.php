@@ -15,6 +15,9 @@ use Solidie_Sandbox\Models\Instance;
 class InstanceController {
 
 	const PREREQUISITES = array(
+		'downloadWP' => array(
+
+		),
 		'initBaseInstance' => array(
 
 		),
@@ -22,6 +25,26 @@ class InstanceController {
 
 		),
 	);
+
+	/**
+	 * Download WP
+	 *
+	 * @return void
+	 */
+	public static function downloadWP() {
+
+		set_time_limit(60);
+		
+		$source_path = Instance::getSourcePath();
+		$url         = 'https://wordpress.org/latest.zip';
+		$success     = file_exists( $source_path ) || copy( $url, $source_path );
+
+		if ( $success ) {
+			wp_send_json_success();
+		} else {
+			wp_send_json_error( array( 'message' => __( 'WordPress download error', 'live-demo-sandbox' ) ) );
+		}
+	}
 	
 	/**
 	 * Provide content list for various area like dashboard, gallery and so on.
@@ -31,19 +54,25 @@ class InstanceController {
 	 * @param bool  $is_gallery Whether loaded in gallery
 	 * @return void
 	 */
-	public static function initBaseInstance() {
+	public static function initBaseInstance( array $configs ) {
 
-		$ret = Instance::createMultiSite( true );
+		$ret = (new Instance( $configs ))->createMultiSite();
 
 		if ( ! ( $ret['success'] ?? false ) ) {
-			wp_send_json_error( array( 'message' => $ret['message'] ?? __( 'Something went wrong!', 'live-demo-sandbox' ) ) );
+			wp_send_json_error( 
+				array( 
+					'message'   => $ret['message'] ?? __( 'Something went wrong!', 'live-demo-sandbox' ),
+					'duplicate' => $ret['duplicate'] ?? false,
+				) 
+			);
 		} else {
 			wp_send_json_success( array( 'iframe_url' => $ret['iframe_url'] ) );
 		}
 	}
 
 	public static function deployNetworkConfigs() {
-		Instance::deployNetworkConfigs();
-		wp_send_json_success( array( 'iframe_url' => Instance::multiSiteHomeURL() ) );
+		$instance = new Instance();
+		$instance->deployNetworkConfigs();
+		wp_send_json_success( array( 'iframe_url' => $instance->multiSiteHomeURL() ) );
 	}
 }

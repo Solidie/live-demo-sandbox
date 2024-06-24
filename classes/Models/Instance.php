@@ -7,6 +7,7 @@
 
 namespace Solidie_Sandbox\Models;
 
+use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Main;
 
 /**
@@ -14,51 +15,71 @@ use Solidie_Sandbox\Main;
  */
 class Instance {
 
-	private static $base_path = 'demo-parent';
-	private static $conf_place = '// multisite_configs';
+	const OPTION_KEY = 'slds_multisite_configs';
+	const CONF_PLACE = '// multisite_configs';
 
-	public static function getBaseDir() {
-		return ABSPATH . self::$base_path;
+	private $configs;
+
+	public function __construct( $configs = null ) {
+		$this->configs = $configs ? $configs :  $this->getConfigs();
 	}
 
-	public static function multiSiteHomeURL( $path = '' ) {
-		$path = $path ? trailingslashit( trim( '/', $path ) ) : '';
-		return get_home_url() . '/' . self::$base_path . '/wordpress/' . $path;
+	private function getBaseDir() {
+		return empty( $this->configs['directory_name'] ) ? null : ABSPATH . $this->configs['directory_name'];
 	}
-	
-	public static function createMultiSite( $override = false ) {
 
-        $db_name     = DB_NAME;
-        $db_user     = DB_USER;
-        $db_password = DB_PASSWORD;
-		$db_host     = DB_HOST;
-		$tbl_prefix  = Main::$configs->db_prefix;
+	public function multiSiteHomeURL() {
+		return get_home_url() . '/' .  $this->configs->directory_name . '/wordpress/';
+	}
+
+	public static function getSourcePath() {
+		return wp_upload_dir()['basedir'] . '/slds-wordpress-latest.zip';
+	}
+
+	/**
+	 * Create multisite using configs
+	 *
+	 * @param array $configs
+	 * @return array
+	 */
+	public function createMultiSite() {
+
+		$site_configs = $this->configs;
+
+        $db_name     = $site_configs['db_name'];
+        $db_user     = $site_configs['db_user'];
+        $db_password = $site_configs['db_password'];
+		$db_host     = $site_configs['db_host'];
+		$tbl_prefix  = $site_configs['table_prefix'] . 'site_';
 
         // Create subsite directory
-        $subsite_path = self::getBaseDir();
+        $subsite_path =  $this->getBaseDir( $site_configs );
 		$exists       = file_exists( $subsite_path );
 
 		if ( $exists ) {
-			if ( ! $override ) {
+			if ( ! ( $site_configs['override'] ?? false ) ) {
 				return array(
-					'success' => false,
-					'message' => __( 'Base instance directory exists already', 'live-demo-sandbox' )
+					'success'   => false,
+					'duplicate' => true,
+					'message'   => __( 'The directory exists already', 'live-demo-sandbox' )
 				);
 			}
 
-			self::deleteMultiSite();
+			$this->deleteMultiSite();
 		}
 
-		set_time_limit(60);
-
-		wp_mkdir_p( $subsite_path );
-			
         // Download WordPress
-        $download_url = 'https://wordpress.org/latest.zip';
-        $zip_file = __DIR__ . '/wordpress-latest.zip'; // $subsite_path . '/latest.zip';
-        // copy( $download_url, $zip_file );
+        $zip_file =  self::getSourcePath();
+		if ( ! file_exists( $zip_file ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'WordPress source file not found!', 'live-demo-sandbox' ),
+			);
+		}
 
         // Unzip the file using WordPress function
+		set_time_limit(60);
+		wp_mkdir_p( $subsite_path );
 		WP_Filesystem();
         $result = unzip_file( $zip_file, $subsite_path, null, array( 'method' => 'direct' ) );
         if ( is_wp_error( $result ) ) {
@@ -78,7 +99,7 @@ class Instance {
 		
         $config = str_replace(
             array( "database_name_here", "username_here", "password_here", "localhost", '$table_prefix = \'wp_\';' ),
-            array( $db_name, $db_user, $db_password, $db_host, $prefix_line . PHP_EOL . "define( 'WP_ALLOW_MULTISITE', true );" . PHP_EOL . self::$conf_place ),
+            array( $db_name, $db_user, $db_password, $db_host, $prefix_line . PHP_EOL . "define( 'WP_ALLOW_MULTISITE', true );" . PHP_EOL .  self::CONF_PLACE ),
             $config_sample
         );
 		if ( strpos( $config, $prefix_line ) === false ) {
@@ -93,21 +114,25 @@ class Instance {
         // Create the database and install WordPress
         // require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         $db = new \wpdb( $db_user, $db_password, $db_name, $db_host );
-        $db->query( "CREATE DATABASE IF NOT EXISTS $db_name" );
+		if ( ! $db->dbh ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Could not connect to database', 'live-demo-sandbox' ),
+			);
+		}
 
 		// Finalize setup
-		$pass = 'k';
 		$payload = array(
-			'weblog_title'    => __( 'Demo Multisite' ),
-			'user_name'       => 'k',
-			'admin_password'  => $pass,
-			'admin_password2' => $pass,
+			'weblog_title'    => $site_configs['site_title'],
+			'admin_email'     => $site_configs['admin_email'],
+			'user_name'       => $site_configs['admin_username'],
+			'admin_password'  => $site_configs['admin_password'],
+			'admin_password2' => $site_configs['admin_password'],
 			'pw_weak'         => 'on',
-			'admin_email'     => 'jayedulk33@gmail.com',
 			'blog_public'     => 0,
 			'Submit'          => 'Install WordPress'
 		);
-		wp_remote_post( self::multiSiteHomeURL() . 'wp-admin/install.php?step=2', array( 'body' => $payload ) );
+		wp_remote_post(  $this->multiSiteHomeURL() . 'wp-admin/install.php?step=2', array( 'body' => $payload ) );
 
 		// Install MU plugin that deploy custom theme and plugins
 		$mu_dir = $subsite_path . '/wordpress/wp-content/mu-plugins';
@@ -116,34 +141,62 @@ class Instance {
 
         return array(
 			'success' => true,
-			'iframe_url' => self::multiSiteHomeURL()
+			'iframe_url' =>  $this->multiSiteHomeURL()
 		);
 	}
 
-	public static function deleteMultiSite() {
+	public function deleteMultiSite() {
 		
 		// Delete all files
-		FileManager::deleteDirectory( self::getBaseDir() );
+		FileManager::deleteDirectory(  $this->getBaseDir() );
 
 		// Delete all db tables
 	}
 
-	public static function createSandbox() {
-		
+	/**
+	 * Get the multisite config from option
+	 *
+	 * @return array
+	 */
+	public static function getConfigs() {
+
+		$defaults = array(
+        	'db_name'      => DB_NAME,
+        	'db_user'      => DB_USER,
+        	'db_password'  => DB_PASSWORD,
+			'db_host'      => DB_HOST,
+			'table_prefix' => Main::$configs->db_prefix
+		);
+
+		$option = _Array::getArray( get_option(  self::OPTION_KEY ) );
+
+		return array_merge( $defaults, $option );
 	}
 
-	public static function deployNetworkConfigs() {
+	public function deployNetworkConfigs() {
 
-        $subsite_path = self::getBaseDir();
-		$config_path  = $subsite_path . '/wordpress/wp-config.php';
+        $subsite_path =  $this->getBaseDir();
+		$config_path  = $subsite_path ? $subsite_path . '/wordpress/wp-config.php' : null;
+
+		if ( ! $config_path || ! file_exists( $config_path ) ) {
+			return;
+		}
+
+		$home_url    = $this->multiSiteHomeURL();
+		$parsed      = parse_url( $home_url );
+		$domain_name = $parsed['host'];
+		$site_path   = $parsed['path'];
 
 		// Add multisite config in php file
 		$multi_site = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/wp-config.php' );
         $config     = file_get_contents( $config_path );
-		file_put_contents( $config_path, str_replace( self::$conf_place, $multi_site, $config ) );
+		$config     = str_replace( '__site_path__', $site_path, $config );
+		$config     = str_replace( '__domain_name__', $domain_name, $config );
+		file_put_contents( $config_path, str_replace( self::CONF_PLACE, $multi_site, $config ) );
 
 		// Add htaccess for multisite
 		$htaccess = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/.htaccess' );
+		$htaccess = str_replace( '__site_path__', $site_path, $htaccess );
         file_put_contents( $subsite_path . '/wordpress/.htaccess', $htaccess ); 
 	}
 }
