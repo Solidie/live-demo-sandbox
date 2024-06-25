@@ -12,7 +12,9 @@ if ( home ) {
 	createRoot(home).render(
 		<MountPoint>
 			<WpDashboardFullPage>
-				<HomeBackend {...getElementDataSet(home)}/>
+				<div className={'padding-15'.classNames()}>
+					<HomeBackend {...getElementDataSet(home)}/>
+				</div>
 			</WpDashboardFullPage>
 		</MountPoint>
 	);

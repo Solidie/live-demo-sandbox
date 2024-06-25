@@ -24,6 +24,14 @@ class AdminPage {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'registerMenu' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueMediaPicker' ) );
+	}
+
+	public function enqueueMediaPicker() {
+		if ( is_admin() && ( $_GET['page'] ?? '' ) === Main::$configs->root_menu_slug ) {
+			wp_enqueue_media();
+			wp_enqueue_script( 'jquery' );
+		}
 	}
 
 	/**
@@ -71,9 +79,14 @@ class AdminPage {
 	 * @return void
 	 */
 	public function homePage() {
+		
+		$instance                 = new Instance();
+		$configs                  = $instance->getConfigs();
+		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
+
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"
-			data-configs="' . esc_attr( wp_json_encode( ( object ) Instance::getConfigs() ) ) . '"
+			data-configs="' . esc_attr( wp_json_encode( ( object ) $configs ) ) . '"
 		></div>';
 	}
 

@@ -3,9 +3,13 @@ import React, { useContext, useEffect, useState } from "react";
 import {request} from 'crewhrm-materials/request.jsx';
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
 import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
-import { __, data_pointer, isEmpty } from "crewhrm-materials/helpers.jsx";
+import { __, data_pointer, isEmpty, purgeBasePath } from "crewhrm-materials/helpers.jsx";
 import { TextField } from "crewhrm-materials/text-field/text-field.jsx";
 import { confirm } from "crewhrm-materials/prompts.jsx";
+import { FileUpload } from "crewhrm-materials/file-upload/file-upload.jsx";
+
+import { HostInstance } from "./host-instance.jsx";
+
 
 export function HomeBackend(props) {
 
@@ -41,6 +45,7 @@ export function HomeBackend(props) {
 		},
 		directory_name: {
 			label: __('Installation Directory Name'),
+			modifier: purgeBasePath,
 			type: 'text',
 			value: 'demo',
 		},
@@ -53,6 +58,7 @@ export function HomeBackend(props) {
 			label: __('Admin Username'),
 			type: 'text',
 			value: user.username,
+			modifier: purgeBasePath
 		},
 		admin_email: {
 			label: __('Admin Email'),
@@ -63,6 +69,13 @@ export function HomeBackend(props) {
 			label: __('Admin Password'),
 			type: 'text',
 			value: 'ZJ3VA^jSxmq9&%k!',
+			modifier: purgeBasePath
+		},
+		extensions: {
+			label: __('Theme and/or plugins to install'),
+			type: 'file',
+			WpMedia: {mime_type: 'application/zip'},
+			removable: true,
 		},
 	}
 		
@@ -176,8 +189,14 @@ export function HomeBackend(props) {
 				deployConfigs();
 
 			} else if ( step === 5 ) {
-				// Reload the page after multisite setup completed
-				window.location.reload();
+				request('multisiteSetupComplete', {}, resp=>{
+					if ( !resp.success ) {
+						ajaxToast(resp);
+					} else {
+						// Reload the page after multisite setup completed
+						window.location.reload();
+					}
+				});
 			}
 		}
 
@@ -187,14 +206,12 @@ export function HomeBackend(props) {
 	}, []);
 
 	if ( configs.setup_complete ) {
-		return <div>
-			All Done
-		</div>
+		return <HostInstance configs={configs}/>
 	}
 
 	const has_empty = field_keys.filter(name=>isEmpty(state.values[name])).length;
 
-	return <div style={{margin: '50px auto', maxWidth: '600px'}}>
+	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		<span className={'d-block margin-bottom-10 font-size-24 font-weight-600 margin-bottom-15'.classNames()}>
 			{__('Sandbox Host')}
 		</span>
@@ -225,19 +242,31 @@ export function HomeBackend(props) {
 						<div>
 							{
 								field_keys.map(name=>{
-									const {type='text', label} = fields[name];
+									const {type='text', label, modifier, removable, WpMedia} = fields[name];
 
-									return <div key={name} className={'margin-bottom-20'.classNames()}>
-										<label className={'d-block margin-bottom-5 font-size-16'.classNames()}>
+									return <div key={name} className={'d-flex align-items-center column-gap-20 margin-bottom-30'.classNames()}>
+										<label style={{width: '200px'}} className={'d-block font-size-16'.classNames()}>
 											{label}
 										</label>
-										{
-											type!=='text' ? null :
-											<TextField
-												value={state.values[name]}
-												onChange={v=>setVal(name, v)}
-											/>
-										}
+										<div className={'flex-1'.classNames()}>
+											{
+												type!=='text' ? null :
+												<TextField
+													value={state.values[name]}
+													onChange={v=>setVal(name, (modifier ? modifier(v) : v))}
+												/>
+											}
+											{
+												type!=='file' ? null :
+												<FileUpload 
+													WpMedia={WpMedia}
+													maxlength={10000}
+													onChange={v=>setVal(name, v)}
+													value={state.values[name] || null}
+													removable={removable}
+												/>
+											}
+										</div>
 									</div>
 								})
 							}

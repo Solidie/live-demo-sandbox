@@ -19,9 +19,17 @@ class Instance {
 	const CONF_PLACE = '// multisite_configs';
 
 	private $configs;
+	private $db;
 
 	public function __construct( $configs = null ) {
+
 		$this->configs = $configs ? $configs :  $this->getConfigs();
+		
+        $db_name     = $this->configs['db_name'];
+        $db_user     = $this->configs['db_user'];
+        $db_password = $this->configs['db_password'];
+		$db_host     = $this->configs['db_host'];
+        $this->db    = new \wpdb( $db_user, $db_password, $db_name, $db_host );
 	}
 
 	private function getBaseDir() {
@@ -29,7 +37,7 @@ class Instance {
 	}
 
 	public function multiSiteHomeURL() {
-		return get_home_url() . '/' .  $this->configs->directory_name . '/wordpress/';
+		return get_home_url() . '/' .  $this->configs['directory_name'] . '/wordpress/';
 	}
 
 	public static function getSourcePath() {
@@ -50,7 +58,7 @@ class Instance {
         $db_user     = $site_configs['db_user'];
         $db_password = $site_configs['db_password'];
 		$db_host     = $site_configs['db_host'];
-		$tbl_prefix  = $site_configs['table_prefix'] . 'site_';
+		$tbl_prefix  = $site_configs['table_prefix'];
 
         // Create subsite directory
         $subsite_path =  $this->getBaseDir( $site_configs );
@@ -74,6 +82,13 @@ class Instance {
 			return array(
 				'success' => false,
 				'message' => __( 'WordPress source file not found!', 'live-demo-sandbox' ),
+			);
+		}
+
+		if ( ! empty( $this->db->last_error ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Could not connect to database', 'live-demo-sandbox' ),
 			);
 		}
 
@@ -111,16 +126,6 @@ class Instance {
 
         file_put_contents( $config_path, $config );
 
-        // Create the database and install WordPress
-        // require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        $db = new \wpdb( $db_user, $db_password, $db_name, $db_host );
-		if ( ! $db->dbh ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Could not connect to database', 'live-demo-sandbox' ),
-			);
-		}
-
 		// Finalize setup
 		$payload = array(
 			'weblog_title'    => $site_configs['site_title'],
@@ -139,6 +144,8 @@ class Instance {
 		wp_mkdir_p( $mu_dir );
 		copy( Main::$configs->dir . '/dist/libraries/snippets/ext-installer.php', $mu_dir . '/sandbox-extension-installer.php' );
 
+		$this->updateConfigs();
+
         return array(
 			'success' => true,
 			'iframe_url' =>  $this->multiSiteHomeURL()
@@ -151,6 +158,24 @@ class Instance {
 		FileManager::deleteDirectory(  $this->getBaseDir() );
 
 		// Delete all db tables
+		$tables = $this->db->get_col(
+			$this->db->prepare(
+				"SHOW TABLES LIKE %s",
+				$this->db->esc_like( $this->configs['table_prefix'] ) . '%'
+			)
+		);
+
+		if ( ! empty( $tables ) && is_array( $tables ) ) {
+			foreach ($tables as $table) {
+				$this->db->query( "DROP TABLE IF EXISTS {$table}" );
+			}
+		}
+
+		delete_option( self::OPTION_KEY );
+	}
+
+	private function updateConfigs( $configs = array() ) {
+		update_option( self::OPTION_KEY, array_merge( $this->configs, $configs ) );
 	}
 
 	/**
@@ -165,7 +190,7 @@ class Instance {
         	'db_user'      => DB_USER,
         	'db_password'  => DB_PASSWORD,
 			'db_host'      => DB_HOST,
-			'table_prefix' => Main::$configs->db_prefix
+			'table_prefix' => Main::$configs->db_prefix . 'sandbox_instance_'
 		);
 
 		$option = _Array::getArray( get_option(  self::OPTION_KEY ) );
@@ -187,16 +212,27 @@ class Instance {
 		$domain_name = $parsed['host'];
 		$site_path   = $parsed['path'];
 
-		// Add multisite config in php file
+		// Add dynamics to multi site configs
 		$multi_site = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/wp-config.php' );
-        $config     = file_get_contents( $config_path );
-		$config     = str_replace( '__site_path__', $site_path, $config );
-		$config     = str_replace( '__domain_name__', $domain_name, $config );
+		$multi_site = str_replace( '__site_path__', $site_path, $multi_site );
+		$multi_site = str_replace( '__domain_name__', $domain_name, $multi_site );
+		
+		// Get current wp-config and add the multisite configs
+        $config = file_get_contents( $config_path );
 		file_put_contents( $config_path, str_replace( self::CONF_PLACE, $multi_site, $config ) );
 
 		// Add htaccess for multisite
 		$htaccess = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/.htaccess' );
 		$htaccess = str_replace( '__site_path__', $site_path, $htaccess );
         file_put_contents( $subsite_path . '/wordpress/.htaccess', $htaccess ); 
+	}
+
+	public function markMultiSiteCompleted() {
+		$this->updateConfigs(
+			array( 
+				'setup_complete' => true,
+				'created_at'     => strtotime( gmdate( 'Y-m-d H:i:s' ) )
+			) 
+		);
 	}
 }

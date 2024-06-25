@@ -16,14 +16,20 @@ class InstanceController {
 
 	const PREREQUISITES = array(
 		'downloadWP' => array(
-
+			'role' => 'administrator',
 		),
 		'initBaseInstance' => array(
-
+			'role' => 'administrator',
 		),
 		'deployNetworkConfigs' => array(
-
+			'role' => 'administrator',
 		),
+		'multisiteSetupComplete' => array(
+			'role' => 'administrator',
+		),
+		'deleteEntireHost' => array(
+			'role' => 'administrator'
+		)
 	);
 
 	/**
@@ -74,5 +80,15 @@ class InstanceController {
 		$instance = new Instance();
 		$instance->deployNetworkConfigs();
 		wp_send_json_success( array( 'iframe_url' => $instance->multiSiteHomeURL() ) );
+	}
+
+	public static function multisiteSetupComplete() {
+		( new Instance() )->markMultiSiteCompleted();
+		wp_send_json_success();
+	}
+
+	public static function deleteEntireHost() {
+		( new Instance() )->deleteMultiSite();
+		wp_send_json_success();
 	}
 }
