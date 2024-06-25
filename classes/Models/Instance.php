@@ -37,7 +37,7 @@ class Instance {
 	}
 
 	public function multiSiteHomeURL() {
-		return get_home_url() . '/' .  $this->configs['directory_name'] . '/wordpress/';
+		return ! empty( $this->configs['directory_name'] ) ? get_home_url() . '/' .  $this->configs['directory_name'] . '/wordpress/' : null;
 	}
 
 	public static function getSourcePath() {
@@ -61,7 +61,7 @@ class Instance {
 		$tbl_prefix  = $site_configs['table_prefix'];
 
         // Create subsite directory
-        $subsite_path =  $this->getBaseDir( $site_configs );
+        $subsite_path = $this->getBaseDir();
 		$exists       = file_exists( $subsite_path );
 
 		if ( $exists ) {
@@ -93,7 +93,7 @@ class Instance {
 		}
 
         // Unzip the file using WordPress function
-		set_time_limit(60);
+		set_time_limit(160);
 		wp_mkdir_p( $subsite_path );
 		WP_Filesystem();
         $result = unzip_file( $zip_file, $subsite_path, null, array( 'method' => 'direct' ) );
@@ -139,17 +139,57 @@ class Instance {
 		);
 		wp_remote_post(  $this->multiSiteHomeURL() . 'wp-admin/install.php?step=2', array( 'body' => $payload ) );
 
-		// Install MU plugin that deploy custom theme and plugins
-		$mu_dir = $subsite_path . '/wordpress/wp-content/mu-plugins';
-		wp_mkdir_p( $mu_dir );
-		copy( Main::$configs->dir . '/dist/libraries/snippets/ext-installer.php', $mu_dir . '/sandbox-extension-installer.php' );
+		// Install necessary plugins into plugins directory
+		$this->installExtensions( $site_configs );
 
+		// Save the configs into database
 		$this->updateConfigs();
 
         return array(
 			'success' => true,
 			'iframe_url' =>  $this->multiSiteHomeURL()
 		);
+	}
+
+	private function installExtensions( $site_configs ) {
+
+		$content_dir = $this->getBaseDir() . '/wordpress/wp-content';
+
+		// Install custom theme and plugins
+		$extensions = _Array::getArray( $site_configs['plugins'] ?? null ); 
+		$extensions = array_column( $extensions, 'file_id' ); 
+		$extensions = array_map( 'intval', array_filter( $extensions, 'is_numeric' ) );
+		$extensions = array_map( function( $file_id ) {
+			return array( 
+				'file_id' => $file_id, 
+				'type'    => 'plugin',
+				'network' => true,
+			); 
+		}, $extensions );
+
+		// Add theme to the 
+		if ( is_array( $site_configs['theme'] ?? null ) && isset( $site_configs['theme']['file_id'] ) ) {
+			$extensions[] = array(
+				'file_id' => $site_configs['theme']['file_id'],
+				'type'    => 'theme',
+				'network' => true,
+			);
+		}
+
+		foreach ( $extensions as $index => $extension ) {
+			$file_path = get_attached_file( $extension['file_id'] );
+			$extensions[ $index ]['dir_name'] = FileManager::getOnlyFolderNameInZip( $file_path );
+			$target_dir = $extension['type'] == 'plugin' ? 'plugins' : 'themes';
+			unzip_file( $file_path, $content_dir . '/' . $target_dir, null, array( 'method' => 'direct' ) );
+		}
+
+		// Install MU plugin that activates custom theme and plugins
+		$mu_dir = $content_dir . '/mu-plugins';
+		wp_mkdir_p( $mu_dir );
+		
+		$ext_codes = file_get_contents( Main::$configs->dir . '/dist/libraries/snippets/ext-installer.php' );
+		$ext_codes = str_replace( '// dynamics', '$slds_load_extensions = \'' . wp_json_encode( $extensions ) . '\';', $ext_codes );
+		file_put_contents( $mu_dir . '/sandbox-extension-installer.php', $ext_codes );
 	}
 
 	public function deleteMultiSite() {
@@ -175,7 +215,18 @@ class Instance {
 	}
 
 	private function updateConfigs( $configs = array() ) {
-		update_option( self::OPTION_KEY, array_merge( $this->configs, $configs ) );
+
+		$options = array_merge( $this->configs, $configs );
+
+		if ( isset( $options['plugins'] ) ) {
+			unset( $options['plugins'] );
+		}
+
+		if ( isset( $options['theme'] ) ) {
+			unset( $options['theme'] );
+		}
+
+		update_option( self::OPTION_KEY, $options );
 	}
 
 	/**

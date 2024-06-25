@@ -7,7 +7,7 @@
  * Author: Solidie
  * Author URI: https://solidie.com
  * Requires at least: 5.3
- * Tested up to: 6.5.4
+ * Tested up to: 6.5.5
  * Requires PHP: 7.4
  * License: GPLv3
  * License URI: https://opensource.org/licenses/GPL-3.0
@@ -16,8 +16,7 @@
  * @package live-demo-sandbox
  */
 
-if ( ! defined( 'ABSPATH' ) ) { exit;
-}
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Load autoloader
 require_once __DIR__ . '/classes/Main.php';

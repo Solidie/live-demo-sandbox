@@ -13,16 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * This plugin will be copied to multiste setup, and will work there only.
  */
 
-add_action( 'wp_footer', '_slds_multisite_scripts_load' );
-add_action( 'admin_footer', '_slds_multisite_scripts_load' );
+add_action( 'wp_head', '_slds_multisite_scripts_load' );
+add_action( 'admin_head', '_slds_multisite_scripts_load' );
 
+add_action( 'wp_ajax_slds_complete_setup', '_slds_complete_setup' );
 add_action( 'wp_ajax_slds_login_to_admin', '_slds_admin_login' );
 add_action( 'wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login' );
 
+function _slds_complete_setup() {
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Access denied!', 'live-demo-sandbox' ) ) );
+	}
+
+	update_option( 'slds_setup_complete', true );
+	wp_send_json_success();
+}
+
 function _slds_admin_login () {
-	if ( get_option( 'slds_multisite_setup_complete' ) ) {
+
+	if ( get_option( 'slds_setup_complete' ) ) {
 		wp_send_json_error( array( 'message' => 'This action is expired as multisite setup completed' ) );
 	}
+	
 	wp_set_current_user( 1 );
 	wp_set_auth_cookie( 1 );
 	wp_send_json_success( array( 'message' => 'Login successful' ) );
@@ -30,6 +43,9 @@ function _slds_admin_login () {
 
 function _slds_multisite_scripts_load() {
 	
+	$slds_load_extensions = '[]';
+	// dynamics
+
 	$intent          = '';
 	$url_after_login = '';
 	$ext_map         = array();
@@ -88,7 +104,37 @@ function _slds_multisite_scripts_load() {
 		const _slds_net_url  = '<?php echo $url_after_login; ?>';
 		const _slds_ajax_url = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
 		const _slds_intent   = '<?php echo $intent; ?>';
-		const _slds_exts     = <?php echo wp_json_encode( $ext_map ); ?>;
+		const _slds_exts     = <?php echo wp_json_encode( $slds_load_extensions ); ?>;
+		const _slds_complete = <?php echo get_option( 'slds_setup_complete' ) ? 1 : 0; ?>
+
+		function slds_fetch_request(action, data, callback) {
+			
+			data = {...data, action};
+			const payload = new URLSearchParams();
+			for ( k in data) {
+				payload.append(k, data[k]);
+			}
+			
+			fetch(_slds_ajax_url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: payload
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok ' + response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {
+				callback(data);
+			})
+			.catch(error => {
+				alert('Request error');
+			});
+		}
 
 		window.addEventListener('load', function(){
 
@@ -98,29 +144,14 @@ function _slds_multisite_scripts_load() {
 					const data = new URLSearchParams();
         			data.append('action', 'slds_login_to_admin');
 
-					fetch(_slds_ajax_url, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded'
-						},
-						body: data
-					})
-					.then(response => {
-						if (!response.ok) {
-							throw new Error('Network response was not ok ' + response.statusText);
-						}
-						return response.json();
-					})
-					.then(data => {
-						if ( ! data?.success ) {
+					slds_fetch_request('slds_login_to_admin', {}, resp=>{
+						if ( ! resp?.success ) {
 							alert('Multisite admin login failed');
 							return;
 						}
 						window.location.assign(_slds_net_url);
-					})
-					.catch(error => {
-						alert('Multisite admin login error');
 					});
+					
 					break;
 				
 				case 'setup' :
@@ -138,24 +169,32 @@ function _slds_multisite_scripts_load() {
 					break;
 
 				case 'extension' :
-					if ( ! window.parent ) {
+					if ( ! window.parent || _slds_complete ) {
 						break;
 					}
 
 					let found = false;
 					for ( let i=0; i<_slds_exts.length; i++ ) {
-						const {basename, type, network} = _slds_exts[i];
-						const anchor = window.jQuery(`[data-plugin="${basename}"] span.activate a`);
-						if ( anchor.length ) {
+						const {dir_name, type, network=false} = _slds_exts[i];
+						const anchor = window.jQuery(`[data-plugin^="${dir_name}/"] span.activate a`);
+						if ( network && anchor.length ) {
 							found = true;
 							window.location.assign(anchor.attr('href'));
 						}
 					}
 
 					if ( ! found ) {
-						window.parent.window._slds_deployment_hook(5);
+						slds_fetch_request('slds_complete_setup', {}, resp=>{
+							if ( ! resp?.success ) {
+								alert('Could not mark as setup complete');
+								return;
+							}
+							
+							if ( window.parent?._slds_deployment_hook ) {
+								window.parent._slds_deployment_hook(5);		
+							}	
+						});
 					}
-					
 					break;
 
 				case 'redirect' :

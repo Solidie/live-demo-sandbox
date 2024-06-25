@@ -76,4 +76,44 @@ class FileManager {
 		return rmdir($folder);
 	}
 
+	public static function getOnlyFolderNameInZip( $zipFilePath ) {
+
+		$zip = new \ZipArchive;
+		
+		if ( $zip->open( $zipFilePath ) === true ) {
+
+			$folderName  = null;
+			$folderCount = 0;
+
+			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
+
+				$stat     = $zip->statIndex( $i );
+				$fileName = $stat['name'];
+				
+				// Check if the entry is a directory
+				if ( substr( $fileName, -1 ) == '/' ) {
+
+					// Extract the top-level directory name
+					$dirName = explode( '/', $fileName )[0];
+					
+					// If we haven't set a folder name yet, set it
+					if ( $folderName === null ) {
+						$folderName = $dirName;
+						$folderCount++;
+					} elseif ( $folderName !== $dirName ) {
+						// If we find a different folder name, return null (more than one folder)
+						$zip->close();
+						return null;
+					}
+				}
+			}
+
+			$zip->close();
+
+			// Return the folder name if exactly one folder is found, otherwise null
+			return $folderCount === 1 ? $folderName : null;
+		} else {
+			return null;
+		}
+	}
 }

@@ -71,11 +71,20 @@ export function HomeBackend(props) {
 			value: 'ZJ3VA^jSxmq9&%k!',
 			modifier: purgeBasePath
 		},
-		extensions: {
-			label: __('Theme and/or plugins to install'),
+		plugins: {
+			label: __('Plugins to install'),
+			type: 'file',
+			WpMedia: {mime_type: 'application/zip'},
+			maxlength: 1000,
+			removable: true,
+			optional: true
+		},
+		theme: {
+			label: __('Theme to install'),
 			type: 'file',
 			WpMedia: {mime_type: 'application/zip'},
 			removable: true,
+			optional: true,
 		},
 	}
 		
@@ -209,7 +218,7 @@ export function HomeBackend(props) {
 		return <HostInstance configs={configs}/>
 	}
 
-	const has_empty = field_keys.filter(name=>isEmpty(state.values[name])).length;
+	const has_empty = field_keys.filter(name=>!fields[name].optional && isEmpty(state.values[name])).length;
 
 	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		<span className={'d-block margin-bottom-10 font-size-24 font-weight-600 margin-bottom-15'.classNames()}>
@@ -242,7 +251,7 @@ export function HomeBackend(props) {
 						<div>
 							{
 								field_keys.map(name=>{
-									const {type='text', label, modifier, removable, WpMedia} = fields[name];
+									const {type='text', label, modifier, removable, WpMedia, maxlength} = fields[name];
 
 									return <div key={name} className={'d-flex align-items-center column-gap-20 margin-bottom-30'.classNames()}>
 										<label style={{width: '200px'}} className={'d-block font-size-16'.classNames()}>
@@ -260,11 +269,18 @@ export function HomeBackend(props) {
 												type!=='file' ? null :
 												<FileUpload 
 													WpMedia={WpMedia}
-													maxlength={10000}
+													maxlength={maxlength}
 													onChange={v=>setVal(name, v)}
 													value={state.values[name] || null}
 													removable={removable}
 												/>
+											}
+
+											{
+												(name !== 'plugins' || (state.values[name]?.length || 0)<2) ? null :
+												<span className={'d-block font-size-13 color-text-70 margin-top-5'.classNames()}>
+													{__('Plugins will be installed according to the order you see')}
+												</span>
 											}
 										</div>
 									</div>
