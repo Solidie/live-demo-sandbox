@@ -32,6 +32,37 @@ class Instance {
         $this->db    = new \wpdb( $db_user, $db_password, $db_name, $db_host );
 	}
 
+	public static function getInstancePath() {
+		return apply_filters( 'slds_get_instance_path', 'live-demo-sandbox-instance' );
+	}
+
+	public static function getInstanceURL() {
+		return get_home_url() . '/' . self::getInstancePath() . '/';
+	}
+
+	public function getSandboxURL( $sandbox_id, $site_id, $site_path ) {
+
+		global $wpdb;
+		$sandbox = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT 
+					* 
+				FROM 
+					{$wpdb->slds_sandboxes} 
+				WHERE 
+					sandbox_id=%d AND 
+					site_id=%d AND 
+					site_path=%s",
+				$sandbox_id,
+				$site_id,
+				$site_path
+			),
+			ARRAY_A
+		);
+
+		return ! empty( $sandbox ) ?  $this->multiSiteHomeURL() . $sandbox['site_path'] . '/' : null;
+	}
+
 	private function getBaseDir() {
 		return empty( $this->configs['directory_name'] ) ? null : ABSPATH . $this->configs['directory_name'];
 	}
@@ -284,6 +315,65 @@ class Instance {
 				'setup_complete' => true,
 				'created_at'     => strtotime( gmdate( 'Y-m-d H:i:s' ) )
 			) 
+		);
+	}
+
+	public static function getUserIP() {
+
+		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+			$ip = $_SERVER['HTTP_CLIENT_IP'];
+
+		} else if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+		} else {
+			$ip = $_SERVER['REMOTE_ADDR'] ?? null;
+		}
+		
+		return $ip;
+	}
+
+	public function createSandboxSite() {
+		$request = wp_remote_post( 
+			$this->multiSiteHomeURL() . 'wp-admin/admin-ajax.php',
+			array(
+				'body' => array(
+					'action' => '_slds_create_multisite',
+					'role'   => 'administrator'
+				)
+			)
+		);
+		
+		$response          = ( ! is_wp_error( $request ) && is_array( $request ) ) ? @json_decode( $request['body'] ?? null ) : null;
+		$response          = is_object( $response ) ? $response : new \stdClass();
+		$response->success = $response->success ?? false;
+		$response->data    = $response->data ?? new \stdClass();
+		
+		if ( ! $response->success ) {
+			return false;
+		}
+
+		$timestamp = gmdate( 'Y-m-d H:i:s' );
+		$minutes     = 30;
+
+		global $wpdb;
+		$wpdb->insert(
+			$wpdb->slds_sandboxes,
+			array(
+				'site_id'    => $response->data->site_id,
+				'site_title' => $response->data->site_title,
+				'user_ip'    => self::getUserIP(),
+				'site_path'  => $response->data->site_path,
+				'created_at' => $timestamp,
+				'expires_at' => ( new \DateTime( $timestamp ) )->modify( "+{$minutes} minutes")->format('Y-m-d')
+			)
+		);
+		
+		return array(
+			'sandbox_id' => $wpdb->insert_id,
+			'site_id'    => $response->data->site_id,
+			'site_path'    => $response->data->site_path,
+			'url'        => $this->multiSiteHomeURL() . $response->data->site_path . '/',
 		);
 	}
 }

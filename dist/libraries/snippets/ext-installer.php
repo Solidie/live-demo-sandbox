@@ -19,6 +19,42 @@ add_action( 'admin_head', '_slds_multisite_scripts_load' );
 add_action( 'wp_ajax_slds_complete_setup', '_slds_complete_setup' );
 add_action( 'wp_ajax_slds_login_to_admin', '_slds_admin_login' );
 add_action( 'wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login' );
+add_action( 'wp_ajax_nopriv_slds_create_multisite', '_slds_create_multisite' );
+
+function _slds_create_multisite() {
+	
+	$parsed = parse_url( get_home_url() );
+
+	// Define the site details
+	$domain  = $parsed['host'];
+	$path    = 'sandbox-' . md5( time() . microtime() );
+	$title   = 'New Subsite';
+	$user_id = 1;
+	$meta    = array(
+		'public' => 1
+	);
+
+	// Check if the path already exists
+	if ( domain_exists( $domain, $path ) === false) {
+
+		$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
+
+		if ( is_wp_error( $new_site_id ) ) {
+			wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
+		}
+
+		wp_send_json_success(
+			array(
+				'site_id'    => $new_site_id,
+				'site_path'  => $path,
+				'site_title' => $title
+			)
+		);
+
+	} else {
+		wp_send_json_error( 'The subsite path already exists.', 'live-demo-sandbox' );
+	}
+}
 
 function _slds_complete_setup() {
 
@@ -26,7 +62,7 @@ function _slds_complete_setup() {
 		wp_send_json_error( array( 'message' => __( 'Access denied!', 'live-demo-sandbox' ) ) );
 	}
 
-	update_option( 'slds_setup_complete', true );
+	update_option( 'slds_setup_complete', true, true );
 	wp_send_json_success();
 }
 
@@ -48,8 +84,8 @@ function _slds_multisite_scripts_load() {
 
 	$intent          = '';
 	$url_after_login = '';
-	$ext_map         = array();
 	$redirect_url    = '';
+	$setup_complete  = get_option( 'slds_setup_complete' ) ;
 
 	if ( ! is_multisite() ) {
 
@@ -72,7 +108,8 @@ function _slds_multisite_scripts_load() {
 	} else if ( ! is_user_logged_in() ) {
 		$intent = 'login';
 		$url_after_login = admin_url( 'plugins.php' );
-	} else {
+
+	} else if ( ! $setup_complete ) {
 		
 		$found = false;
 
@@ -82,13 +119,6 @@ function _slds_multisite_scripts_load() {
 				if ( $screen->id === 'plugins-network' && $screen->base === 'plugins-network' ) {
 					$found = true;
 					$intent = 'extension';
-					$ext_map = array(
-						array(
-							'basename' => 'akismet/akismet.php',
-							'network'  => true,
-							'type'     => 'plugin'
-						)
-					);
 				}
 			}
 		}
@@ -101,11 +131,11 @@ function _slds_multisite_scripts_load() {
 
 	?>
 	<script>
-		const _slds_net_url  = '<?php echo $url_after_login; ?>';
-		const _slds_ajax_url = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-		const _slds_intent   = '<?php echo $intent; ?>';
-		const _slds_exts     = <?php echo wp_json_encode( $slds_load_extensions ); ?>;
-		const _slds_complete = <?php echo get_option( 'slds_setup_complete' ) ? 1 : 0; ?>
+		const _slds_net_url                  = '<?php echo $url_after_login; ?>';
+		const _slds_ajax_url                 = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
+		const _slds_intent                   = '<?php echo $intent; ?>';
+		const _slds_exts                     = <?php echo $slds_load_extensions; ?>;
+		const {_slds_deployment_hook=()=>{}} = window.parent;
 
 		function slds_fetch_request(action, data, callback) {
 			
@@ -160,19 +190,11 @@ function _slds_multisite_scripts_load() {
 						button.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
 						button.click();
 					} else {
-						if ( window.parent?.window._slds_deployment_hook ) {
-							window.parent.window._slds_deployment_hook(3);
-						} else {
-							alert('This page is supposed to be loaded in iframe');
-						}
+						_slds_deployment_hook(3);
 					}
 					break;
 
 				case 'extension' :
-					if ( ! window.parent || _slds_complete ) {
-						break;
-					}
-
 					let found = false;
 					for ( let i=0; i<_slds_exts.length; i++ ) {
 						const {dir_name, type, network=false} = _slds_exts[i];
@@ -189,10 +211,8 @@ function _slds_multisite_scripts_load() {
 								alert('Could not mark as setup complete');
 								return;
 							}
-							
-							if ( window.parent?._slds_deployment_hook ) {
-								window.parent._slds_deployment_hook(5);		
-							}	
+
+							_slds_deployment_hook(5);
 						});
 					}
 					break;

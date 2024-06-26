@@ -6,14 +6,23 @@ import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
 import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
 
+const section_class = 'bg-color-white box-shadow-thin padding-vertical-20 padding-horizontal-15 border-radius-8 margin-bottom-20'.classNames();
+
 export function HostInstance({configs={}}) {
 
 	const {ajaxToast} = useContext(ContextToast); 
-	const {dashboard_url} = configs;
+	const {dashboard_url, sandbox_url} = configs;
 
 	const [state, setState] = useState({
-		deleting_host: false
-	})
+		deleting_host: false,
+		filters: {
+			page: 1
+		}
+	});
+
+	const getSandboxes=()=>{
+
+	}
 
 	const deleteInstance=()=>{
 		confirm(
@@ -41,7 +50,7 @@ export function HostInstance({configs={}}) {
 	}
 
 	return <div style={{margin: '50px auto', maxWidth: '600px'}}>
-		<div className={'d-flex align-items-center column-gap-15 bg-color-white box-shadow-thin padding-vertical-20 padding-horizontal-15 border-radius-8 margin-bottom-20'.classNames()}>
+		<div className={'d-flex align-items-center column-gap-15'.classNames() + section_class}>
 			<div className={'flex-1'.classNames()}>
 				<span className={'font-size-18 font-weight-700'.classNames()}>
 					{__('Sandbox Host')}
@@ -68,10 +77,22 @@ export function HostInstance({configs={}}) {
 			</div>
 		</div>
 
-		<div className={'bg-color-white box-shadow-thin padding-vertical-20 padding-horizontal-15 border-radius-8'.classNames()}>
-			<span className={'font-size-16 font-weight-600 margin-bottom-15'.classNames()}>
-				{__('Sandboxes')}
-			</span>
+		<div className={section_class}>
+			<div className={'d-flex align-items-center column-gap-15'.classNames()}>
+				<div className={'flex-1'.classNames()}>
+					<span className={'font-size-16 font-weight-600 margin-bottom-15'.classNames()}>
+						{__('Sandboxes')}
+					</span>
+				</div>
+				<div>
+					<i 
+						className={'ch-icon ch-icon-reload color-primary-90 interactive cursor-pointer'.classNames()}
+						onClick={getSandboxes}
+						title={__('Refresh Sandbox List')}
+					></i>
+				</div>
+			</div>
+			
 			<table className={'table no-responsive'.classNames()}>
 				<thead>
 					<tr>
@@ -84,6 +105,13 @@ export function HostInstance({configs={}}) {
 
 				</tbody>
 			</table>
+		</div>
+
+		<div className={section_class}>
+			<span className={'d-block'.classNames()}>
+				Use this URL as live demo link.
+			</span>
+			{sandbox_url}
 		</div>
 	</div> 
 }

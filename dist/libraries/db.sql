@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Jun 24, 2024 at 10:33 AM
+-- Generation Time: Jun 26, 2024 at 10:41 AM
 -- Server version: 5.7.39
 -- PHP Version: 8.2.0
 
@@ -24,30 +24,15 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `wp_slds_hits`
+-- Table structure for table `wp_slds_demo_sandboxes`
 --
 
-CREATE TABLE IF NOT EXISTS `wp_slds_hits` (
-  `hit_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `sandbox_id` mediumint(8) UNSIGNED NOT NULL,
-  `the_url` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `hit_count` bigint(20) NOT NULL,
-  PRIMARY KEY (`hit_id`),
-  KEY `sandbox_id` (`sandbox_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `wp_slds_sandboxes`
---
-
-CREATE TABLE IF NOT EXISTS `wp_slds_sandboxes` (
+CREATE TABLE IF NOT EXISTS `wp_slds_demo_sandboxes` (
   `sandbox_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `site_title` varchar(400) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `site_url` varchar(400) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `site_path` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `site_id` mediumint(8) UNSIGNED NOT NULL,
-  `user_ip_address` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `user_ip` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expires_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`sandbox_id`)

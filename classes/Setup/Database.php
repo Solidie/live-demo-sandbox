@@ -66,8 +66,6 @@ class Database {
 
 		// WP and Plugin prefix
 		$prefix = $wpdb->prefix . Main::$configs->db_prefix;
-
 		$wpdb->slds_sandboxes = $prefix . 'sandboxes';
-		$wpdb->slds_hits      = $prefix . 'hits';
 	}
 }

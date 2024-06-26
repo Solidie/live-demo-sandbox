@@ -83,6 +83,7 @@ class AdminPage {
 		$instance                 = new Instance();
 		$configs                  = $instance->getConfigs();
 		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
+		$configs['sandbox_url']   = $instance->getInstanceURL();
 
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"

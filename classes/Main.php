@@ -12,6 +12,7 @@ use Solidie_Sandbox\Helpers\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
 use Solidie_Sandbox\Setup\Database;
 use Solidie_Sandbox\Setup\Dispatcher;
+use Solidie_Sandbox\Setup\Sandbox;
 use Solidie_Sandbox\Setup\Scripts;
 
 /**
@@ -57,6 +58,7 @@ class Main {
 		new Dispatcher();
 		new Scripts();
 		new AdminPage();
+		new Sandbox();
 		
 		do_action( 'slds_loaded' );
 	}
