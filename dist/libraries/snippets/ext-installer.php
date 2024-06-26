@@ -27,7 +27,7 @@ function _slds_create_multisite() {
 
 	// Define the site details
 	$domain  = $parsed['host'];
-	$path    = 'sandbox-' . md5( time() . microtime() );
+	$path    = trim( $parsed['path'], '/' ) . '/sandbox-' . md5( time() . microtime() );
 	$title   = 'New Subsite';
 	$user_id = 1;
 	$meta    = array(
@@ -35,7 +35,7 @@ function _slds_create_multisite() {
 	);
 
 	// Check if the path already exists
-	if ( domain_exists( $domain, $path ) === false) {
+	if ( ! domain_exists( $domain, $path ) ) {
 
 		$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
 
@@ -52,7 +52,7 @@ function _slds_create_multisite() {
 		);
 
 	} else {
-		wp_send_json_error( 'The subsite path already exists.', 'live-demo-sandbox' );
+		wp_send_json_error( array( 'message' => __( 'The subsite path already exists.', 'live-demo-sandbox' ) ) );
 	}
 }
 
@@ -85,8 +85,12 @@ function _slds_multisite_scripts_load() {
 	$intent          = '';
 	$url_after_login = '';
 	$redirect_url    = '';
-	$setup_complete  = get_option( 'slds_setup_complete' ) ;
 
+	// Don't load scripts if setup is completed already.
+	if ( ! is_main_site() || get_option( 'slds_setup_complete' ) ) {
+		return;
+	}
+	
 	if ( ! is_multisite() ) {
 
 		if ( ! is_user_logged_in() ) {
@@ -109,7 +113,7 @@ function _slds_multisite_scripts_load() {
 		$intent = 'login';
 		$url_after_login = admin_url( 'plugins.php' );
 
-	} else if ( ! $setup_complete ) {
+	} else {
 		
 		$found = false;
 

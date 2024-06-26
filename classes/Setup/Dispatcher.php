@@ -12,6 +12,7 @@ use Solidie_Sandbox\Models\User;
 use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Controllers\InstanceController;
 use Error;
+use Solidie_Sandbox\Controllers\SandboxController;
 
 /**
  * Dispatcher class
@@ -25,6 +26,7 @@ class Dispatcher {
 	 */
 	private static $controllers = array(
 		InstanceController::class,
+		SandboxController::class,
 	);
 
 	/**

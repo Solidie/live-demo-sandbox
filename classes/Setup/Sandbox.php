@@ -9,6 +9,7 @@ namespace Solidie_Sandbox\Setup;
 
 use Solidie_Sandbox\Main;
 use Solidie_Sandbox\Models\Instance;
+use Solidie_Sandbox\Models\Sandbox as ModelsSandbox;
 
 /**
  * Sandbox class
@@ -28,25 +29,30 @@ class Sandbox {
 		$path     = end( $path );
 
 		// Check if if the path is targeted URL to hit
-		$instance = new Instance();
+		$instance = new ModelsSandbox();
 		if ( $path !== $instance->getInstancePath() ) {
 			return;
 		}
 
-		$pointer   = explode( '_', ( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ;
-		$sand_id   = $pointer[0] ?? null;
-		$site_id   = $pointer[1] ?? null;
-		$site_path = $pointer[2] ?? null;
-		$url       = null;
+		$pointer    = explode( '_', ( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ;
+		$sandbox_id = $pointer[0] ?? null;
+		$site_id    = $pointer[1] ?? null;
+		$site_path  = $pointer[2] ?? null;
+		$url        = null;
 
-		if ( $sand_id && $site_id && is_numeric( $sand_id ) && is_numeric( $site_id ) && ! empty( $site_path ) ) {
+		if ( $sandbox_id && $site_id && is_numeric( $sandbox_id ) && is_numeric( $site_id ) && ! empty( $site_path ) ) {
 			// Redirect to the target sandbox site
-			$url = $instance->getSandboxURL( $sand_id, $site_id, $site_path );
+			$sandbox = $instance->getSandbox( compact( $sandbox_id, $site_id, $site_path ) );
+			$url     = $sandbox ? $sandbox['home_url'] : null;
 		} else {
 			// Create a sandbox site and then redirect to it
 			$data = $instance->createSandboxSite();
-			if ( ! $data ) {
-				wp_send_json_error( array( 'message' => __( 'Something went wrong! Could not created sandbox.', 'live-demo-sandbox' ) ) );
+			if ( ! $data['success'] ) {
+				wp_send_json_error(
+					array( 
+						'message' => $data['message'] ?? __( 'Could not created sandbox.', 'live-demo-sandbox' ) 
+					) 
+				);
 			}
 
 			$url  = $data['url'];

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Jun 26, 2024 at 10:41 AM
+-- Generation Time: Jun 26, 2024 at 04:17 PM
 -- Server version: 5.7.39
 -- PHP Version: 8.2.0
 
@@ -29,8 +29,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `wp_slds_demo_sandboxes` (
   `sandbox_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `site_title` varchar(400) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `site_path` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `site_title` varchar(1000) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `site_path` varchar(1000) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `site_id` mediumint(8) UNSIGNED NOT NULL,
   `user_ip` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
