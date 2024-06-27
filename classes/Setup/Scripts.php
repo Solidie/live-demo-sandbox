@@ -116,8 +116,8 @@ class Scripts {
 
 		?>
 		<script>
-			window.<?php echo $pointer; ?> = <?php echo wp_json_encode( $data ); ?>;
-			window.<?php echo $pointer; ?>pro = window.<?php echo $pointer; ?>;
+			window.<?php echo esc_html( $pointer ); ?> = <?php echo wp_json_encode( $data ); ?>;
+			window.<?php echo esc_html( $pointer ); ?>pro = window.<?php echo esc_html( $pointer ); ?>;
 		</script>
 		<?php
 	}

@@ -22,7 +22,7 @@ class Sandbox {
 
 	public function createSandbox() {
 
-		$parsed   = parse_url( Main::$configs->current_url );
+		$parsed   = wp_parse_url( Main::$configs->current_url );
 		$path     = $parsed['path'];
 		$path     = trim( $path, '/' );
 		$path     = explode( '/', $path );
@@ -42,9 +42,11 @@ class Sandbox {
 
 		if ( $sandbox_id && $site_id && is_numeric( $sandbox_id ) && is_numeric( $site_id ) && ! empty( $site_path ) ) {
 			// Redirect to the target sandbox site
-			$sandbox = $instance->getSandbox( compact( $sandbox_id, $site_id, $site_path ) );
+			$sandbox = $instance->getSandbox( compact( 'sandbox_id', 'site_id', 'site_path' ) );
 			$url     = $sandbox ? $sandbox['home_url'] : null;
-		} else {
+		} 
+		
+		if ( empty( $url ) ) {
 			// Create a sandbox site and then redirect to it
 			$data = $instance->createSandboxSite();
 			if ( ! $data['success'] ) {
@@ -59,8 +61,8 @@ class Sandbox {
 			setcookie( 
 				'slds_sandbox_pointer', 
 				"{$data['sandbox_id']}_{$data['site_id']}_{$data['site_path']}",
-				time() + (30 * 24 * 60 * 60), // 30 days
-				parse_url( get_home_url() )['path'],
+				time() + (6 * 60 * 60), // 6 hours
+				wp_parse_url( get_home_url() )['path'],
 			);
 		}
 

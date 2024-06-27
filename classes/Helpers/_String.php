@@ -11,51 +11,7 @@ namespace Solidie_Sandbox\Helpers;
  * String handler class
  */
 class _String {
-	/**
-	 * Allowed html elements for kses
-	 *
-	 * @var array
-	 */
-	private static $allowed_html = array(
-		'a',
-		'b',
-		'br',
-		'code',
-		'del',
-		'div',
-		'em',
-		'i',
-		'ins',
-		'kbd',
-		'li',
-		'ol',
-		'p',
-		'small',
-		'span',
-		'strong',
-		'sub',
-		'sup',
-		'u',
-		'ul',
-	);
-
-	/**
-	 * Allowed attributes for kses
-	 *
-	 * @var array
-	 */
-	private static $allowed_attributes = array(
-		'style'  => array(),
-		'class'  => array(),
-		'id'     => array(),
-		'href'   => array(),
-		'alt'    => array(),
-		'title'  => array(),
-		'width'  => array(),
-		'height' => array(),
-		'size'   => array(),
-	);
-
+	
 	/**
 	 * Generate random string
 	 *
@@ -75,42 +31,6 @@ class _String {
 		}
 
 		return $string . $postfix;
-	}
-
-	/**
-	 * Apply kses filter on string
-	 *
-	 * @param string $string The string to apply kses filter
-	 * @param bool   $echo Whether to echo rather than return or not
-	 * @return string
-	 */
-	public static function applyKses( string $string, $echo = false ) {
-		
-		// For now return direct string. Because users might write code snippet for content, articles, comments etc.
-		$string = preg_replace( '#<script(.*?)>(.*?)</script>#is', '', $string );
-
-		/* static $allowed = null;
-
-		// Prepare allowed array only once by defining as static
-		if ( null === $allowed ) {
-
-			$allowed = array();
-
-			// Loop through tags
-			foreach ( self::$allowed_html as $tag ) {
-
-				// And assign supported attributes per tag
-				$allowed[ $tag ] = self::$allowed_attributes;
-			}
-		} 
-		
-		$string = wp_kses( $string, $allowed ); */
-
-		if ( $echo ) {
-			echo $string;
-		} else {
-			return $string;
-		}
 	}
 
 	/**

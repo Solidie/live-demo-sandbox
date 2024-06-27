@@ -273,12 +273,12 @@ class Instance {
 		}
 
 		$home_url    = $this->multiSiteHomeURL();
-		$parsed      = parse_url( $home_url );
+		$parsed      = wp_parse_url( $home_url );
 		$domain_name = $parsed['host'];
 		$site_path   = $parsed['path'];
 
 		// Add dynamics to multi site configs
-		$multi_site = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/wp-config.php' );
+		$multi_site = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/wp-config.txt' );
 		$multi_site = str_replace( '__site_path__', $site_path, $multi_site );
 		$multi_site = str_replace( '__domain_name__', $domain_name, $multi_site );
 		
@@ -287,7 +287,7 @@ class Instance {
 		file_put_contents( $config_path, str_replace( self::CONF_PLACE, $multi_site, $config ) );
 
 		// Add htaccess for multisite
-		$htaccess = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/.htaccess' );
+		$htaccess = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/htaccess.txt' );
 		$htaccess = str_replace( '__site_path__', $site_path, $htaccess );
         file_put_contents( $subsite_path . '/wordpress/.htaccess', $htaccess ); 
 	}

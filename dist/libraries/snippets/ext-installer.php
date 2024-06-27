@@ -1,5 +1,5 @@
 <?php
-	/*
+/*
 	Plugin Name: Live Demo Extension Loader
 	Description: Multisite theme and plugin installer, and sandbox creator for visitors.
 	Author: Solidie
@@ -21,18 +21,27 @@ add_action( 'wp_ajax_slds_complete_setup', '_slds_complete_setup' );
 add_action( 'wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login' );
 
 // Call from Main site
+add_action( 'wp_ajax_nopriv_slds_init_internal_session', 'slds_internal_session' );
 add_action( 'wp_ajax_nopriv_slds_internal_request', 'slds_internal_request' );
 
+function slds_internal_session() {
+	file_put_contents( sys_get_temp_dir() . '/slds-nonce.tmp', wp_create_nonce( 'slds_internal_nonce' ) );
+}
+
 function slds_internal_request() {
+
+	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'slds_internal_nonce' ) ) {
+		wp_send_json_error( array( 'message' => 'Nonce not matchedsd', 'post' => $_POST ) );
+	}
 
 	$action  = sanitize_text_field( $_POST['slds_action'] ?? '' );
 	$site_id = ( int ) ( $_POST['sandbox_id'] ?? 0 );
 	
 	switch ( $action ) {
 
-		case 'create_multisite' : 
+		case 'create_sandbox' : 
 		
-			$parsed = parse_url( get_home_url() );
+			$parsed = wp_parse_url( get_home_url() );
 
 			// Define the site details
 			$domain  = $parsed['host'];
@@ -165,9 +174,9 @@ function _slds_multisite_scripts_load() {
 
 	?>
 	<script>
-		const _slds_net_url                  = '<?php echo $url_after_login; ?>';
-		const _slds_ajax_url                 = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-		const _slds_intent                   = '<?php echo $intent; ?>';
+		const _slds_net_url                  = '<?php echo esc_url( $url_after_login ); ?>';
+		const _slds_ajax_url                 = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
+		const _slds_intent                   = '<?php echo esc_attr( $intent ); ?>';
 		const _slds_exts                     = <?php echo $slds_load_extensions; ?>;
 		const {_slds_deployment_hook=()=>{}} = window.parent;
 
@@ -252,7 +261,7 @@ function _slds_multisite_scripts_load() {
 					break;
 
 				case 'redirect' :
-					window.location.assign('<?php echo $redirect_url; ?>');
+					window.location.assign('<?php echo esc_url( $redirect_url ); ?>');
 					break;
 			}
 		});

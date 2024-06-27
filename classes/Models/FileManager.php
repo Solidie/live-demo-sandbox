@@ -38,8 +38,9 @@ class FileManager {
 	 * @return bool
 	 */
 	public static function deleteDirectory( string $folder ) {
+
 		// Check if the folder exists
-		if ( ! is_string( $folder ) || !file_exists($folder)) {
+		if ( ! is_string( $folder ) || ! file_exists( $folder ) || ! is_dir( $folder )) {
 			return false;
 		}
 
@@ -65,7 +66,7 @@ class FileManager {
 			if (is_dir($path)) {
 				self::deleteDirectory($path);
 			} else {
-				unlink($path);
+				wp_delete_file( $path );
 			}
 		}
 

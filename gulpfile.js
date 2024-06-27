@@ -1,20 +1,15 @@
 var gulp = require('gulp'),
     plumber = require('gulp-plumber'),
-    /* notify = require('gulp-notify'), */
     wpPot = require('gulp-wp-pot'),
     clean = require('gulp-clean'),
     zip = require('gulp-zip'),
     fs = require('fs'),
-    path = require('path'),
-    build_name = 'live-demo-sandbox-' + require('./package.json').version + '.zip';
+    path = require('path');
+
+const {version: project_version, name: project_name} = require('./package.json');
+var build_name = `${project_name}-${project_version}.zip`;
 
 var onError = function (err) {
-    /* notify.onError({
-        title: 'Gulp',
-        subtitle: 'Failure!',
-        message: 'Error: <%= error.message %>',
-        sound: 'Basso'
-    })(err); */
 	console.error(err);
     this.emit('end');
 };
@@ -87,11 +82,11 @@ gulp.task('makepot', function () {
         )
         .pipe(
             wpPot({
-                domain: 'live-demo-sandbox',
+                domain: project_name,
                 package: 'Live Demo Sandbox'
             })
         )
-        .pipe(gulp.dest('languages/live-demo-sandbox.pot'));
+        .pipe(gulp.dest(`languages/${project_name}.pot`));
 });
 
 /**
@@ -143,12 +138,12 @@ gulp.task('copy', function () {
             '!./*.json',
             '!./*.xml'
         ])
-        .pipe(gulp.dest('build/live-demo-sandbox/'));
+        .pipe(gulp.dest(`build/${project_name}/`));
 });
 
 gulp.task('make-zip', function () {
 	// Replace the mode in build folder
-	const index_path = path.resolve( __dirname+'/build/live-demo-sandbox/live-demo-sandbox.php' );
+	const index_path = path.resolve( `${__dirname}/build/${project_name}/${project_name}.php` );
 	const codes      = fs.readFileSync(index_path).toString().replace( "=> 'development',", "=> 'production'," );
 	fs.writeFileSync(index_path, codes);
 	

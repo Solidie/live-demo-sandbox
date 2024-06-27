@@ -14,7 +14,7 @@ class Sandbox extends Instance {
 
 	public function createSandboxSite() {
 
-		$response = ( new Postman( 'create_multisite' ) )->request( array( 'role' => 'administrator' ) );
+		$response = ( new Postman( 'create_sandbox' ) )->request( array( 'role' => 'administrator' ) );
 		
 		if ( ! $response->success ) {
 			return array(
@@ -52,7 +52,7 @@ class Sandbox extends Instance {
 	}
 
 	public static function getRootUrl() {
-		$parsed = parse_url( get_home_url() );
+		$parsed = wp_parse_url( get_home_url() );
 		return $parsed['scheme'] . '://' . $parsed['host'] . '/';
 	}
 
