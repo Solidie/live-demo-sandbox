@@ -16,50 +16,80 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 add_action( 'wp_head', '_slds_multisite_scripts_load' );
 add_action( 'admin_head', '_slds_multisite_scripts_load' );
 
+// Call from sandbax instances and host
 add_action( 'wp_ajax_slds_complete_setup', '_slds_complete_setup' );
-add_action( 'wp_ajax_slds_login_to_admin', '_slds_admin_login' );
 add_action( 'wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login' );
-add_action( 'wp_ajax_nopriv_slds_create_multisite', '_slds_create_multisite' );
 
-function _slds_create_multisite() {
+// Call from Main site
+add_action( 'wp_ajax_nopriv_slds_internal_request', 'slds_internal_request' );
+
+function slds_internal_request() {
+
+	$action  = sanitize_text_field( $_POST['slds_action'] ?? '' );
+	$site_id = ( int ) ( $_POST['sandbox_id'] ?? 0 );
 	
-	$parsed = parse_url( get_home_url() );
+	switch ( $action ) {
 
-	// Define the site details
-	$domain  = $parsed['host'];
-	$path    = trim( $parsed['path'], '/' ) . '/sandbox-' . md5( time() . microtime() );
-	$title   = 'New Subsite';
-	$user_id = 1;
-	$meta    = array(
-		'public' => 1
-	);
+		case 'create_multisite' : 
+		
+			$parsed = parse_url( get_home_url() );
 
-	// Check if the path already exists
-	if ( ! domain_exists( $domain, $path ) ) {
+			// Define the site details
+			$domain  = $parsed['host'];
+			$path    = trim( $parsed['path'], '/' ) . '/sandbox-' . md5( time() . microtime() );
+			$title   = 'New Subsite';
+			$user_id = 1;
+			$meta    = array(
+				'public' => 1
+			);
 
-		$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
+			// Check if the path already exists
+			if ( ! domain_exists( $domain, $path ) ) {
 
-		if ( is_wp_error( $new_site_id ) ) {
-			wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
-		}
+				$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
 
-		wp_send_json_success(
-			array(
-				'site_id'    => $new_site_id,
-				'site_path'  => $path,
-				'site_title' => $title
-			)
-		);
+				if ( is_wp_error( $new_site_id ) ) {
+					wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
+				}
 
-	} else {
-		wp_send_json_error( array( 'message' => __( 'The subsite path already exists.', 'live-demo-sandbox' ) ) );
+				wp_send_json_success(
+					array(
+						'site_id'    => $new_site_id,
+						'site_path'  => $path,
+						'site_title' => $title
+					)
+				);
+
+			} else {
+				wp_send_json_error( array( 'message' => 'The subsite path already exists.' ) );
+			}
+
+			break;
+
+		case 'delete_sandbox' :
+
+			$success_message = array( 'message' => 'Sandbox deleted successfully' );
+
+			// If site doesn't exist, still send success, because the site maybe deleted from multisite dashboard meanwhile
+			if ( ! get_site( $site_id ) ) {
+				wp_send_json_success( $success_message );
+			}
+
+			$result = wp_delete_site( $site_id );
+			
+			if ( is_wp_error( $result ) ) {
+				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			} else {
+				wp_send_json_success( $success_message );
+			}
+			break;
 	}
 }
 
 function _slds_complete_setup() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( array( 'message' => __( 'Access denied!', 'live-demo-sandbox' ) ) );
+		wp_send_json_error( array( 'message' => 'Access denied!' ) );
 	}
 
 	update_option( 'slds_setup_complete', true, true );

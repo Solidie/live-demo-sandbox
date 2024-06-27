@@ -205,6 +205,10 @@ class Instance {
 		// Delete all files
 		FileManager::deleteDirectory(  $this->getBaseDir() );
 
+		// Delete all the sandbox list from db
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$wpdb->slds_sandboxes}" );
+
 		// Delete all db tables
 		$tables = $this->db->get_col(
 			$this->db->prepare(
@@ -218,6 +222,8 @@ class Instance {
 				$this->db->query( "DROP TABLE IF EXISTS {$table}" );
 			}
 		}
+
+
 
 		delete_option( self::OPTION_KEY );
 	}

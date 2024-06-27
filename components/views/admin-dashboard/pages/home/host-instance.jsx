@@ -75,7 +75,7 @@ export function HostInstance({configs={}}) {
 	const deleteSandbox=(sandbox_id)=>{
 		confirm(
 			__('Sure to delete?'),
-			__('The user loose access immediately.'),
+			__('The user will loose access immediately.'),
 			()=>{
 				setState({
 					...state,
@@ -84,9 +84,19 @@ export function HostInstance({configs={}}) {
 
 				request('deleteSandbox', {sandbox_id}, resp=>{
 
+					setState({
+						...state,
+						deleting_sandboxes: state.deleting_sandboxes.filter(id=>id!=sandbox_id)
+					});
+
+					ajaxToast(resp);
+
+					if (resp.success) {
+						getSandboxes();
+					}
 				});
 			}
-		)
+		);
 	}
 
 	return <div style={{margin: '50px auto', maxWidth: '600px'}}>

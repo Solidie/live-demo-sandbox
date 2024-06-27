@@ -14,20 +14,7 @@ class Sandbox extends Instance {
 
 	public function createSandboxSite() {
 
-		$request = wp_remote_post( 
-			$this->multiSiteHomeURL() . 'wp-admin/admin-ajax.php',
-			array(
-				'body' => array(
-					'action' => 'slds_create_multisite',
-					'role'   => 'administrator'
-				)
-			)
-		);
-		
-		$response          = ( ! is_wp_error( $request ) && is_array( $request ) ) ? @json_decode( $request['body'] ?? null ) : null;
-		$response          = is_object( $response ) ? $response : new \stdClass();
-		$response->success = $response->success ?? false;
-		$response->data    = $response->data ?? new \stdClass();
+		$response = ( new Postman( 'create_multisite' ) )->request( array( 'role' => 'administrator' ) );
 		
 		if ( ! $response->success ) {
 			return array(
@@ -60,13 +47,13 @@ class Sandbox extends Instance {
 			'sandbox_id' => $wpdb->insert_id,
 			'site_id'    => $response->data->site_id,
 			'site_path'  => $response->data->site_path,
-			'url'        => $this->getRootUrl() . '/' . $response->data->site_path . '/',
+			'url'        => $this->getRootUrl() . $response->data->site_path . '/',
 		);
 	}
 
-	private static function getRootUrl() {
+	public static function getRootUrl() {
 		$parsed = parse_url( get_home_url() );
-		return $parsed['scheme'] . '://' . $parsed['host'];
+		return $parsed['scheme'] . '://' . $parsed['host'] . '/';
 	}
 
 	/**
@@ -75,7 +62,7 @@ class Sandbox extends Instance {
 	 * @param array $args
 	 * @return array
 	 */
-	public function getSandboxes( $args ) {
+	public function getSandboxes( $args = array() ) {
 		
 		global $wpdb;
 
@@ -103,8 +90,8 @@ class Sandbox extends Instance {
 
 		$root = $this->getRootUrl();
 		foreach ( $sandboxes as $index => $sandbox ) {
-			$sandboxes[ $index ]['dashboard_url'] = $root . '/' . $sandbox['site_path'] . '/wp-admin/';
-			$sandboxes[ $index ]['home_url']      = $root . '/' . $sandbox['site_path'] . '/wp-admin/';
+			$sandboxes[ $index ]['dashboard_url'] = $root . $sandbox['site_path'] . '/wp-admin/';
+			$sandboxes[ $index ]['home_url']      = $root . $sandbox['site_path'] . '/wp-admin/';
 		}
 
 		return $sandboxes;
@@ -121,17 +108,28 @@ class Sandbox extends Instance {
 		return $sandbox[0] ?? null;
 	}
 
-	public function deleteSandbox( $id ) {
-		$sandbox = $this->getSandbox( array( 'sandbox_id' => $id ) );
+	public function deleteSandbox( $sandbox_id ) {
+
+		$sandbox = $this->getSandbox( array( 'sandbox_id' => $sandbox_id ) );
 		if ( empty( $sandbox ) ) {
-			return;
+			// Maybe deleted from another tab
+			return true;
 		}
 
-		/* wp_remote_post(
-			$sandbox['dashboard_url'] . 'admin-ajax.php',
-			array(
+		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'sandbox_id' => $sandbox['site_id'] ) );
 
-			)
-		) */
+		if ( $response->success ) {
+
+			global $wpdb;
+			
+			$wpdb->delete(
+				$wpdb->slds_sandboxes,
+				array( 'sandbox_id' => $sandbox_id )
+			);
+
+			return true;
+		}
+		
+		return $response->data->message ?? __( 'Could not delete sandbox', 'live-demo-instance' );
 	}
 }
