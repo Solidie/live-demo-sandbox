@@ -2,7 +2,7 @@
 /**
  * The dispatcher where all the ajax request pass through after validation
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Setup;
@@ -11,8 +11,8 @@ use Solidie_Sandbox\Main;
 use Solidie_Sandbox\Models\User;
 use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Controllers\InstanceController;
-use Error;
 use Solidie_Sandbox\Controllers\SandboxController;
+use Error;
 
 /**
  * Dispatcher class
@@ -53,7 +53,7 @@ class Dispatcher {
 	public function registerControllers() {
 
 		$registered_methods = array();
-		$controllers        = apply_filters( 'solidie_controllers', self::$controllers );
+		$controllers        = apply_filters( 'slds_controllers', self::$controllers );
 
 		// Loop through controllers classes
 		foreach ( $controllers as $class ) {
@@ -62,7 +62,7 @@ class Dispatcher {
 			foreach ( $class::PREREQUISITES as $method => $prerequisites ) {
 				if ( in_array( $method, $registered_methods, true ) ) {
 					// translators: Show the duplicate registered endpoint
-					throw new Error( sprintf( esc_html__( 'Duplicate endpoint %s not possible', 'solidie' ), esc_html( $method ) ) );
+					throw new Error( sprintf( esc_html__( 'Duplicate endpoint %s not possible', 'live-demo-sandbox' ), esc_html( $method ) ) );
 				}
 
 				// Determine ajax handler types
@@ -109,7 +109,7 @@ class Dispatcher {
 		// Because GET requests usually comes from bookmarked URL or direct links where nonce doesn't really make any sense.
 		// Rather we've enhanced security by verifying accepted argument data types, sanitizing and escaping in all cases.
 		if ( $is_post && ! $matched ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Nonce verification failed!', 'solidie' ) ) );
+			wp_send_json_error( array( 'message' => esc_html__( 'Nonce verification failed!', 'live-demo-sandbox' ) ) );
 		}
 
 		// Validate access privilege
@@ -117,12 +117,12 @@ class Dispatcher {
 		$required_roles = is_array( $required_roles ) ? $required_roles : array( $required_roles );
 		$required_roles = in_array( 'administrator', $required_roles, true ) ? array_unique( $required_roles ) : array();
 		if ( ! User::validateRole( get_current_user_id(), $required_roles ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'You are not authorized!', 'solidie' ) ) );
+			wp_send_json_error( array( 'message' => esc_html__( 'You are not authorized!', 'live-demo-sandbox' ) ) );
 		}
 
 		// Now pass to the action handler function
 		if ( ! class_exists( $class ) || ! method_exists( $class, $method ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Invalid Endpoint!', 'solidie' ) ) );
+			wp_send_json_error( array( 'message' => esc_html__( 'Invalid Endpoint!', 'live-demo-sandbox' ) ) );
 		}
 
 		// Prepare request data

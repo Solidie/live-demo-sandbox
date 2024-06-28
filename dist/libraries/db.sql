@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `wp_slds_demo_sandboxes`
+-- Table structure for table `wp_slds_sandboxes`
 --
 
-CREATE TABLE IF NOT EXISTS `wp_slds_demo_sandboxes` (
+CREATE TABLE IF NOT EXISTS `wp_slds_sandboxes` (
   `sandbox_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `site_title` varchar(1000) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `site_path` varchar(1000) COLLATE utf8mb4_unicode_520_ci NOT NULL,

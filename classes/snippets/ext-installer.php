@@ -40,7 +40,13 @@ add_action( 'wp_ajax_nopriv_slds_internal_request', 'slds_internal_request' );
  */
 function _slds_redirect_home_to_demo() {
 	// Redirect to demo if it is home, setup complete, and non admin
-	if ( is_main_site() && get_option( 'slds_setup_complete' ) && ! current_user_can( 'manage_options' ) ) {
+	if ( 
+		! is_admin()
+		&& 'GET' == sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) 
+		&& is_main_site() 
+		&& get_option( 'slds_setup_complete' ) 
+		&& ! current_user_can( 'manage_options' ) 
+	) {
 		global $slds_meta_data;
 		wp_safe_redirect( $slds_meta_data['sandbox_init_url'] );
 		exit;
@@ -78,6 +84,7 @@ function _slds_handle_404_sandbox() {
  */
 function slds_internal_session() {
 	file_put_contents( sys_get_temp_dir() . '/slds-nonce.tmp', wp_create_nonce( 'slds_internal_nonce' ) );
+	wp_send_json_success();
 }
 
 /**
@@ -86,11 +93,11 @@ function slds_internal_session() {
  * @return void
  */
 function slds_internal_request() {
+
 	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'slds_internal_nonce' ) ) {
 		wp_send_json_error(
 			array(
-				'message' => 'Nonce not matchedsd',
-				'post'    => $_POST,
+				'message' => 'Nonce not matched',
 			)
 		);
 	}

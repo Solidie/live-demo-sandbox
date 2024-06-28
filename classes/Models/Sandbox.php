@@ -52,7 +52,7 @@ class Sandbox extends Instance {
 			'sandbox_id' => $wpdb->insert_id,
 			'site_id'    => $response->data->site_id,
 			'site_path'  => $response->data->site_path,
-			'url'        => $this->getRootUrl() . $response->data->site_path . '/',
+			'url'        => $this->getAbsoluteRootURL() . $response->data->site_path . '/',
 		);
 	}
 
@@ -61,7 +61,7 @@ class Sandbox extends Instance {
 	 *
 	 * @return string
 	 */
-	public static function getRootUrl() {
+	public static function getAbsoluteRootURL() {
 		$parsed = wp_parse_url( get_home_url() );
 		return $parsed['scheme'] . '://' . $parsed['host'] . '/';
 	}
@@ -98,7 +98,7 @@ class Sandbox extends Instance {
 			ARRAY_A
 		);
 
-		$root = $this->getRootUrl();
+		$root = $this->getAbsoluteRootURL();
 		foreach ( $sandboxes as $index => $sandbox ) {
 			$sandboxes[ $index ]['dashboard_url'] = $root . $sandbox['site_path'] . '/wp-admin/';
 			$sandboxes[ $index ]['home_url']      = $root . $sandbox['site_path'] . '/wp-admin/';
@@ -132,7 +132,7 @@ class Sandbox extends Instance {
 			return true;
 		}
 
-		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'sandbox_id' => $sandbox['site_id'] ) );
+		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'site_id' => $sandbox['site_id'] ) );
 
 		if ( $response->success ) {
 
@@ -148,7 +148,6 @@ class Sandbox extends Instance {
 
 		return $response->data->message ?? __( 'Could not delete sandbox', 'live-demo-instance' );
 	}
-
 
 	/**
 	 * Get the multsite root directory name only, not path

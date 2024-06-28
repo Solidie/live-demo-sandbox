@@ -2,7 +2,7 @@
 /**
  * Script registrars
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Setup;
@@ -150,7 +150,7 @@ class Scripts {
 		$domain = Main::$configs->text_domain;
 		$dir    = Main::$configs->dir . 'languages/';
 
-		wp_enqueue_script( 'solidie-translations', Main::$configs->dist_url . 'libraries/translation-loader.js', array( 'jquery' ), Main::$configs->version, true );
-		wp_set_script_translations( 'solidie-translations', $domain, $dir );
+		wp_enqueue_script( 'slds-translations', Main::$configs->dist_url . 'libraries/translation-loader.js', array( 'jquery' ), Main::$configs->version, true );
+		wp_set_script_translations( 'slds-translations', $domain, $dir );
 	}
 }

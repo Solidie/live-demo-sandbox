@@ -41,10 +41,11 @@ class Postman {
 	 */
 	public function __construct( string $action, $sandbox = null ) {
 
-		$this->action  = $action;
-		$this->sandbox = $sandbox;
+		// Set ajax action
+		$this->action = $action;
 
-		$home_url       = $this->sandbox ? Sandbox::getRootUrl() : ( new Instance() )->multiSiteHomeURL();
+		// Set ajax url
+		$home_url       = $sandbox ? Sandbox::getAbsoluteRootURL() . $sandbox['site_path'] . '/' : ( new Instance() )->multiSiteHomeURL();
 		$this->ajax_url = $home_url . 'wp-admin/admin-ajax.php';
 	}
 
@@ -66,7 +67,7 @@ class Postman {
 		if ( empty( $nonce ) ) {
 			return (object) array(
 				'success' => false,
-				'data'    => array(
+				'data'    => (object) array(
 					'message' => 'Nonce was not generated',
 				),
 			);

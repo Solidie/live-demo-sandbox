@@ -2,7 +2,7 @@
 /**
  * User functionalities
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Models;
@@ -62,24 +62,5 @@ class User {
 			'display_name' => $user->display_name,
 			'avatar_url'   => get_avatar_url( $user_id ),
 		);
-	}
-
-	/**
-	 * Return the user role that can do administrative actions for solidie.
-	 *
-	 * @return string
-	 */
-	public static function getSolidieAdminRole() {
-		return apply_filters( 'solidie_administrative_role', 'administrator' );
-	}
-
-	/**
-	 * Check if a user has administrative access to solidie functionalities
-	 *
-	 * @param  int $user_id The user ID tp check role
-	 * @return boolean
-	 */
-	public static function hasAdministrativeRole( $user_id ) {
-		return self::validateRole( $user_id, self::getSolidieAdminRole() );
 	}
 }

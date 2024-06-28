@@ -244,11 +244,11 @@ class Instance {
 		// Delete all files
 		FileManager::deleteDirectory( $this->getBaseDir() );
 
-		// Delete all the sandbox list from db
+		// Delete all the sandbox list from main db
 		global $wpdb;
 		$wpdb->query( "DELETE FROM {$wpdb->slds_sandboxes}" );
 
-		// Delete all db tables
+		// Delete all db tables from multsite db
 		$tables = $this->db->get_col(
 			$this->db->prepare(
 				'SHOW TABLES LIKE %s',

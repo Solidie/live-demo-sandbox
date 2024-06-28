@@ -248,7 +248,7 @@ export function HomeBackend(props) {
 							<button 
 								className={'button button-primary'.classNames()} 
 								onClick={()=>setState({...state, show_form: true})}
-								disabled={is_apache || port}
+								disabled={!is_apache || port}
 							>
 								{__('Set up now')}
 							</button>

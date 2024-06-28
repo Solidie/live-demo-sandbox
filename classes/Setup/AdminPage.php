@@ -2,7 +2,7 @@
 /**
  * Admin page setup
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Setup;
@@ -17,7 +17,7 @@ use Solidie_Sandbox\Models\Sandbox;
 class AdminPage {
 
 
-	const SETTINGS_SLUG = 'solidie-settings';
+	const SETTINGS_SLUG = 'live-demo-settings';
 
 	/**
 	 * Admin page setup hooks register
@@ -52,32 +52,32 @@ class AdminPage {
 
 		// Main page
 		add_menu_page(
-			esc_html__( 'Live Demo Sandbox', 'solidie' ),
-			esc_html__( 'Sandbox', 'solidie' ),
+			esc_html__( 'Live Demo Sandbox', 'live-demo-sandbox' ),
+			esc_html__( 'Sandbox', 'live-demo-sandbox' ),
 			$role,
 			Main::$configs->root_menu_slug,
 			array( $this, 'homePage' )
 		);
 
-		// Register solidie dashboard home
+		// Register dashboard home
 		add_submenu_page(
 			Main::$configs->root_menu_slug,
-			esc_html__( 'Home', 'solidie' ),
-			esc_html__( 'Home', 'solidie' ),
+			esc_html__( 'Home', 'live-demo-sandbox' ),
+			esc_html__( 'Home', 'live-demo-sandbox' ),
 			$role,
 			Main::$configs->root_menu_slug,
 			array( $this, 'homePage' )
 		);
 
 		// General settings page
-		add_submenu_page(
+		/* add_submenu_page(
 			Main::$configs->root_menu_slug,
-			esc_html__( 'Settings', 'solidie' ),
-			esc_html__( 'Settings', 'solidie' ),
+			esc_html__( 'Settings', 'live-demo-sandbox' ),
+			esc_html__( 'Settings', 'live-demo-sandbox' ),
 			$role,
 			self::SETTINGS_SLUG,
 			array( $this, 'settingsPage' )
-		);
+		); */
 	}
 
 	/**

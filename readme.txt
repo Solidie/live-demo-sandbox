@@ -18,6 +18,19 @@ Typically, we create a single site for all visitors, allowing them to post rando
 
 To resolve the issue, this plugin offers sandbox capabilities on the same server as the main site. It eliminates the need for additional servers and quickly sets up a new instance for each visitor by leveraging WP Multisite. Doesn't alternate the existing site BTW.
 
+==Get In Touch==
+
+Please get in touch with us with any questions.
+[Click Here to Contact Us](https://solidie.com/#contact)
+
+Please share your valuable review [here](https://wordpress.org/plugins/live-demo-sandbox/#reviews).
+
+= Documentation and Support =
+
+If you have any questions or problems using this plugin, you can write here in [support channel](https://wordpress.org/support/plugin/live-demo-sandbox/)
+
+There are several minified JavaScript file that are built with React JS and compiled with Webpack. If you want to access the unminified files for this plugin, you can do so from [here](https://github.com/Solidie/live-demo-sandbox).
+
 == Changelog ==
 
 = v1.0.0 -> Jun 27, 2024 =

@@ -2,7 +2,7 @@
 /**
  * File uploader functionalities
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Models;

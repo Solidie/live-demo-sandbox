@@ -2,7 +2,7 @@
 /**
  * Script registrars
  *
- * @package solidie
+ * @package live-demo-sandbox
  */
 
 namespace Solidie_Sandbox\Setup;
@@ -29,6 +29,10 @@ class Sandbox {
 	 */
 	public function createSandbox() {
 
+		if ( is_admin() || 'GET' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
+			return;
+		}
+
 		$parsed = wp_parse_url( Main::$configs->current_url );
 		$path   = $parsed['path'];
 		$path   = trim( $path, '/' );
@@ -36,11 +40,14 @@ class Sandbox {
 		$path   = end( $path );
 
 		// Check if if the path is targeted URL to hit
-		$instance = new ModelsSandbox();
 		if ( ModelsSandbox::getSandboxInitPath() !== $path ) {
 			return;
 		}
 
+		// Sandbox instance
+		$instance = new ModelsSandbox();
+
+		// Sandbox info
 		$pointer    = explode( '_', ( sanitize_text_field( wp_unslash( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ) );
 		$sandbox_id = $pointer[0] ?? null;
 		$site_id    = $pointer[1] ?? null;
