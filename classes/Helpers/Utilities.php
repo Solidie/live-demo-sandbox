@@ -14,7 +14,6 @@ use Solidie_Sandbox\Main;
  */
 class Utilities {
 
-
 	/**
 	 * Check if the page is a Crew Dashboard
 	 *
