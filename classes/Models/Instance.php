@@ -226,10 +226,10 @@ class Instance {
 
 		$dynamics = array(
 			'extensions'       => $extensions,
-			'sandbox_init_url' => Sandbox::getSandboxInitURL()
+			'sandbox_init_url' => Sandbox::getSandboxInitURL(),
 		);
 
-		$ext_codes = file_get_contents( Main::$configs->dir . '/dist/libraries/snippets/ext-installer.php' );
+		$ext_codes = file_get_contents( dirname( __DIR__ ) . '/snippets/ext-installer.php' );
 		$ext_codes = str_replace( '// dynamics', '$slds_meta_data = \'' . wp_json_encode( $dynamics ) . '\';', $ext_codes );
 		file_put_contents( $mu_dir . '/sandbox-extension-installer.php', $ext_codes );
 	}
@@ -326,7 +326,7 @@ class Instance {
 		$site_path   = $parsed['path'];
 
 		// Add dynamics to multi site configs
-		$multi_site = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/wp-config.txt' );
+		$multi_site = file_get_contents( dirname( __DIR__ ) . '/snippets/wp-config.txt' );
 		$multi_site = str_replace( '__site_path__', $site_path, $multi_site );
 		$multi_site = str_replace( '__domain_name__', $domain_name, $multi_site );
 
@@ -335,7 +335,7 @@ class Instance {
 		file_put_contents( $config_path, str_replace( self::CONF_PLACE, $multi_site, $config ) );
 
 		// Add htaccess for multisite
-		$htaccess = file_get_contents( Main::$configs->dir . 'dist/libraries/snippets/htaccess.txt' );
+		$htaccess = file_get_contents( dirname( __DIR__ ) . '/snippets/htaccess.txt' );
 		$htaccess = str_replace( '__site_path__', $site_path, $htaccess );
 		file_put_contents( $subsite_path . '/wordpress/.htaccess', $htaccess );
 	}

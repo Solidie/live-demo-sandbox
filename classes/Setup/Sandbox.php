@@ -37,7 +37,7 @@ class Sandbox {
 
 		// Check if if the path is targeted URL to hit
 		$instance = new ModelsSandbox();
-		if ( $path !== ModelsSandbox::getSandboxInitPath() ) {
+		if ( ModelsSandbox::getSandboxInitPath() !== $path ) {
 			return;
 		}
 
