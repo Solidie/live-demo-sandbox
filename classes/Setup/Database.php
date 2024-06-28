@@ -15,6 +15,7 @@ use Solidie_Sandbox\Models\DB;
  */
 class Database {
 
+
 	const DB_VERSION_KEY = 'slds_db_version';
 
 	/**
@@ -36,7 +37,7 @@ class Database {
 	public function importDBOnUpdate() {
 
 		$last_version = get_option( self::DB_VERSION_KEY );
-		
+
 		if ( empty( $last_version ) || version_compare( $last_version, Main::$configs->version, '<' ) ) {
 			$this->importDB();
 		}
@@ -48,7 +49,7 @@ class Database {
 	 * @return void
 	 */
 	public function importDB() {
-		
+
 		$sql_path = Main::$configs->dir . 'dist/libraries/db.sql';
 		DB::import( file_get_contents( $sql_path ) );
 		update_option( self::DB_VERSION_KEY, Main::$configs->version, true );
@@ -65,7 +66,7 @@ class Database {
 		global $wpdb;
 
 		// WP and Plugin prefix
-		$prefix = $wpdb->prefix . Main::$configs->db_prefix;
+		$prefix               = $wpdb->prefix . Main::$configs->db_prefix;
 		$wpdb->slds_sandboxes = $prefix . 'sandboxes';
 	}
 }

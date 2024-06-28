@@ -12,11 +12,12 @@ namespace Solidie_Sandbox\Models;
  */
 class User {
 
+
 	/**
 	 * Validate if a user has required role
 	 *
-	 * @param int          $user_id The user ID to validate rule
-	 * @param string|array $role    The rule to match
+	 * @param  int          $user_id The user ID to validate rule
+	 * @param  string|array $role    The rule to match
 	 * @return bool
 	 */
 	public static function validateRole( $user_id, $role ) {
@@ -34,7 +35,7 @@ class User {
 	/**
 	 * Get user roles by user id
 	 *
-	 * @param int $user_id User ID to get roles of
+	 * @param  int $user_id User ID to get roles of
 	 * @return array
 	 */
 	public static function getUserRoles( $user_id ) {
@@ -75,7 +76,7 @@ class User {
 	/**
 	 * Check if a user has administrative access to solidie functionalities
 	 *
-	 * @param int $user_id
+	 * @param  int $user_id The user ID tp check role
 	 * @return boolean
 	 */
 	public static function hasAdministrativeRole( $user_id ) {

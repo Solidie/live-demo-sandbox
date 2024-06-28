@@ -14,11 +14,12 @@ use Solidie_Sandbox\Main;
  * Databse handler class
  */
 class DB {
+
 	/**
 	 * Prepare the table name, add prefixes
 	 *
-	 * @param string $name      The table name to get prefixed
-	 * @param array  $arguments Callstatic arguments
+	 * @param  string $name      The table name to get prefixed
+	 * @param  array  $arguments Callstatic arguments
 	 * @return string
 	 */
 	public static function __callStatic( $name, $arguments ) {
@@ -29,7 +30,7 @@ class DB {
 	/**
 	 * Remove unnecessary things from the SQL
 	 *
-	 * @param string $sql The raw exported SQL file
+	 * @param  string $sql The raw exported SQL file
 	 * @return array
 	 */
 	private static function purgeSQL( string $sql ) {
@@ -42,7 +43,7 @@ class DB {
 	/**
 	 * Apply dynamic collation, charset, prefix etc.
 	 *
-	 * @param array $queries Array of single queries.
+	 * @param  array $queries Array of single queries.
 	 * @return array
 	 */
 	private static function applyDynamics( array $queries ) {
@@ -70,6 +71,7 @@ class DB {
 	/**
 	 * Inspect all the things in queries
 	 *
+	 * @param array $queries Single query array
 	 * @return array
 	 */
 	private static function getInspected( array $queries ) {
@@ -118,7 +120,7 @@ class DB {
 	 *
 	 * So these can be replaced with dymanic configuration correctly. And no onflict with existing table with same names.
 	 *
-	 * @param string $sql Raw exported SQL file contents
+	 * @param  string $sql Raw exported SQL file contents
 	 * @return void
 	 */
 	public static function import( $sql ) {
@@ -127,7 +129,7 @@ class DB {
 		$queries = self::getInspected( $queries );
 
 		// Load helper methods if not loaded already
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		global $wpdb;
 
@@ -148,7 +150,7 @@ class DB {
 			// Loop through the columns in latest SQL file
 			foreach ( $query['columns'] as $column => $column_definition ) {
 				// Add the columns if not in the database
-				if ( ! in_array( $column, $current_columns ) ) {
+				if ( ! in_array( $column, $current_columns, true ) ) {
 					$wpdb->query( "ALTER TABLE {$query['table']} ADD {$column_definition}" );
 				}
 			}
@@ -158,7 +160,7 @@ class DB {
 	/**
 	 * Get limit for queries
 	 *
-	 * @param int|null $limit The limit to prepare
+	 * @param  int|null $limit The limit to prepare
 	 * @return int
 	 */
 	public static function getLimit( $limit = null ) {
@@ -171,7 +173,7 @@ class DB {
 	/**
 	 * Get page num to get results for
 	 *
-	 * @param int|null $page The page to prepare
+	 * @param  int|null $page The page to prepare
 	 * @return int
 	 */
 	public static function getPage( $page = null ) {

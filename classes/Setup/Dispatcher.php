@@ -78,7 +78,7 @@ class Dispatcher {
 				foreach ( $handlers as $handler ) {
 					add_action(
 						$handler,
-						function() use ( $class, $method, $prerequisites ) {
+						function () use ( $class, $method, $prerequisites ) {
 							$this->dispatch( $class, $method, $prerequisites );
 						}
 					);
@@ -115,7 +115,7 @@ class Dispatcher {
 		// Validate access privilege
 		$required_roles = $prerequisites['role'] ?? array();
 		$required_roles = is_array( $required_roles ) ? $required_roles : array( $required_roles );
-		$required_roles = in_array( 'administrator', $required_roles ) ? array_unique( $required_roles ) : array();
+		$required_roles = in_array( 'administrator', $required_roles, true ) ? array_unique( $required_roles ) : array();
 		if ( ! User::validateRole( get_current_user_id(), $required_roles ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'You are not authorized!', 'solidie' ) ) );
 		}
@@ -147,18 +147,18 @@ class Dispatcher {
 			$param_type = $params[ $name ]['type'];
 
 			// Check if request data type and accepted type matched
-			if ( $arg_type != $param_type ) {
+			if ( $arg_type !== $param_type ) {
 
 				if ( 'string' === $param_type && is_numeric( $value ) ) {
-					$args[ $name ] = ( string ) $value;
+					$args[ $name ] = (string) $value;
 
-				} else if ( 'double' === $param_type && is_numeric( $value ) ) {
-					$args[ $name ] = ( float ) $value;
+				} elseif ( 'double' === $param_type && is_numeric( $value ) ) {
+					$args[ $name ] = (float) $value;
 
-				} else if ( 'integer' === $param_type && is_numeric( $value ) ) {
-					$args[ $name ] = ( int ) $value;
+				} elseif ( 'integer' === $param_type && is_numeric( $value ) ) {
+					$args[ $name ] = (int) $value;
 
-				} else if ( 'array' === $param_type && 'integer' === $arg_type ) {
+				} elseif ( 'array' === $param_type && 'integer' === $arg_type ) {
 					// Sometimes 0 can be passed instead of array
 					// Then use empty array rather
 					// So far the seneario has found when thumbnail is not set in content editor
@@ -166,12 +166,12 @@ class Dispatcher {
 
 				} else {
 					wp_send_json_error(
-						array( 
+						array(
 							'message'  => __( 'Invalid request data!', 'hr-management' ),
 							'param'    => $name,
 							'accepts'  => $param_type,
 							'received' => $arg_type,
-						) 
+						)
 					);
 				}
 			}

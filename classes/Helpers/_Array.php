@@ -11,11 +11,12 @@ namespace Solidie_Sandbox\Helpers;
  * The enriched array class
  */
 class _Array {
+
 	/**
 	 * Apply order to every array elements
 	 *
-	 * @param array  $array     The array to add order ins
-	 * @param string $order_key The key to store order index
+	 * @param  array  $array     The array to add order ins
+	 * @param  string $order_key The key to store order index
 	 * @return array
 	 */
 	public static function addOrderColumn( array $array, string $order_key ) {
@@ -37,8 +38,8 @@ class _Array {
 	/**
 	 * Multipurpose array preparation
 	 *
-	 * @param mixed $array Expected array, however anything else could be passed to convert to array element
-	 * @param bool  $mutate Whether to make the non array element to array element
+	 * @param mixed $array              Expected array, however anything else could be passed to convert to array element
+	 * @param bool  $mutate             Whether to make the non array element to array element
 	 * @param mixed $non_empty_fallback The fallback array element when the array is empty
 	 *
 	 * @return array
@@ -64,7 +65,7 @@ class _Array {
 	/**
 	 * Check if an array is two dimensional
 	 *
-	 * @param array $array The array to check if it is two dimensional
+	 * @param  array $array The array to check if it is two dimensional
 	 * @return bool
 	 */
 	public static function isTwoDimensionalArray( $array ) {
@@ -77,7 +78,7 @@ class _Array {
 	/**
 	 * Cast number, bool from string.
 	 *
-	 * @param array $array The array to cast data recursively
+	 * @param  array $array The array to cast data recursively
 	 * @return array
 	 */
 	public static function castRecursive( array $array ) {
@@ -99,9 +100,9 @@ class _Array {
 	/**
 	 * Make an array column value index of the array
 	 *
-	 * @param array  $array  Array to indexify
-	 * @param string $column The field to use the value as index
-	 * @param string $singular_field To store only a single column for the index as value
+	 * @param  array  $array          Array to indexify
+	 * @param  string $column         The field to use the value as index
+	 * @param  string $singular_field To store only a single column for the index as value
 	 * @return array
 	 */
 	public static function indexify( array $array, string $column, $singular_field = null ) {
@@ -116,9 +117,9 @@ class _Array {
 	/**
 	 * Append column to a two dimensional array
 	 *
-	 * @param array  $array The array to append column into
-	 * @param string $key   The key to use as index of the column
-	 * @param array  $new   New field to use as the value
+	 * @param  array  $array The array to append column into
+	 * @param  string $key   The key to use as index of the column
+	 * @param  array  $new   New field to use as the value
 	 * @return array
 	 */
 	public static function appendColumn( array $array, string $key, $new ) {
@@ -132,10 +133,10 @@ class _Array {
 	/**
 	 * Get single array from a two dimensional array, similar to 'find' method in JavaScript.
 	 *
-	 * @param array  $array   The array to find in
-	 * @param string $key     The key to match in the second dimension
-	 * @param mixed  $value   The value to match in the second dimension
-	 * @param mixed  $default The default return value if not found
+	 * @param  array  $array   The array to find in
+	 * @param  string $key     The key to match in the second dimension
+	 * @param  mixed  $value   The value to match in the second dimension
+	 * @param  mixed  $default The default return value if not found
 	 * @return array
 	 */
 	public static function find( array $array, $key, $value, $default = null ) {
@@ -151,7 +152,7 @@ class _Array {
 	 * Sanitize contents recursively
 	 *
 	 * @param mixed      $value The value to sanitize
-	 * @param string|int $key Current key in recursion. Do not pass it from outside of this function. It's for internal use only.
+	 * @param string|int $key   Current key in recursion. Do not pass it from outside of this function. It's for internal use only.
 	 *
 	 * @return mixed
 	 */
@@ -173,7 +174,7 @@ class _Array {
 	/**
 	 * Get method parameter names
 	 *
-	 * @param class  $class The class to get method info from
+	 * @param class  $class  The class to get method info from
 	 * @param string $method The method to get parameters definition
 	 *
 	 * @return array
@@ -207,7 +208,7 @@ class _Array {
 	/**
 	 * Convert multidimensional array into one
 	 *
-	 * @param array $array The array to flatten
+	 * @param  array $array The array to flatten
 	 * @return array
 	 */
 	public static function flattenArray( array $array ) {
@@ -225,8 +226,8 @@ class _Array {
 	/**
 	 * Parse comments from php file as array
 	 *
-	 * @param string         $path File path  to parse data from
-	 * @param ARRAY_A|OBJECT $ret_type Either object or array to return
+	 * @param  string         $path     File path  to parse data from
+	 * @param  ARRAY_A|OBJECT $ret_type Either object or array to return
 	 * @return array|object
 	 */
 	public static function getManifestArray( string $path, $ret_type = OBJECT ) {
@@ -265,17 +266,17 @@ class _Array {
 	/**
 	 * Build nested array
 	 *
-	 * @param array  $elements The array to get nested data from
-	 * @param int    $parent_id The parent ID to start the level from
-	 * @param string $col_name The column name that holds parent ID
-	 * @param string $parent_col_name The column name that holds the index numbers
+	 * @param  array  $elements        The array to get nested data from
+	 * @param  int    $parent_id       The parent ID to start the level from
+	 * @param  string $col_name        The column name that holds parent ID
+	 * @param  string $parent_col_name The column name that holds the index numbers
 	 * @return array
 	 */
 	public static function buildNestedArray( $elements, $parent_id, $col_name, $parent_col_name ) {
 		$nested_array = array();
 
 		foreach ( $elements as $element ) {
-			if ( is_array( $element ) && $parent_id === ( $element[ $col_name ] ?? null ) ) {
+			if ( is_array( $element ) && ( $element[ $col_name ] ?? null ) === $parent_id ) {
 				$children = self::buildNestedArray( $elements, $element[ $parent_col_name ], $col_name, $parent_col_name );
 
 				if ( ! empty( $children ) ) {
@@ -292,8 +293,8 @@ class _Array {
 	/**
 	 * Group multiple rows by a common field
 	 *
-	 * @param array  $array The table array to group rows
-	 * @param string $col_name The column name to group by
+	 * @param  array  $array    The table array to group rows
+	 * @param  string $col_name The column name to group by
 	 * @return array
 	 */
 	public static function groupRows( $array, $col_name ) {
@@ -315,8 +316,8 @@ class _Array {
 	/**
 	 * Convert nested table to single table
 	 *
-	 * @param array  $tables The nested array to make linear
-	 * @param string $nested_col_name Then column name that holds children
+	 * @param  array  $tables          The nested array to make linear
+	 * @param  string $nested_col_name Then column name that holds children
 	 * @return array
 	 */
 	public static function convertToSingleTable( array $tables, string $nested_col_name ) {
@@ -336,14 +337,14 @@ class _Array {
 	/**
 	 * Equivalent to array_column, but recursive
 	 *
-	 * @param array  $array Nested array
-	 * @param string $column The column name to get
+	 * @param array  $array           Nested array
+	 * @param string $column          The column name to get
 	 * @param string $children_column The column name that holds children
 	 *
 	 * @return array The Linear array containing column values from nested array
 	 */
 	public static function arrayColumnRecursive( $array, $column, $children_column ) {
-		
+
 		$values = array();
 
 		foreach ( $array as $element ) {
@@ -362,20 +363,20 @@ class _Array {
 	/**
 	 * Get descendent count
 	 *
-	 * @param array $array
-	 * @param int $count_col
-	 * @param string $add_count_to
+	 * @param  array  $array The main array
+	 * @param  string $count_col Count col string name
+	 * @param  string $add_count_to Where to add count to
 	 * @return array
 	 */
 	public static function getDescendentCount( array $array, string $count_col, string $add_count_to = null ) {
 		foreach ( $array as $index => $element ) {
-			
+
 			$count = $element[ $count_col ];
 
 			if ( is_array( $element ) && is_array( $element['children'] ?? null ) ) {
-				$children = self::getDescendentCount( $element['children'], $count_col, $add_count_to );
-				$count    = $count + array_sum( array_column( $children, $count_col ) );
-				$array[ $index ]['children'] = $children;
+				$children                      = self::getDescendentCount( $element['children'], $count_col, $add_count_to );
+				$count                         = $count + array_sum( array_column( $children, $count_col ) );
+				$array[ $index ]['children']   = $children;
 				$array[ $index ][ $count_col ] = $count;
 
 			}

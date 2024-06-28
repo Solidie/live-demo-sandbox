@@ -1,0 +1,19 @@
+{
+    "name": "solidie/live-demo-instance",
+    "license": "gpl-v3",
+    "autoload": {
+        "psr-4": {}
+    },
+    "scripts": {
+        "lint": "phpcs --extensions=php -s ./classes",
+        "lint:fix": "phpcbf --extensions=php ./classes"
+    },
+    "require-dev": {
+        "10up/phpcs-composer": "dev-master"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

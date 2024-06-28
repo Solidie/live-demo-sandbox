@@ -11,11 +11,12 @@ namespace Solidie_Sandbox\Helpers;
  * String handler class
  */
 class _String {
-	
+
+
 	/**
 	 * Generate random string
 	 *
-	 * @param stirng $prefix Prefix
+	 * @param stirng $prefix  Prefix
 	 * @param stirng $postfix Postfix
 	 *
 	 * @return string
@@ -36,7 +37,7 @@ class _String {
 	/**
 	 * Check if a value is float
 	 *
-	 * @param string|int|float $numeric_string The value to check if float
+	 * @param  string|int|float $numeric_string The value to check if float
 	 * @return boolean
 	 */
 	public static function isFloat( $numeric_string ) {
@@ -86,8 +87,8 @@ class _String {
 	/**
 	 * Helper method to generate placeholders for in query
 	 *
-	 * @param int|array $count The amount of placeholders or the data array to get count of.
-	 * @param string    $placeholder The placeholder. Default %d for numeric values as it is mostly used.
+	 * @param  int|array $count       The amount of placeholders or the data array to get count of.
+	 * @param  string    $placeholder The placeholder. Default %d for numeric values as it is mostly used.
 	 * @return string
 	 */
 	public static function getPlaceHolders( $count, string $placeholder = '%d' ) {
@@ -98,8 +99,8 @@ class _String {
 	/**
 	 * Consolidate string
 	 *
-	 * @param string  $input_string
-	 * @param boolean $replace_newlines
+	 * @param  string  $input_string The input string to consolidate
+	 * @param  boolean $replace_newlines Whether to replace new lines
 	 * @return string
 	 */
 	public static function consolidate( string $input_string, $replace_newlines = false ) {

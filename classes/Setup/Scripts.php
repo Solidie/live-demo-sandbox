@@ -16,6 +16,7 @@ use Solidie_Sandbox\Main;
  */
 class Scripts {
 
+
 	/**
 	 * Scripts constructor, register script hooks
 	 *
@@ -52,7 +53,7 @@ class Scripts {
 		?>
 			<style>
 				:root{
-					<?php echo esc_html( $_colors ); ?>
+		<?php echo esc_html( $_colors ); ?>
 				}
 			</style>
 		<?php
@@ -71,26 +72,25 @@ class Scripts {
 		$data = apply_filters(
 			'slds_frontend_variables',
 			array(
-				'is_admin'         => is_admin(),
-				'action_hooks'     => array(),
-				'filter_hooks'     => array(),
-				'mountpoints'      => ( object ) array(),
-				'home_path'        => $home_path,
-				'page_path'        => $page_path,
-				'app_name'         => Main::$configs->app_id,
-				'nonce'            => $nonce,
-				'nonce_action'     => $nonce_action,
-				'colors'           => $dynamic_colors,
-				'opacities'        => Colors::getOpacities(),
-				'contrast'         => Colors::CONTRAST_FACTOR,
-				'text_domain'      => Main::$configs->text_domain,
-				'date_format'      => get_option( 'date_format' ),
-				'time_format'      => get_option( 'time_format' ),
-				'is_apache'        => is_admin() ? strpos( sanitize_text_field( $_SERVER['SERVER_SOFTWARE'] ?? '' ), 'Apache' ) !== false : null,
-				'bloginfo'         => array(
+				'is_admin'     => is_admin(),
+				'action_hooks' => array(),
+				'filter_hooks' => array(),
+				'mountpoints'  => (object) array(),
+				'home_path'    => $home_path,
+				'page_path'    => $page_path,
+				'app_name'     => Main::$configs->app_id,
+				'nonce'        => $nonce,
+				'nonce_action' => $nonce_action,
+				'colors'       => $dynamic_colors,
+				'opacities'    => Colors::getOpacities(),
+				'contrast'     => Colors::CONTRAST_FACTOR,
+				'text_domain'  => Main::$configs->text_domain,
+				'date_format'  => get_option( 'date_format' ),
+				'time_format'  => get_option( 'time_format' ),
+				'bloginfo'     => array(
 					'name' => get_bloginfo( 'name' ),
 				),
-				'user'             => array(
+				'user'         => array(
 					'id'           => $user ? $user->ID : 0,
 					'first_name'   => $user ? $user->first_name : null,
 					'last_name'    => $user ? $user->last_name : null,
@@ -99,15 +99,13 @@ class Scripts {
 					'avatar_url'   => $user ? get_avatar_url( $user->ID ) : null,
 					'username'     => $user ? $user->user_login : null,
 				),
-				'settings'         => array(
-					
-				),
-				'permalinks'       => array(
-					'home_url'          => get_home_url(),
-					'ajaxurl'           => admin_url( 'admin-ajax.php' ),
-					'settings'          => Utilities::getBackendPermalink( AdminPage::SETTINGS_SLUG ),
-					'dashboard'         => Utilities::getBackendPermalink( Main::$configs->root_menu_slug ),
-					'logout'            => htmlspecialchars_decode( wp_logout_url( get_home_url() ) ),
+				'settings'     => array(),
+				'permalinks'   => array(
+					'home_url'  => get_home_url(),
+					'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+					'settings'  => Utilities::getBackendPermalink( AdminPage::SETTINGS_SLUG ),
+					'dashboard' => Utilities::getBackendPermalink( Main::$configs->root_menu_slug ),
+					'logout'    => htmlspecialchars_decode( wp_logout_url( get_home_url() ) ),
 				),
 			)
 		);

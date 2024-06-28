@@ -14,10 +14,11 @@ use Solidie_Sandbox\Main;
  */
 class Utilities {
 
+
 	/**
 	 * Check if the page is a Crew Dashboard
 	 *
-	 * @param string $sub_page Optional sub page name to match too
+	 * @param  string $sub_page Optional sub page name to match too
 	 * @return boolean
 	 */
 	public static function isAdminDashboard( $sub_page = null ) {
@@ -39,7 +40,8 @@ class Utilities {
 	/**
 	 * Get unique ID to point solid app in any setup
 	 *
-	 * @return void
+	 * @param string $url The URL to this plugin to get unique pointer for it
+	 * @return string
 	 */
 	public static function getPluginId( $url ) {
 		$pattern = '/\/([^\/]+)\/wp-content\/(plugins|themes)\/([^\/]+)\/.*/';
@@ -54,7 +56,7 @@ class Utilities {
 	/**
 	 * Generate admin page urls
 	 *
-	 * @param string $page
+	 * @param  string $page The page to get backend dashboard link to
 	 * @return string
 	 */
 	public static function getBackendPermalink( string $page ) {

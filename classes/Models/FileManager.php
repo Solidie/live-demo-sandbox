@@ -12,10 +12,11 @@ namespace Solidie_Sandbox\Models;
  */
 class FileManager {
 
+
 	/**
 	 * Delete WP files
 	 *
-	 * @param int|array $file_id File ID or array of files IDs
+	 * @param  int|array $file_id File ID or array of files IDs
 	 * @return void
 	 */
 	public static function deleteFile( $file_id ) {
@@ -34,28 +35,28 @@ class FileManager {
 	/**
 	 * Delete directory
 	 *
-	 * @param string $dir Dir path to delete including files and sub folders
+	 * @param  string $folder Dir path to delete including files and sub folders
 	 * @return bool
 	 */
 	public static function deleteDirectory( string $folder ) {
 
 		// Check if the folder exists
-		if ( ! is_string( $folder ) || ! file_exists( $folder ) || ! is_dir( $folder )) {
+		if ( ! is_string( $folder ) || ! file_exists( $folder ) || ! is_dir( $folder ) ) {
 			return false;
 		}
 
 		// Check if it's a directory
-		if (!is_dir($folder)) {
+		if ( ! is_dir( $folder ) ) {
 			return false;
 		}
 
 		// Open the directory
-		$dir = opendir($folder);
+		$dir = opendir( $folder );
 
 		// Loop through the contents of the directory
-		while (($file = readdir($dir)) !== false) {
+		while ( ( $file = readdir( $dir ) ) !== false ) {
 			// Skip the special '.' and '..' folders
-			if ($file == '.' || $file == '..') {
+			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
 
@@ -63,42 +64,42 @@ class FileManager {
 			$path = $folder . DIRECTORY_SEPARATOR . $file;
 
 			// Recursively delete directories or just delete files
-			if (is_dir($path)) {
-				self::deleteDirectory($path);
+			if ( is_dir( $path ) ) {
+				self::deleteDirectory( $path );
 			} else {
 				wp_delete_file( $path );
 			}
 		}
 
 		// Close the directory
-		closedir($dir);
+		closedir( $dir );
 
 		// Delete the folder itself
-		return rmdir($folder);
+		return rmdir( $folder );
 	}
 
 	/**
 	 * Get the directory name inside the zip file
 	 *
-	 * @param string $zipFilePath
+	 * @param  string $zip_file_path The zip file path to get dir name from inside
 	 * @return string|null
 	 */
-	public static function getOnlyFolderNameInZip( $zipFilePath ) {
+	public static function getOnlyFolderNameInZip( $zip_file_path ) {
 
-		if ( ! file_exists( $zipFilePath ) ) {
+		if ( ! file_exists( $zip_file_path ) ) {
 			return null;
 		}
 
 		$dir = null;
 		$zip = new \ZipArchive();
-		
-		if ( $zip->open( $zipFilePath ) === true ) {
+
+		if ( $zip->open( $zip_file_path ) === true ) {
 
 			$stat     = $zip->statIndex( 0 );
 			$filename = is_array( $stat ) ? ( $stat['name'] ?? '' ) : '';
 			$dir_name = explode( '/', $filename );
 			$dir      = $dir_name[0] ?? null;
-			
+
 			$zip->close();
 		}
 

@@ -15,6 +15,7 @@ use Solidie_Sandbox\Models\Instance;
  */
 class AdminPage {
 
+
 	const SETTINGS_SLUG = 'solidie-settings';
 
 	/**
@@ -27,8 +28,13 @@ class AdminPage {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueMediaPicker' ) );
 	}
 
+	/**
+	 * Enqueue media picker in this plugins page
+	 *
+	 * @return void
+	 */
 	public function enqueueMediaPicker() {
-		if ( is_admin() && ( $_GET['page'] ?? '' ) === Main::$configs->root_menu_slug ) {
+		if ( is_admin() && ( sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) ) ) === Main::$configs->root_menu_slug ) {
 			wp_enqueue_media();
 			wp_enqueue_script( 'jquery' );
 		}
@@ -79,7 +85,7 @@ class AdminPage {
 	 * @return void
 	 */
 	public function homePage() {
-		
+
 		$instance                 = new Instance();
 		$configs                  = $instance->getConfigs();
 		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
@@ -87,7 +93,7 @@ class AdminPage {
 
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"
-			data-configs="' . esc_attr( wp_json_encode( ( object ) $configs ) ) . '"
+			data-configs="' . esc_attr( wp_json_encode( (object) $configs ) ) . '"
 		></div>';
 	}
 

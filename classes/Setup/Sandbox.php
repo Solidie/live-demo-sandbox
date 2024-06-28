@@ -16,17 +16,25 @@ use Solidie_Sandbox\Models\Sandbox as ModelsSandbox;
  */
 class Sandbox {
 
+	/**
+	 * Setup constructor to register hooks
+	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'createSandbox' ) );
 	}
 
+	/**
+	 * Create sandbox if it the URL
+	 *
+	 * @return void
+	 */
 	public function createSandbox() {
 
-		$parsed   = wp_parse_url( Main::$configs->current_url );
-		$path     = $parsed['path'];
-		$path     = trim( $path, '/' );
-		$path     = explode( '/', $path );
-		$path     = end( $path );
+		$parsed = wp_parse_url( Main::$configs->current_url );
+		$path   = $parsed['path'];
+		$path   = trim( $path, '/' );
+		$path   = explode( '/', $path );
+		$path   = end( $path );
 
 		// Check if if the path is targeted URL to hit
 		$instance = new ModelsSandbox();
@@ -34,7 +42,7 @@ class Sandbox {
 			return;
 		}
 
-		$pointer    = explode( '_', ( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ;
+		$pointer    = explode( '_', ( sanitize_text_field( wp_unslash( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ) );
 		$sandbox_id = $pointer[0] ?? null;
 		$site_id    = $pointer[1] ?? null;
 		$site_path  = $pointer[2] ?? null;
@@ -44,24 +52,24 @@ class Sandbox {
 			// Redirect to the target sandbox site
 			$sandbox = $instance->getSandbox( compact( 'sandbox_id', 'site_id', 'site_path' ) );
 			$url     = $sandbox ? $sandbox['home_url'] : null;
-		} 
-		
+		}
+
 		if ( empty( $url ) ) {
 			// Create a sandbox site and then redirect to it
 			$data = $instance->createSandboxSite();
 			if ( ! $data['success'] ) {
 				wp_send_json_error(
-					array( 
-						'message' => $data['message'] ?? __( 'Could not created sandbox.', 'live-demo-sandbox' ) 
-					) 
+					array(
+						'message' => $data['message'] ?? __( 'Could not created sandbox.', 'live-demo-sandbox' ),
+					)
 				);
 			}
 
-			$url  = $data['url'];
-			setcookie( 
-				'slds_sandbox_pointer', 
+			$url = $data['url'];
+			setcookie(
+				'slds_sandbox_pointer',
 				"{$data['sandbox_id']}_{$data['site_id']}_{$data['site_path']}",
-				time() + (6 * 60 * 60), // 6 hours
+				time() + ( 6 * 60 * 60 ), // 6 hours
 				wp_parse_url( get_home_url() )['path'],
 			);
 		}

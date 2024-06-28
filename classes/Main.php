@@ -19,6 +19,7 @@ use Solidie_Sandbox\Setup\Scripts;
  * Main class to initiate app
  */
 class Main {
+
 	/**
 	 * Configs array
 	 *
@@ -59,14 +60,14 @@ class Main {
 		new Scripts();
 		new AdminPage();
 		new Sandbox();
-		
+
 		do_action( 'slds_loaded' );
 	}
 
 	/**
 	 * Autload classes
 	 *
-	 * @param string $class_name The class name to load file for
+	 * @param  string $class_name The class name to load file for
 	 * @return void
 	 */
 	public function loader( $class_name ) {
@@ -84,7 +85,7 @@ class Main {
 		$file_name  = self::$configs->dir . $class_name . '.php';
 
 		if ( file_exists( $file_name ) ) {
-			require_once $file_name;
+			include_once $file_name;
 		}
 	}
 
