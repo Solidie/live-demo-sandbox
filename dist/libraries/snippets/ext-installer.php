@@ -10,12 +10,18 @@
 if (! defined('ABSPATH') ) { exit;
 }
 
+$slds_meta_data = '[]';
+// dynamics
+$slds_meta_data = json_decode( $slds_meta_data, true );
+
 /**
  * This plugin will be copied to multiste setup, and will work there only.
  */
 
+add_action( 'init', '_slds_redirect_home_to_demo' );
 add_action('wp_head', '_slds_multisite_scripts_load');
 add_action('admin_head', '_slds_multisite_scripts_load');
+add_action( 'template_redirect', '_slds_handle_404_sandbox' );
 
 // Call from sandbax instances and host
 add_action('wp_ajax_slds_complete_setup', '_slds_complete_setup');
@@ -24,6 +30,34 @@ add_action('wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login');
 // Call from Main site
 add_action('wp_ajax_nopriv_slds_init_internal_session', 'slds_internal_session');
 add_action('wp_ajax_nopriv_slds_internal_request', 'slds_internal_request');
+
+function _slds_redirect_home_to_demo() {
+	// Redirect to demo if it is home, setup complete, and non admin
+	if ( is_main_site() && get_option('slds_setup_complete') && ! current_user_can( 'manage_options' ) ) {
+		global $slds_meta_data; 
+		wp_safe_redirect( $slds_meta_data['sandbox_init_url'] );
+		exit;
+	}
+}
+
+function _slds_handle_404_sandbox() {
+
+	if ( ! is_404() ) {
+		return;
+	}
+
+	$parsed = wp_parse_url( ( is_ssl() ? 'https' : 'http' ) . '://' . sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'] ?? '')) . sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'] ?? '')) );
+	$path   = $parsed['path'];
+	$path   = trim( $path, '/' );
+	$path   = explode( '/', $path );
+	$path   = end( $path );
+
+	if ( ! empty( $path ) && strpos( $path, 'sandbox-' ) === 0 ) {
+		global $slds_meta_data;
+		wp_safe_redirect( $slds_meta_data['sandbox_init_url'], 301 );
+		exit;
+	}
+}
 
 function slds_internal_session()
 {
@@ -123,9 +157,8 @@ function _slds_admin_login()
 
 function _slds_multisite_scripts_load()
 {
-    
-    $slds_load_extensions = '[]';
-    // dynamics
+    global $slds_meta_data;
+    $slds_load_extensions = $slds_meta_data['extensions'];
 
     $intent          = '';
     $url_after_login = '';
@@ -183,7 +216,7 @@ function _slds_multisite_scripts_load()
         const _slds_net_url                  = '<?php echo esc_url($url_after_login); ?>';
         const _slds_ajax_url                 = '<?php echo esc_url(admin_url('admin-ajax.php')); ?>';
         const _slds_intent                   = '<?php echo esc_attr($intent); ?>';
-        const _slds_exts                     = <?php echo $slds_load_extensions; ?>;
+        const _slds_exts                     = <?php echo wp_json_encode( $slds_load_extensions ); ?>;
         const {_slds_deployment_hook=()=>{}} = window.parent;
 
         function slds_fetch_request(action, data, callback) {
@@ -236,7 +269,6 @@ function _slds_multisite_scripts_load()
                 case 'setup' :
                     const button = document.getElementById('submit');
                     if ( button ) {
-                        button.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
                         button.click();
                     } else {
                         _slds_deployment_hook(3);

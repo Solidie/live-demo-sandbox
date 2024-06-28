@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import {__} from 'crewhrm-materials/helpers.jsx';
+import {__, copyToClipboard} from 'crewhrm-materials/helpers.jsx';
 import { confirm } from "crewhrm-materials/prompts.jsx";
 import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
@@ -11,7 +11,7 @@ const section_class = 'bg-color-white box-shadow-thin padding-vertical-20 paddin
 
 export function HostInstance({configs={}}) {
 
-	const {ajaxToast} = useContext(ContextToast); 
+	const {ajaxToast, addToast} = useContext(ContextToast); 
 	const {dashboard_url, sandbox_url} = configs;
 
 	const [state, setState] = useState({
@@ -139,7 +139,7 @@ export function HostInstance({configs={}}) {
 						state.fetching ? 
 							<LoadingIcon show={true}/> :
 							<i 
-								className={'ch-icon ch-icon-reload color-primary-90 interactive cursor-pointer'.classNames()}
+								className={'ch-icon ch-icon-reload color-material-90 interactive cursor-pointer'.classNames()}
 								onClick={getSandboxes}
 								title={__('Refresh Sandbox List')}
 							></i>
@@ -201,10 +201,21 @@ export function HostInstance({configs={}}) {
 		</div>
 
 		<div className={section_class}>
-			<span className={'d-block'.classNames()}>
-				Use this URL as live demo link.
+			<span className={'d-block font-size-14 font-weight-600 margin-bottom-15'.classNames()}>
+				{__('Live Demo URL')}
 			</span>
-			{sandbox_url}
+
+			<div className={'d-flex align-items-center column-gap-15 bg-color-material-3 border-radius-10 padding-15 border-1 b-color-material-7'.classNames()}>	
+				<div className={'flex-1 font-weight-500 font-size-13'.classNames()} style={{wordBreak: 'break-all'}}>
+					{sandbox_url}
+				</div>
+				<div className={'d-flex'.classNames()}>
+					<i 
+						className={'ch-icon ch-icon-copy font-size-20 cursor-pointer'.classNames()}
+						onClick={()=>copyToClipboard(sandbox_url, addToast)}
+					></i>
+				</div>
+			</div>
 		</div>
 	</div> 
 }

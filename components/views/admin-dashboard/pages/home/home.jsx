@@ -10,6 +10,7 @@ import { FileUpload } from "crewhrm-materials/file-upload/file-upload.jsx";
 
 import { HostInstance } from "./host-instance.jsx";
 
+const status_class = 'text-align-center font-size-500 font-size-16'.classNames();
 
 export function HomeBackend(props) {
 
@@ -228,10 +229,12 @@ export function HomeBackend(props) {
 			style={{padding: '40px 20px'}} 
 			className={'bg-color-white border-radius-8 border-1 b-color-text-10'.classNames()}
 		>
-
 			{
-				state.step !== null ? <div className={'padding-vertical-15'.classNames()}>
+				state.step !== null ? <div className={'padding-vertical-15 margin-bottom-15'.classNames()}>
 					<LoadingIcon show={true} center={true}/>
+					<div className={'text-align-center color-error font-size-13 margin-top-10'.classNames()}>
+						<i>{__('Do not close this tab until the process is complete.')}</i>
+					</div>
 				</div> 
 				: 
 				<div>
@@ -317,23 +320,25 @@ export function HomeBackend(props) {
 
 			{
 				state.step !== 0 ? null :
-				<div>
-					Downloading WordPress
+				<div className={status_class}>
+					{__('Downloading WordPress')}
 				</div>
 			}
 
 			{
 				state.step!==1 ? null :
-				<div>
-					Installing WordPress
+				<div className={status_class}>
+					{__('Installing WordPress')}
 				</div>
 			}
 
 			{
 				(state.step!==2 && state.step!==4) ? null :
 				<div>
-					{state.step==2 ? __('Setting up Network') : __('Activating extensions')}
-					<div style={{margin: '0 auto'}}>
+					<div className={status_class}>
+						{state.step==2 ? __('Setting up Network') : __('Activating network wide themes and plugins')}
+					</div>
+					<div style={{margin: '0 auto', height: '2px', overflow: 'hidden', visibility: 'hidden'}}>
 						<iframe style={{width: '800px', height: `${window.innerHeight - 150}px`}} src={state.iframe_url}></iframe>
 					</div>
 				</div>
@@ -341,8 +346,8 @@ export function HomeBackend(props) {
 
 			{
 				state.step !== 3 ? null :
-				<div>
-					Deploying Network Configs
+				<div className={status_class}>
+					{__('Deploying Network Configs')}
 				</div>
 			}
 		</div>

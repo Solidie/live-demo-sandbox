@@ -148,4 +148,23 @@ class Sandbox extends Instance {
 
 		return $response->data->message ?? __( 'Could not delete sandbox', 'live-demo-instance' );
 	}
+
+
+	/**
+	 * Get the multsite root directory name only, not path
+	 *
+	 * @return string
+	 */
+	public static function getSandboxInitPath() {
+		return apply_filters( 'slds_get_instance_path', 'live-demo-sandbox-instance' );
+	}
+
+	/**
+	 * Get the multisite root dir url
+	 *
+	 * @return string
+	 */
+	public static function getSandboxInitURL() {
+		return get_home_url() . '/' . self::getSandboxInitPath() . '/';
+	}
 }

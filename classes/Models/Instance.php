@@ -50,24 +50,6 @@ class Instance {
 	}
 
 	/**
-	 * Get the multsite root directory name only, not path
-	 *
-	 * @return string
-	 */
-	public static function getInstancePath() {
-		return apply_filters( 'slds_get_instance_path', 'live-demo-sandbox-instance' );
-	}
-
-	/**
-	 * Get the multisite root dir url
-	 *
-	 * @return string
-	 */
-	public static function getInstanceURL() {
-		return get_home_url() . '/' . self::getInstancePath() . '/';
-	}
-
-	/**
 	 * Get the multisite root dir path
 	 *
 	 * @return string|null
@@ -242,8 +224,13 @@ class Instance {
 		$mu_dir = $content_dir . '/mu-plugins';
 		wp_mkdir_p( $mu_dir );
 
+		$dynamics = array(
+			'extensions'       => $extensions,
+			'sandbox_init_url' => Sandbox::getSandboxInitURL()
+		);
+
 		$ext_codes = file_get_contents( Main::$configs->dir . '/dist/libraries/snippets/ext-installer.php' );
-		$ext_codes = str_replace( '// dynamics', '$slds_load_extensions = \'' . wp_json_encode( $extensions ) . '\';', $ext_codes );
+		$ext_codes = str_replace( '// dynamics', '$slds_meta_data = \'' . wp_json_encode( $dynamics ) . '\';', $ext_codes );
 		file_put_contents( $mu_dir . '/sandbox-extension-installer.php', $ext_codes );
 	}
 

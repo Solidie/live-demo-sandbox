@@ -8,7 +8,6 @@
 namespace Solidie_Sandbox\Setup;
 
 use Solidie_Sandbox\Main;
-use Solidie_Sandbox\Models\Instance;
 use Solidie_Sandbox\Models\Sandbox as ModelsSandbox;
 
 /**
@@ -38,7 +37,7 @@ class Sandbox {
 
 		// Check if if the path is targeted URL to hit
 		$instance = new ModelsSandbox();
-		if ( $path !== $instance->getInstancePath() ) {
+		if ( $path !== ModelsSandbox::getSandboxInitPath() ) {
 			return;
 		}
 

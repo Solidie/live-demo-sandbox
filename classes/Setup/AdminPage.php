@@ -9,6 +9,7 @@ namespace Solidie_Sandbox\Setup;
 
 use Solidie_Sandbox\Main;
 use Solidie_Sandbox\Models\Instance;
+use Solidie_Sandbox\Models\Sandbox;
 
 /**
  * Admin page setup handlers
@@ -89,7 +90,7 @@ class AdminPage {
 		$instance                 = new Instance();
 		$configs                  = $instance->getConfigs();
 		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
-		$configs['sandbox_url']   = $instance->getInstanceURL();
+		$configs['sandbox_url']   = Sandbox::getSandboxInitURL();
 
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"
