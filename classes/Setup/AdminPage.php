@@ -91,6 +91,7 @@ class AdminPage {
 		$configs                  = $instance->getConfigs();
 		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
 		$configs['sandbox_url']   = Sandbox::getSandboxInitURL();
+		$configs['is_apache']     = strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ) , 'Apache' ) !== false;
 
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"

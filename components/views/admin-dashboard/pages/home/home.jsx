@@ -220,6 +220,8 @@ export function HomeBackend(props) {
 	}
 
 	const has_empty = field_keys.filter(name=>!fields[name].optional && isEmpty(state.values[name])).length;
+	const {port} = window.location;
+	const {is_apache} = configs;
 
 	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		<span className={'d-block margin-bottom-10 font-size-24 font-weight-600 margin-bottom-15'.classNames()}>
@@ -246,6 +248,7 @@ export function HomeBackend(props) {
 							<button 
 								className={'button button-primary'.classNames()} 
 								onClick={()=>setState({...state, show_form: true})}
+								disabled={is_apache || port}
 							>
 								{__('Set up now')}
 							</button>
@@ -351,5 +354,19 @@ export function HomeBackend(props) {
 				</div>
 			}
 		</div>
+
+		{
+			! port ? null :
+			<div className={'font-size-14 color-error text-align-center margin-top-25'.classNames()}>
+				<i>{__('Sandbox is only supported for sites without a port in the URL.')}</i>
+			</div>
+		}
+
+		{
+			is_apache ? null :
+			<div className={'font-size-14 color-error text-align-center margin-top-25'.classNames()}>
+				<i>{__('Sandbox functionality is currently supported only on Apache servers.')}</i>
+			</div>
+		}
 	</div>
 }
