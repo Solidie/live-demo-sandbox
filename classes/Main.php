@@ -10,6 +10,7 @@ namespace Solidie_Sandbox;
 use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Helpers\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
+use Solidie_Sandbox\Setup\Cron;
 use Solidie_Sandbox\Setup\Database;
 use Solidie_Sandbox\Setup\Dispatcher;
 use Solidie_Sandbox\Setup\Sandbox;
@@ -60,6 +61,7 @@ class Main {
 		new Scripts();
 		new AdminPage();
 		new Sandbox();
+		new Cron();
 
 		do_action( 'slds_loaded' );
 	}

@@ -21,6 +21,7 @@ $slds_meta_data = json_decode( $slds_meta_data, true );
  */
 
 add_action( 'init', '_slds_redirect_home_to_demo' );
+add_action( 'init', '_slds_active_state_logger' );
 add_action( 'wp_head', '_slds_multisite_scripts_load' );
 add_action( 'admin_head', '_slds_multisite_scripts_load' );
 add_action( 'template_redirect', '_slds_handle_404_sandbox' );
@@ -54,6 +55,35 @@ function _slds_redirect_home_to_demo() {
 }
 
 /**
+ * Store site active state
+ *
+ * @return void
+ */
+function _slds_active_state_logger() {
+
+	if ( is_main_site() ) {
+		return;
+	}
+
+	$site_id      = get_current_blog_id();
+	$current_time = gmdate('Y-m-d H:i:s');
+	$expires_at   = gmdate('Y-m-d H:i:s', strtotime('+30 minutes', strtotime($current_time)));
+
+	switch_to_blog( 1 );
+
+	global $wpdb;
+	global $slds_meta_data;
+	
+	$wpdb->update(
+		$slds_meta_data['tables']['slds_sandboxes'],
+		array( 'expires_at' => $expires_at ),
+		array( 'site_id' => $site_id )
+	);
+
+	restore_current_blog();
+}
+
+/**
  * Handle 404 when sandbox is deleted.
  *
  * @return void
@@ -83,6 +113,11 @@ function _slds_handle_404_sandbox() {
  * @return void
  */
 function slds_internal_session() {
+	
+	if ( ! is_main_site() ) {
+		return;
+	}
+
 	file_put_contents( sys_get_temp_dir() . '/slds-nonce.tmp', wp_create_nonce( 'slds_internal_nonce' ) );
 	wp_send_json_success();
 }
@@ -93,6 +128,10 @@ function slds_internal_session() {
  * @return void
  */
 function slds_internal_request() {
+	
+	if ( ! is_main_site() ) {
+		return;
+	}
 
 	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'slds_internal_nonce' ) ) {
 		wp_send_json_error(
@@ -102,8 +141,7 @@ function slds_internal_request() {
 		);
 	}
 
-	$action  = sanitize_text_field( wp_unslash( $_POST['slds_action'] ?? '' ) );
-	$site_id = (int) ( sanitize_text_field( wp_unslash( $_POST['sandbox_id'] ?? '0' ) ) );
+	$action = sanitize_text_field( wp_unslash( $_POST['slds_action'] ?? '' ) );
 
 	switch ( $action ) {
 
@@ -143,20 +181,16 @@ function slds_internal_request() {
 			break;
 
 		case 'delete_sandbox':
-			$success_message = array( 'message' => 'Sandbox deleted successfully' );
 
-			// If site doesn't exist, still send success, because the site maybe deleted from multisite dashboard meanwhile
-			if ( ! get_site( $site_id ) ) {
-				wp_send_json_success( $success_message );
+			$site_ids = $_POST['site_ids'] ?? '';
+			$site_ids = is_array( $site_ids ) ? array_map( 'intval', $site_ids ) : array();
+
+			foreach ( $site_ids as $id ) {
+				wp_delete_site( $id );
 			}
 
-			$result = wp_delete_site( $site_id );
-
-			if ( is_wp_error( $result ) ) {
-				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
-			} else {
-				wp_send_json_success( $success_message );
-			}
+			wp_send_json_success( array( 'message' => 'Sandbox deleted successfully' ) );
+			
 			break;
 	}
 }

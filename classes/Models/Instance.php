@@ -141,8 +141,8 @@ class Instance {
 		$prefix_line   = '$table_prefix = \'' . $tbl_prefix . '\';';
 
 		$config = str_replace(
-			array( 'database_name_here', 'username_here', 'password_here', 'localhost', '$table_prefix = \'wp_\';' ),
-			array( $db_name, $db_user, $db_password, $db_host, $prefix_line . PHP_EOL . "define( 'WP_ALLOW_MULTISITE', true );" . PHP_EOL . self::CONF_PLACE ),
+			array( 'database_name_here', 'username_here', 'password_here', 'localhost', '$table_prefix = \'wp_\';', 'define( \'WP_DEBUG\', false );' ),
+			array( $db_name, $db_user, $db_password, $db_host, $prefix_line . PHP_EOL . "define( 'WP_ALLOW_MULTISITE', true );" . PHP_EOL . self::CONF_PLACE, '' ),
 			$config_sample
 		);
 		if ( strpos( $config, $prefix_line ) === false ) {
@@ -224,9 +224,14 @@ class Instance {
 		$mu_dir = $content_dir . '/mu-plugins';
 		wp_mkdir_p( $mu_dir );
 
+		global $wpdb;
+
 		$dynamics = array(
 			'extensions'       => $extensions,
 			'sandbox_init_url' => Sandbox::getSandboxInitURL(),
+			'tables'           => array(
+				'slds_sandboxes' => $wpdb->slds_sandboxes,
+			)
 		);
 
 		$ext_codes = file_get_contents( dirname( __DIR__ ) . '/snippets/ext-installer.php' );

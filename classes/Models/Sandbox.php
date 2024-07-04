@@ -7,6 +7,9 @@
 
 namespace Solidie_Sandbox\Models;
 
+use Solidie_Sandbox\Helpers\_Array;
+use Solidie_Sandbox\Helpers\_String;
+
 /**
  * Sandbox functions
  */
@@ -121,28 +124,36 @@ class Sandbox extends Instance {
 	/**
 	 * Delete sandbox
 	 *
-	 * @param int $sandbox_id The ID of sandbox to delete
+	 * @param int|array $sandbox_id The ID or array of IDs of sandbox to delete
 	 * @return bool|string
 	 */
 	public function deleteSandbox( $sandbox_id ) {
 
-		$sandbox = $this->getSandbox( array( 'sandbox_id' => $sandbox_id ) );
-		if ( empty( $sandbox ) ) {
-			// Maybe deleted from another tab
+		// Prepare sandbox IDs placeholder for SQL
+		$sandbox_ids = _Array::getArray( $sandbox_id, true, 0 );
+		$ids_places  = _String::getPlaceHolders( $sandbox_ids );
+		
+		global $wpdb;
+		$site_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT site_id FROM {$wpdb->slds_sandboxes} WHERE sandbox_id IN({$ids_places})",
+				...$sandbox_ids
+			)
+		);
+
+		if ( empty( $site_ids ) ) {
 			return true;
 		}
 
-		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'site_id' => $sandbox['site_id'] ) );
+		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'site_ids' => array_map( 'intval', $site_ids ) ) );
 
 		if ( $response->success ) {
-
-			global $wpdb;
-
-			$wpdb->delete(
-				$wpdb->slds_sandboxes,
-				array( 'sandbox_id' => $sandbox_id )
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->slds_sandboxes} WHERE sandbox_id IN($ids_places)",
+					$sandbox_ids
+				)
 			);
-
 			return true;
 		}
 
