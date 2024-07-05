@@ -6,19 +6,23 @@ import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
 import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
 import { TableStat } from "crewhrm-materials/table-stat.jsx";
+import { Modal } from "crewhrm-materials/modal.jsx";
+
+import { HostSettings } from "./host-settings.jsx";
 
 const section_class = 'bg-color-white box-shadow-thin padding-vertical-20 padding-horizontal-15 border-radius-8 margin-bottom-20'.classNames();
 
 export function HostInstance({configs={}}) {
 
 	const {ajaxToast, addToast} = useContext(ContextToast); 
-	const {dashboard_url, sandbox_url} = configs;
+	const {dashboard_url, sandbox_url, settings={}} = configs;
 
 	const [state, setState] = useState({
 		deleting_host: false,
 		deleting_sandboxes: [],
 		fetching: true,
 		sandboxes: [],
+		show_settings: false,
 		filters: {
 			page: 1
 		}
@@ -99,7 +103,24 @@ export function HostInstance({configs={}}) {
 		);
 	}
 
+	const toggleSettingsModal=(show)=>{
+		setState({
+			...state,
+			show_settings: show
+		});
+	}
+
 	return <div style={{margin: '50px auto', maxWidth: '600px'}}>
+		{
+			!state.show_settings ? null :
+			<Modal>
+				<HostSettings 
+					closePanel={()=>toggleSettingsModal(false)}
+					settings={settings}
+				/>
+			</Modal>
+		}
+
 		<div className={'d-flex align-items-center column-gap-15'.classNames() + section_class}>
 			<div className={'flex-1'.classNames()}>
 				<span className={'font-size-18 font-weight-700'.classNames()}>
@@ -109,12 +130,19 @@ export function HostInstance({configs={}}) {
 			<div>
 				{
 					state.deleting_host ? <LoadingIcon show={true}/> :
-					<i 
-						className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
-						onClick={deleteInstance}
-					></i>
+					<div className={'d-flex align-items-center column-gap-15'.classNames()}>
+						<i 
+							className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
+							onClick={deleteInstance}
+						></i>
+
+						<i 
+							className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
+							onClick={()=>toggleSettingsModal(true)}
+						></i>
+					</div>
+					
 				}
-				
 			</div>
 			<div>
 				<a 

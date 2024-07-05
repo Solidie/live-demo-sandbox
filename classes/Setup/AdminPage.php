@@ -68,16 +68,6 @@ class AdminPage {
 			Main::$configs->root_menu_slug,
 			array( $this, 'homePage' )
 		);
-
-		// General settings page
-		/* add_submenu_page(
-			Main::$configs->root_menu_slug,
-			esc_html__( 'Settings', 'live-demo-sandbox' ),
-			esc_html__( 'Settings', 'live-demo-sandbox' ),
-			$role,
-			self::SETTINGS_SLUG,
-			array( $this, 'settingsPage' )
-		); */
 	}
 
 	/**
@@ -97,16 +87,5 @@ class AdminPage {
 			id="Solidie_Sandbox_Backend_Dashboard"
 			data-configs="' . esc_attr( wp_json_encode( (object) $configs ) ) . '"
 		></div>';
-	}
-
-	/**
-	 * Geenral settings page contents
-	 *
-	 * @return void
-	 */
-	public function settingsPage() {
-		echo '<div 
-				id="Solidie_Sandbox_Settings" 
-				data-settings="' . esc_attr( wp_json_encode( array() ) ) . '"></div>';
 	}
 }

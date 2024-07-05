@@ -7,6 +7,7 @@
 
 namespace Solidie_Sandbox\Controllers;
 
+use Solidie_Sandbox\Models\Instance;
 use Solidie_Sandbox\Models\Sandbox;
 
 /**
@@ -20,6 +21,9 @@ class SandboxController {
 			'role' => 'administrator',
 		),
 		'deleteSandbox' => array(
+			'role' => 'administrator',
+		),
+		'saveSandboxSettings' => array(
 			'role' => 'administrator',
 		),
 	);
@@ -56,5 +60,16 @@ class SandboxController {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Save sandbox settings
+	 *
+	 * @param array $settings
+	 * @return void
+	 */
+	public static function saveSandboxSettings( array $settings ) {
+		( new Instance() )->updateSettings( $settings );
+		wp_send_json_success();
 	}
 }

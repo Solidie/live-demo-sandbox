@@ -294,9 +294,11 @@ class Instance {
 	/**
 	 * Get the multisite config from option
 	 *
+	 * @param string|null $key To get specific value from configs
+	 *
 	 * @return array
 	 */
-	public static function getConfigs() {
+	public static function getConfigs( $key = null ) {
 
 		$defaults = array(
 			'db_name'      => DB_NAME,
@@ -304,11 +306,29 @@ class Instance {
 			'db_password'  => DB_PASSWORD,
 			'db_host'      => DB_HOST,
 			'table_prefix' => Main::$configs->db_prefix . 'sandbox_instance_',
+			'settings'     => array(
+				'concurrency_limit'         => 100,
+				'inactivity_time_allowed'   => 1,
+				'inactivity_period_allowed' => 'hour',
+				'new_user_role'             => '',
+				'auto_login_new_user'       => true
+			)
 		);
 
 		$option = _Array::getArray( get_option( self::OPTION_KEY ) );
+		$option = array_merge( $defaults, $option );
 
-		return array_merge( $defaults, $option );
+		return $key ? ( $option[ $key ] ?? null ) : $option;
+	}
+
+	/**
+	 * Update settings array
+	 *
+	 * @param array $settings
+	 * @return void
+	 */
+	public function updateSettings( array $settings ) {
+		$this->updateConfigs( array( 'settings' => $settings ) );
 	}
 
 	/**
