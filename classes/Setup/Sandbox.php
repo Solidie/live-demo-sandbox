@@ -21,6 +21,54 @@ class Sandbox {
 	public function __construct() {
 		add_action( 'init', array( $this, 'createSandbox' ) );
 	}
+	
+	/**
+	 * Check if it is browser request
+	 *
+	 * @return boolean
+	 */
+	private function isBrowserRequest() {
+
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+
+			$userAgent = $_SERVER['HTTP_USER_AGENT'];
+			
+			// List of common browsers
+			$browsers = array( 'Mozilla', 'Chrome', 'Safari', 'Opera', 'MSIE', 'Edge', 'Trident' );
+			
+			// List of common crawlers/bots
+			$crawlers = array(
+				'Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou', 'Exabot',
+				'facebot', 'ia_archiver', 'MJ12bot', 'AhrefsBot', 'SEMrushBot', 'DotBot', 'MegaIndex', 'YandexImages',
+				'Google Web Preview', 'Twitterbot', 'Pinterest', 'LinkedInBot'
+			);
+
+			$isBrowser = false;
+			$isCrawler = false;
+
+			// Check if the user agent is a known browser
+			foreach ( $browsers as $browser ) {
+				if ( stripos( $userAgent, $browser ) !== false) {
+					$isBrowser = true;
+					break;
+				}
+			}
+
+			// Check if the user agent is a known crawler/bot
+			foreach ( $crawlers as $crawler ) {
+				if ( stripos( $userAgent, $crawler ) !== false) {
+					$isCrawler = true;
+					break;
+				}
+			}
+
+			// Consider it a browser request if it is a known browser and not a known crawler
+			return $isBrowser && !$isCrawler;
+		}
+
+		return false;
+	}
+
 
 	/**
 	 * Create sandbox if it the URL
@@ -29,7 +77,7 @@ class Sandbox {
 	 */
 	public function createSandbox() {
 
-		if ( is_admin() || 'GET' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
+		if ( is_admin() || 'GET' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) || ! $this->isBrowserRequest() ) {
 			return;
 		}
 
@@ -64,11 +112,9 @@ class Sandbox {
 			// Create a sandbox site and then redirect to it
 			$data = $instance->createSandboxSite();
 			if ( ! $data['success'] ) {
-				wp_send_json_error(
-					array(
-						'message' => $data['message'] ?? __( 'Could not created sandbox.', 'live-demo-sandbox' ),
-					)
-				);
+				$error_messages = $data['message'];
+				include Main::$configs->dir . 'templates/error.php';
+				exit;
 			}
 
 			$url = $data['url'];

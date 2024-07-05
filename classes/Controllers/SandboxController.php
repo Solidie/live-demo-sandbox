@@ -9,6 +9,7 @@ namespace Solidie_Sandbox\Controllers;
 
 use Solidie_Sandbox\Models\Instance;
 use Solidie_Sandbox\Models\Sandbox;
+use Solidie_Sandbox\Setup\Cron;
 
 /**
  * Content manager class
@@ -33,11 +34,19 @@ class SandboxController {
 	 *
 	 * @return void
 	 */
-	public static function getSandboxes() {
+	public static function getSandboxes( int $page = 1 ) {
 
-		$sandboxes = ( new Sandbox() )->getSandboxes();
+		do_action( Cron::HOOK_NAME );
 
-		wp_send_json_success( array( 'sandboxes' => $sandboxes ) );
+		$args      = array( 'page' => $page );
+		$instance  = new Sandbox();
+		
+		wp_send_json_success(
+			array( 
+				'sandboxes'    => $instance->getSandboxes( $args ),
+				'segmentation' => $instance->getSandboxes( $args, true ),
+			) 
+		);
 	}
 
 	/**

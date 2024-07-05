@@ -229,8 +229,17 @@ class Instance {
 		$dynamics = array(
 			'extensions'       => $extensions,
 			'sandbox_init_url' => Sandbox::getSandboxInitURL(),
-			'tables'           => array(
-				'slds_sandboxes' => $wpdb->slds_sandboxes,
+			'control_panel_db' => array(
+				'name'                => DB_NAME,
+				'user'                => DB_USER,
+				'host'                => DB_HOST,
+				'pass'                => DB_PASSWORD,
+				'table_prefix'        => $wpdb->prefix,
+				'configs_option_name' => self::OPTION_KEY,
+				'tables'              => array(
+					'sandboxes' => $wpdb->slds_sandboxes,
+					'options'   => $wpdb->prefix . 'options',
+				),
 			)
 		);
 
@@ -295,10 +304,11 @@ class Instance {
 	 * Get the multisite config from option
 	 *
 	 * @param string|null $key To get specific value from configs
+	 * @param mixed       $def Default return value
 	 *
 	 * @return array
 	 */
-	public static function getConfigs( $key = null ) {
+	public static function getConfigs( $key = null, $def = null ) {
 
 		$defaults = array(
 			'db_name'      => DB_NAME,
@@ -318,7 +328,7 @@ class Instance {
 		$option = _Array::getArray( get_option( self::OPTION_KEY ) );
 		$option = array_merge( $defaults, $option );
 
-		return $key ? ( $option[ $key ] ?? null ) : $option;
+		return $key ? ( $option[ $key ] ?? $def ) : $option;
 	}
 
 	/**

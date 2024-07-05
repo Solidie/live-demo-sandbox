@@ -35,6 +35,68 @@ add_action( 'wp_ajax_nopriv_slds_init_internal_session', 'slds_internal_session'
 add_action( 'wp_ajax_nopriv_slds_internal_request', 'slds_internal_request' );
 
 /**
+ * Get DB connection to the control panel website
+ *
+ * @return object
+ */
+function _slds_control_panel_db() {
+
+	global $slds_meta_data;
+	$configs = $slds_meta_data['control_panel_db'];
+
+	return new \wpdb(
+		$configs['user'], 
+		$configs['pass'], 
+		$configs['name'], 
+		$configs['host']
+	);
+}
+
+/**
+ * Get configs aray from control panel site
+ * 
+ * @param string $key To get specific value from congis
+ * @param mixed  $def Default value to return for singular value
+ *
+ * @return mixed
+ */
+function _slds_control_panel_get_configs( $key = null, $def = null ) {
+
+	global $slds_meta_data;
+
+	$control_panel = $slds_meta_data['control_panel_db'];
+
+	$wpdb    = _slds_control_panel_db();
+	$configs = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT option_value FROM {$control_panel['tables']['options']} WHERE option_name=%s",
+			$control_panel['configs_option_name']
+		)
+	);
+
+	$configs = maybe_unserialize( $configs );
+	$configs = is_array( $configs ) ? $configs : array();
+
+	return $key ? ( $configs[ $key ] ?? $def ) : $configs;
+}
+
+
+/**
+ * Get how many minutes can a sandbox allowed to remain inactive. 
+ *
+ * @return int Total minutes
+ */
+function _slds_get_sandbox_inactivity_minutes() {
+	
+	$settings = _slds_control_panel_get_configs( 'settings', array() );
+	$time     = ( int ) $settings['inactivity_time_allowed'] ?? 1;
+	$period   = $settings['inactivity_period_allowed'] ?? 'hour';
+	$minutes  = ( int ) ( $period === 'hour' ? $time*60 : $time );
+
+	return $minutes > 0 ? $minutes : 40;
+}
+
+/**
  * Multisite home is not accessible for visitors, sandbox will be created for theme instantly and will be redirected to.
  *
  * @return void
@@ -66,21 +128,19 @@ function _slds_active_state_logger() {
 	}
 
 	$site_id      = get_current_blog_id();
-	$current_time = gmdate('Y-m-d H:i:s');
-	$expires_at   = gmdate('Y-m-d H:i:s', strtotime('+30 minutes', strtotime($current_time)));
+	$current_time = gmdate( 'Y-m-d H:i:s' );
+	$inactivity   = sprintf( '+%s minutes', _slds_get_sandbox_inactivity_minutes() );
+	$expires_at   = gmdate( 'Y-m-d H:i:s', strtotime( $inactivity , strtotime( $current_time ) ) );
 
-	switch_to_blog( 1 );
-
-	global $wpdb;
+	$wpdb = _slds_control_panel_db();
 	global $slds_meta_data;
 	
+	// Update expires time in the control panel main site
 	$wpdb->update(
-		$slds_meta_data['tables']['slds_sandboxes'],
+		$slds_meta_data['control_panel_db']['tables']['sandboxes'],
 		array( 'expires_at' => $expires_at ),
 		array( 'site_id' => $site_id )
 	);
-
-	restore_current_blog();
 }
 
 /**

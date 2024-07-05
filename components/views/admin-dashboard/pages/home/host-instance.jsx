@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import {__, copyToClipboard} from 'crewhrm-materials/helpers.jsx';
+import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
 import { confirm } from "crewhrm-materials/prompts.jsx";
 import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
 import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
 import { TableStat } from "crewhrm-materials/table-stat.jsx";
 import { Modal } from "crewhrm-materials/modal.jsx";
+import { Pagination } from "crewhrm-materials/pagination/pagination.jsx";
 
 import { HostSettings } from "./host-settings.jsx";
 
-const section_class = 'bg-color-white box-shadow-thin padding-vertical-20 padding-horizontal-15 border-radius-8 margin-bottom-20'.classNames();
+const section_class = 'bg-color-white box-shadow-thin padding-20 border-radius-8 margin-bottom-20'.classNames();
 
 export function HostInstance({configs={}}) {
 
@@ -23,10 +24,21 @@ export function HostInstance({configs={}}) {
 		fetching: true,
 		sandboxes: [],
 		show_settings: false,
+		segmentation: {},
 		filters: {
 			page: 1
 		}
 	});
+
+	const setFilter=(name, value)=>{
+		setState({
+			...state,
+			filters: {
+				...state.filters,
+				[name]: value
+			}
+		});
+	}
 
 	const getSandboxes=()=>{
 
@@ -35,21 +47,22 @@ export function HostInstance({configs={}}) {
 			fetching: true,
 		});
 
-		request('getSandboxes', {filters: state.filters}, resp=>{
+		request('getSandboxes', state.filters, resp=>{
 			
-			const {sandboxes=[]} = resp.data;
+			const {sandboxes=[], segmentation={}} = resp.data;
 
 			setState({
 				...state,
 				fetching: false,
-				sandboxes
+				sandboxes,
+				segmentation
 			});
 		});
 	}
 
 	useEffect(()=>{
 		getSandboxes();
-	}, []);
+	}, [state.filters]);
 
 	const deleteInstance=()=>{
 		confirm(
@@ -110,7 +123,7 @@ export function HostInstance({configs={}}) {
 		});
 	}
 
-	return <div style={{margin: '50px auto', maxWidth: '600px'}}>
+	return <div style={{margin: '50px auto', maxWidth: '700px'}}>
 		{
 			!state.show_settings ? null :
 			<Modal>
@@ -156,10 +169,10 @@ export function HostInstance({configs={}}) {
 		</div>
 
 		<div className={section_class}>
-			<div className={'d-flex align-items-center column-gap-8 margin-bottom-10'.classNames()}>
+			<div className={'d-flex align-items-center column-gap-8 margin-bottom-10 justify-content-space-between'.classNames()}>
 				<div>
 					<span className={'font-size-16 font-weight-600 margin-bottom-15'.classNames()}>
-						{__('Sandboxes')}
+						{__('Sandboxes')}: {__(state.segmentation.total_count)}
 					</span>
 				</div>
 				<div className={'d-flex'.classNames()}>
@@ -178,8 +191,9 @@ export function HostInstance({configs={}}) {
 			<table className={'table no-responsive'.classNames()}>
 				<thead>
 					<tr>
-						<th>Instance</th>
-						<th>User IP</th>
+						<th>{__('Instance')}</th>
+						<th>{__('User IP')}</th>
+						<th>{__('Created')}</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -190,6 +204,7 @@ export function HostInstance({configs={}}) {
 							const {
 								sandbox_id, 
 								site_title, 
+								created_unix,
 								site_id, 
 								user_ip, 
 								dashboard_url,
@@ -201,6 +216,9 @@ export function HostInstance({configs={}}) {
 								</td>
 								<td>
 									{user_ip}
+								</td>
+								<td>
+									{timeAgoOrAfter(created_unix)}
 								</td>
 								<td>
 									<div className={'d-flex align-items-center justify-content-flex-end column-gap-8'.classNames()}>
@@ -226,6 +244,13 @@ export function HostInstance({configs={}}) {
 					/>
 				</tbody>
 			</table>
+			<div className={`${state.segmentation?.page_count > 1 ? 'margin-top-15' : ''}`.classNames()}>
+				<Pagination
+					onChange={page=>setFilter('page', page)}
+					pageNumber={state.filters.page}
+					pageCount={state.segmentation.page_count}
+				/>
+			</div>
 		</div>
 
 		<div className={section_class}>
@@ -244,6 +269,32 @@ export function HostInstance({configs={}}) {
 					></i>
 				</div>
 			</div>
+		</div>
+
+		
+		<div className={section_class + 'border-1 b-color-text-10 box-shadow-thick'.classNames()}>
+			<span className={'d-block font-size-16 font-weight-500 color-text-90 margin-bottom-15'.classNames()}>
+				{sprintf(__('Hi %s'), window[data_pointer].user.display_name)},
+			</span>
+
+			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-5'.classNames()}>
+				{__('What if you could showcase and monetize your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, license keys, and documentation all in one convenient place.')}
+			</span>
+
+			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-25'.classNames()}>
+				{__('Introducing')} <strong className={'font-weight-700'.classNames()}>{__('Solidie')}</strong>, &nbsp;
+				{__('the ultimate plugin that transforms a simple WordPress website into a full-fledged digital content marketplace.')}
+			</span>
+
+			<div className={'text-align-center margin-bottom-25'.classNames()}>
+				<a href='https://solidie.com/' target='_blank' className={'button button-primary'.classNames()}>
+					{__('Learn More')}
+				</a>
+			</div>
+
+			<span className={'d-block font-size-14 font-weight-400 color-text-70'.classNames()}>
+				{__('Not only can you exhibit and monetize themes and plugins, but you can also sell any type of content, such as audio, video, images, apps, fonts, and more, all from your own website.')}
+			</span>
 		</div>
 	</div> 
 }
