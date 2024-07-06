@@ -142,7 +142,9 @@ class Sandbox extends Instance {
 		$sandboxes = $wpdb->get_results(
 			"SELECT 
 				*, 
-				UNIX_TIMESTAMP(created_at) AS created_unix 
+				UNIX_TIMESTAMP(created_at) AS created_unix,
+				UNIX_TIMESTAMP(expires_at) AS expires_unix,
+				UNIX_TIMESTAMP(last_hit) AS last_hit_unix 
 			FROM 
 				{$wpdb->slds_sandboxes} 
 			WHERE {$where_clause} {$limit_clause}",

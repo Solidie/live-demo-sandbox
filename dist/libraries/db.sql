@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Jun 26, 2024 at 04:17 PM
+-- Generation Time: Jul 06, 2024 at 09:04 AM
 -- Server version: 5.7.39
 -- PHP Version: 8.2.0
 
@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `wp_slds_sandboxes` (
   `user_ip` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expires_at` timestamp NULL DEFAULT NULL,
+  `last_hit` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`sandbox_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 COMMIT;

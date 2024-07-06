@@ -123,7 +123,7 @@ export function HostInstance({configs={}}) {
 		});
 	}
 
-	return <div style={{margin: '50px auto', maxWidth: '700px'}}>
+	return <div style={{margin: '50px auto', maxWidth: '850px'}}>
 		{
 			!state.show_settings ? null :
 			<Modal>
@@ -194,6 +194,8 @@ export function HostInstance({configs={}}) {
 						<th>{__('Instance')}</th>
 						<th>{__('User IP')}</th>
 						<th>{__('Created')}</th>
+						<th>{__('Expires')}</th>
+						<th>{__('Last Hit')}</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -205,6 +207,8 @@ export function HostInstance({configs={}}) {
 								sandbox_id, 
 								site_title, 
 								created_unix,
+								expires_unix,
+								last_hit_unix,
 								site_id, 
 								user_ip, 
 								dashboard_url,
@@ -219,6 +223,12 @@ export function HostInstance({configs={}}) {
 								</td>
 								<td>
 									{timeAgoOrAfter(created_unix)}
+								</td>
+								<td>
+									{timeAgoOrAfter(expires_unix)}
+								</td>
+								<td>
+									{timeAgoOrAfter(last_hit_unix)}
 								</td>
 								<td>
 									<div className={'d-flex align-items-center justify-content-flex-end column-gap-8'.classNames()}>
@@ -278,7 +288,7 @@ export function HostInstance({configs={}}) {
 			</span>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-5'.classNames()}>
-				{__('What if you could showcase and sell your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, automatic update distributions, licenses, and documentation all in one convenient place.')}
+				{__('What if you could showcase and sell your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, auto updates, licenses, and documentation all in one convenient place.')}
 			</span>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-25'.classNames()}>

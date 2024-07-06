@@ -323,13 +323,14 @@ class Instance {
 				'concurrency_limit'         => 100,
 				'inactivity_time_allowed'   => 1,
 				'inactivity_period_allowed' => 'hour',
+				'sandbox_site_title'        => 'Sandbox - ' . get_bloginfo( 'name' ),
 				'new_user_role'             => '',
 				'auto_login_new_user'       => true
 			)
 		);
 
 		$option = _Array::getArray( get_option( self::OPTION_KEY ) );
-		$option = array_merge( $defaults, $option );
+		$option = array_replace_recursive( $defaults, $option );
 
 		return $key ? ( $option[ $key ] ?? $def ) : $option;
 	}

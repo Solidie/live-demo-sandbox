@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit;
 $slds_meta_data = '[]';
 // dynamics
 $slds_meta_data = json_decode( $slds_meta_data, true );
+$slds_meta_data['auto_user_info'] = 'slds_demo_user_auto_created';
 
 /**
  * This plugin will be copied to multiste setup, and will work there only.
@@ -138,9 +139,34 @@ function _slds_active_state_logger() {
 	// Update expires time in the control panel main site
 	$wpdb->update(
 		$slds_meta_data['control_panel_db']['tables']['sandboxes'],
-		array( 'expires_at' => $expires_at ),
+		array( 'expires_at' => $expires_at, 'last_hit' => $current_time ),
 		array( 'site_id' => $site_id )
 	);
+
+	if (
+		! is_user_logged_in() && 
+		! is_admin() &&
+		'GET' == sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) )
+	) {
+		
+		$auto_user = get_option( $slds_meta_data['auto_user_info'] );
+		$auto_user = is_array( $auto_user ) ? $auto_user : array();
+
+		if ( 
+			! empty( $auto_user['user_id'] ) && 
+			( $auto_user['auto_login'] ?? false ) && 
+			! ( $auto_user['logged_in'] ?? false ) 
+		) {
+			
+			$auto_user['logged_in'] = true;
+			update_option( $slds_meta_data['auto_user_info'], $auto_user, true );
+
+			wp_set_current_user( $auto_user['user_id'] );
+			wp_set_auth_cookie( $auto_user['user_id'] );
+			wp_safe_redirect( get_home_url() );
+			exit;
+		}
+	}
 }
 
 /**
@@ -206,12 +232,17 @@ function slds_internal_request() {
 	switch ( $action ) {
 
 		case 'create_sandbox':
-			$parsed = wp_parse_url( get_home_url() );
+
+			global $slds_meta_data;
+
+			$options = _slds_control_panel_get_configs( 'settings', array() );
+			$parsed  = wp_parse_url( get_home_url() );
 
 			// Define the site details
 			$domain  = $parsed['host'];
-			$path    = trim( $parsed['path'], '/' ) . '/sandbox-' . md5( time() . microtime() );
-			$title   = 'New Subsite';
+			$unique  = md5( time() . microtime() );
+			$path    = trim( $parsed['path'], '/' ) . '/sandbox-' . $unique;
+			$title   = $options['sandbox_site_title'] ?? 'Sandbox Site';
 			$user_id = 1;
 			$meta    = array(
 				'public' => 1,
@@ -220,12 +251,46 @@ function slds_internal_request() {
 			// Check if the path already exists
 			if ( ! domain_exists( $domain, $path ) ) {
 
+				// Create subsite 
 				$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
-
 				if ( is_wp_error( $new_site_id ) ) {
 					wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
 				}
 
+				// Create a user if role is defined
+				if ( ! empty( $options['new_user_role'] ) ) {
+
+					// Switch to the new site to store user info
+					switch_to_blog( $new_site_id );
+
+					$user_id = wp_insert_user(
+						array(
+							'user_login'    => $unique,
+							'user_pass'     => substr(str_shuffle(str_repeat($x = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%&*?', ceil(16 / strlen($x)))), 1, 16),
+							'user_email'    => $unique . '@example.com',
+							'first_name'    => 'John',
+							'last_name'     => 'Doe',
+							'role'          => $options['new_user_role'],
+						)
+					);
+
+					// Save auto login flags in option
+					if ( ! empty( $user_id ) && ! is_wp_error( $user_id ) ) {
+						update_option(
+							$slds_meta_data['auto_user_info'], 
+							array(
+								'user_id'    => $user_id, 
+								'logged_in'  => false,
+								'auto_login' => $options['auto_login_new_user']
+							),
+							true
+						);
+					}
+					
+					restore_current_blog();
+				}
+				
+				// Send response back to control panel site
 				wp_send_json_success(
 					array(
 						'site_id'    => $new_site_id,

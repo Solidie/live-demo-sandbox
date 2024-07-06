@@ -43,6 +43,11 @@ const fields = [
 		]
 	},
 	{
+		label: __('Sandbox site title'),
+		name: 'sandbox_site_title',
+		type: 'text'
+	},
+	{
 		label: <>
 				{__('Role to create a user with (if need)')}<br/>
 				<small>{__('Applicable for new sandboxes only')}</small>
