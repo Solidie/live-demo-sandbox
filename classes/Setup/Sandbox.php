@@ -34,13 +34,19 @@ class Sandbox {
 			$userAgent = $_SERVER['HTTP_USER_AGENT'];
 			
 			// List of common browsers
-			$browsers = array( 'Mozilla', 'Chrome', 'Safari', 'Opera', 'MSIE', 'Edge', 'Trident' );
+			$browsers = apply_filters(
+				'slds_browser_identifier_flags',
+				array( 'Mozilla', 'Chrome', 'Safari', 'Opera', 'MSIE', 'Edge', 'Trident' )
+			);
 			
 			// List of common crawlers/bots
-			$crawlers = array(
-				'Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou', 'Exabot',
-				'facebot', 'ia_archiver', 'MJ12bot', 'AhrefsBot', 'SEMrushBot', 'DotBot', 'MegaIndex', 'YandexImages',
-				'Google Web Preview', 'Twitterbot', 'Pinterest', 'LinkedInBot'
+			$crawlers = apply_filters(
+				'slds_crawler_identifier_flags',
+				array(
+					'Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou', 'Exabot',
+					'facebot', 'ia_archiver', 'MJ12bot', 'AhrefsBot', 'SEMrushBot', 'DotBot', 'MegaIndex', 'YandexImages',
+					'Google Web Preview', 'Twitterbot', 'Pinterest', 'LinkedInBot'
+				)
 			);
 
 			$isBrowser = false;

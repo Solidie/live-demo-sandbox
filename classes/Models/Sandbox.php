@@ -152,7 +152,7 @@ class Sandbox extends Instance {
 		$root = $this->getAbsoluteRootURL();
 		foreach ( $sandboxes as $index => $sandbox ) {
 			$sandboxes[ $index ]['dashboard_url'] = $root . $sandbox['site_path'] . '/wp-admin/';
-			$sandboxes[ $index ]['home_url']      = $root . $sandbox['site_path'] . '/wp-admin/';
+			$sandboxes[ $index ]['home_url']      = $root . $sandbox['site_path'];
 		}
 
 		return $sandboxes;

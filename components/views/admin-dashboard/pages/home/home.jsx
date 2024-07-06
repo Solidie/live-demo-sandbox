@@ -12,6 +12,32 @@ import { HostInstance } from "./host-instance.jsx";
 
 const status_class = 'text-align-center font-size-500 font-size-16'.classNames();
 
+function generateStrongPassword(length = 12) {
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const specialChars = '!@#$%^&*()_+[]{}|.<>?';
+
+    const allChars = uppercase + lowercase + numbers + specialChars;
+    let password = '';
+
+    // Ensure the password contains at least one character from each character set
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += specialChars[Math.floor(Math.random() * specialChars.length)];
+
+    // Fill the remaining length with random characters from all sets
+    for (let i = password.length; i < length; i++) {
+        password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+
+    // Shuffle the password to ensure randomness
+    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+    
+    return password;
+}
+
 export function HomeBackend(props) {
 
 	const {configs={}} = props;
@@ -69,7 +95,7 @@ export function HomeBackend(props) {
 		admin_password: {
 			label: __('Admin Password'),
 			type: 'text',
-			value: 'ZJ3VA^jSxmq9&%k!',
+			value: generateStrongPassword(20),
 			modifier: purgeBasePath
 		},
 		plugins: {
@@ -86,7 +112,7 @@ export function HomeBackend(props) {
 			WpMedia: {mime_type: 'application/zip'},
 			removable: true,
 			optional: true,
-		},
+		}
 	}
 		
 	const field_keys = Object.keys(fields);
@@ -257,7 +283,7 @@ export function HomeBackend(props) {
 						<div>
 							{
 								field_keys.map(name=>{
-									const {type='text', label, modifier, removable, WpMedia, maxlength} = fields[name];
+									const {type='text', label, modifier, removable, WpMedia, maxlength, switch_label} = fields[name];
 
 									return <div key={name} className={'d-flex align-items-center column-gap-20 margin-bottom-30'.classNames()}>
 										<label style={{width: '200px'}} className={'d-block font-size-16'.classNames()}>
@@ -271,6 +297,7 @@ export function HomeBackend(props) {
 													onChange={v=>setVal(name, (modifier ? modifier(v) : v))}
 												/>
 											}
+											
 											{
 												type!=='file' ? null :
 												<FileUpload 

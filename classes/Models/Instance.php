@@ -64,7 +64,7 @@ class Instance {
 	 * @return string|null
 	 */
 	public function multiSiteHomeURL() {
-		return ! empty( $this->configs['directory_name'] ) ? get_home_url() . '/' . $this->configs['directory_name'] . '/wordpress/' : null;
+		return ! empty( $this->configs['directory_name'] ) ? get_home_url() . '/' . $this->configs['directory_name'] . '/' : null;
 	}
 
 	/**
@@ -135,9 +135,12 @@ class Instance {
 			);
 		}
 
+		// Move cotnents from ~/wordpress to sandbox host root.
+		FileManager::moveDirectory( $subsite_path . '/wordpress', $subsite_path );
+
 		// Create wp-config.php
-		$config_sample = file_get_contents( $subsite_path . '/wordpress/wp-config-sample.php' );
-		$config_path   = $subsite_path . '/wordpress/wp-config.php';
+		$config_sample = file_get_contents( $subsite_path . '/wp-config-sample.php' );
+		$config_path   = $subsite_path . '/wp-config.php';
 		$prefix_line   = '$table_prefix = \'' . $tbl_prefix . '\';';
 
 		$config = str_replace(
@@ -187,7 +190,7 @@ class Instance {
 	 */
 	private function installExtensions( $site_configs ) {
 
-		$content_dir = $this->getBaseDir() . '/wordpress/wp-content';
+		$content_dir = $this->getBaseDir() . '/wp-content';
 
 		// Install custom theme and plugins
 		$extensions = _Array::getArray( $site_configs['plugins'] ?? null );
@@ -349,7 +352,7 @@ class Instance {
 	public function deployNetworkConfigs() {
 
 		$subsite_path = $this->getBaseDir();
-		$config_path  = $subsite_path ? $subsite_path . '/wordpress/wp-config.php' : null;
+		$config_path  = $subsite_path ? $subsite_path . '/wp-config.php' : null;
 
 		if ( ! $config_path || ! file_exists( $config_path ) ) {
 			return;
@@ -372,7 +375,7 @@ class Instance {
 		// Add htaccess for multisite
 		$htaccess = file_get_contents( dirname( __DIR__ ) . '/snippets/htaccess.txt' );
 		$htaccess = str_replace( '__site_path__', $site_path, $htaccess );
-		file_put_contents( $subsite_path . '/wordpress/.htaccess', $htaccess );
+		file_put_contents( $subsite_path . '/.htaccess', $htaccess );
 	}
 
 	/**

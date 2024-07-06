@@ -278,7 +278,7 @@ export function HostInstance({configs={}}) {
 			</span>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-5'.classNames()}>
-				{__('What if you could showcase and monetize your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, license keys, and documentation all in one convenient place.')}
+				{__('What if you could showcase and sell your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, automatic update distributions, licenses, and documentation all in one convenient place.')}
 			</span>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-25'.classNames()}>
@@ -293,7 +293,7 @@ export function HostInstance({configs={}}) {
 			</div>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70'.classNames()}>
-				{__('Not only can you exhibit and monetize themes and plugins, but you can also sell any type of content, such as audio, video, images, apps, fonts, and more, all from your own website.')}
+				{__('You can also sell any type of content, such as audio, video, images, apps, fonts, 3d models and more, all from your own website.')}
 			</span>
 		</div>
 	</div> 
