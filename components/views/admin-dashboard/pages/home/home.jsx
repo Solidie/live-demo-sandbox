@@ -9,8 +9,10 @@ import { confirm } from "crewhrm-materials/prompts.jsx";
 import { FileUpload } from "crewhrm-materials/file-upload/file-upload.jsx";
 
 import { HostInstance } from "./host-instance.jsx";
+import { ToggleSwitch } from "crewhrm-materials/toggle-switch/ToggleSwitch.jsx";
 
 const status_class = 'text-align-center font-size-500 font-size-16'.classNames();
+const reserved_dirs = ['wp-admin', 'wp-content', 'wp-includes'];
 
 function generateStrongPassword(length = 12) {
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -138,7 +140,42 @@ export function HomeBackend(props) {
 		});
 	}
 
+	const FileControl=({file})=>{
+		return <div className={'d-flex align-items-center column-gap-8'.classNames()} onClick={e=>e.stopPropagation()}>
+			<ToggleSwitch 
+				checked={isPluginNetWide(file.file_id, false)}
+				onChange={checked=>{
+					setState({
+						...state,
+						values: {
+							...state.values,
+							plugins: state.values.plugins.map(p=>{
+								return {
+									...p,
+									network: p.file_id==file.file_id ? checked : p.network
+								}
+							})
+						}
+					})
+				}}
+			/>
+			<span>
+				{__('Network Wide')}
+			</span>
+		</div>
+	}
+
+	const isPluginNetWide=(file_id, def)=>{
+		return state.values.plugins?.find?.(p=>p.file_id==file_id)?.network ?? def;
+	}
+
 	const downloadWP=()=>{
+
+		if ( reserved_dirs.indexOf(state.values.directory_name) > -1 ) {
+			alert(__('Directory name is invalid! Please change it first.'));
+			return;
+		}
+
 		confirm(
 			__('Sure to Start setup?'),
 			__('You must keep the tab open until completion. Otherwise you\'ll have to reset setup.'),
@@ -303,16 +340,27 @@ export function HomeBackend(props) {
 												<FileUpload 
 													WpMedia={WpMedia}
 													maxlength={maxlength}
-													onChange={v=>setVal(name, v)}
 													value={state.values[name] || null}
 													removable={removable}
+													FileControl={name==='plugins' ? FileControl : null}
+													onChange={v=>{
+														setVal(
+															name, 
+															name=='theme' ? v : v.map(p=>{
+																return {
+																	...p,
+																	network: isPluginNetWide(p.file_id, true)
+																}
+															})
+														)
+													}}
 												/>
 											}
 
 											{
 												(name !== 'plugins' || (state.values[name]?.length || 0)<2) ? null :
 												<span className={'d-block font-size-13 color-text-70 margin-top-5'.classNames()}>
-													{__('Plugins will be installed according to the order you see')}
+													{__('Plugins will be activated according to the order you see')}
 												</span>
 											}
 										</div>
@@ -368,7 +416,7 @@ export function HomeBackend(props) {
 					<div className={status_class}>
 						{state.step==2 ? __('Setting up Network') : __('Activating network wide themes and plugins')}
 					</div>
-					<div style={{margin: '0 auto', height: '2px', overflow: 'hidden', visibility: 'hidden'}}>
+					<div style={{margin: '0 auto', /* height: '2px', overflow: 'hidden', visibility: 'hidden' */}}>
 						<iframe style={{width: '800px', height: `${window.innerHeight - 150}px`}} src={state.iframe_url}></iframe>
 					</div>
 				</div>

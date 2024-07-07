@@ -194,14 +194,12 @@ class Instance {
 
 		// Install custom theme and plugins
 		$extensions = _Array::getArray( $site_configs['plugins'] ?? null );
-		$extensions = array_column( $extensions, 'file_id' );
-		$extensions = array_map( 'intval', array_filter( $extensions, 'is_numeric' ) );
 		$extensions = array_map(
-			function ( $file_id ) {
+			function ( $ext ) {
 				return array(
-					'file_id' => $file_id,
+					'file_id' => $ext['file_id'],
 					'type'    => 'plugin',
-					'network' => true,
+					'network' => ( bool ) ( $ext['network'] ?? true ),
 				);
 			},
 			$extensions
@@ -211,8 +209,7 @@ class Instance {
 		if ( is_array( $site_configs['theme'] ?? null ) && isset( $site_configs['theme']['file_id'] ) ) {
 			$extensions[] = array(
 				'file_id' => $site_configs['theme']['file_id'],
-				'type'    => 'theme',
-				'network' => true,
+				'type'    => 'theme'
 			);
 		}
 

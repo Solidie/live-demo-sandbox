@@ -208,6 +208,41 @@ function slds_internal_session() {
 	wp_send_json_success();
 }
 
+function _slds_activate_plugin_by_directory( $plugin_directory ) {
+	
+    // Path to the plugin directory
+    $plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_directory;
+
+    // Make sure the directory exists
+    if (!is_dir($plugin_dir)) {
+        return;
+    }
+
+    // Scan the plugin directory for files
+    $plugin_files = scandir($plugin_dir);
+    if ($plugin_files === false) {
+        return;
+    }
+
+    // Iterate over the files to find the main plugin file
+    $plugin_file = '';
+    foreach ($plugin_files as $file) {
+        if (substr($file, -4) === '.php') {
+            $file_path = $plugin_dir . '/' . $file;
+            $file_data = get_file_data($file_path, array('Plugin Name' => 'Plugin Name'), 'plugin');
+            if (!empty($file_data['Plugin Name'])) {
+                $plugin_file = $plugin_directory . '/' . $file;
+                break;
+            }
+        }
+    }
+
+    // If a main plugin file was found, activate the plugin
+    if ($plugin_file && !is_plugin_active($plugin_file)) {
+        activate_plugin($plugin_file);
+    }
+}
+
 /**
  * Handle internal request
  *
@@ -257,12 +292,27 @@ function slds_internal_request() {
 					wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
 				}
 
+				// Switch to the new site to store user info
+				switch_to_blog( $new_site_id );
+
+				// Activate theme and plugins which are not network wide
+				foreach ( $slds_meta_data['extensions'] as $ext ) {
+					
+					// Activate theme
+					if ( 'theme' == $ext['type'] ) {
+						$current_theme = wp_get_theme();
+						if ( $current_theme->get_stylesheet() !== $ext['dir_name'] ) {
+							switch_theme( $ext['dir_name'] );
+						}
+					} else if ( 'plugin' === $ext['type'] && false === ( $ext['network'] ?? true ) ) {
+						_slds_activate_plugin_by_directory( $ext['dir_name'] );
+					}
+				}
+
 				// Create a user if role is defined
 				if ( ! empty( $options['new_user_role'] ) ) {
 
-					// Switch to the new site to store user info
-					switch_to_blog( $new_site_id );
-
+					// Create a new user
 					$user_id = wp_insert_user(
 						array(
 							'user_login'    => $unique,
@@ -286,10 +336,13 @@ function slds_internal_request() {
 							true
 						);
 					}
-					
-					restore_current_blog();
 				}
 				
+				do_action( 'slds_sandbox_created', $new_site_id );
+				
+				// Get back to current site
+				restore_current_blog();
+
 				// Send response back to control panel site
 				wp_send_json_success(
 					array(
@@ -367,18 +420,17 @@ function _slds_multisite_scripts_load() {
 		return;
 	}
 
+	// If not multisite, then it is just a normal WP setup
 	if ( ! is_multisite() ) {
 
+		// So first of all login, and then go to network page to set up multisite
 		if ( ! is_user_logged_in() ) {
 			$intent          = 'login';
 			$url_after_login = admin_url( 'network.php' );
 
 		} elseif ( is_admin() ) {
-
-			// Get the current screen object
+			// Go to network setup page
 			$screen = get_current_screen();
-
-			// Check if we are on the network.php page
 			if ( $screen ) {
 				if ( 'network' === $screen->id && 'network' === $screen->base ) {
 					$intent = 'setup';
@@ -386,23 +438,35 @@ function _slds_multisite_scripts_load() {
 			}
 		}
 	} elseif ( ! is_user_logged_in() ) {
+		// If it is multisite but not logged in, it means setup complete. 
+		// Now login to multsite admin using ajax and load the plugins page to activate network wide plugins.
 		$intent          = 'login';
 		$url_after_login = admin_url( 'plugins.php' );
 
 	} else {
 
+		// If it is multisite and admin is logged in, then go to either plugins page or themes to enable network wide.
+		// This condition will be true multiple times per plugin/theme.
 		$found = false;
 
+		// If it is admin dashboard, then check if it is plugins or themes page. If none, then redirect to plugins forcefully.
 		if ( is_admin() ) {
 			$screen = get_current_screen();
 			if ( $screen ) {
 				if ( 'plugins-network' === $screen->id && 'plugins-network' === $screen->base ) {
 					$found  = true;
-					$intent = 'extension';
+					$intent = 'plugins';
+				}
+
+				if ( 'themes-network' === $screen->id && 'themes-network' === $screen->base ) {
+					$found  = true;
+					$intent = 'themes';
 				}
 			}
 		}
 
+		// It means neither plugins not theme page. So forcefully load plugins page.
+		// If there is no plugin to activate network wide, it will load themes page subsequently.
 		if ( ! $found ) {
 			$intent       = 'redirect';
 			$redirect_url = get_home_url() . '/wp-admin/network/plugins.php';
@@ -412,6 +476,7 @@ function _slds_multisite_scripts_load() {
 	?>
 	<script>
 		const _slds_net_url                  = '<?php echo esc_url( $url_after_login ); ?>';
+		const _slds_net_theme_url            = '<?php echo esc_url( get_home_url() . '/wp-admin/network/themes.php' ); ?>';
 		const _slds_ajax_url                 = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
 		const _slds_intent                   = '<?php echo esc_attr( $intent ); ?>';
 		const _slds_exts                     = <?php echo wp_json_encode( $slds_load_extensions ); ?>;
@@ -473,15 +538,35 @@ function _slds_multisite_scripts_load() {
 					}
 					break;
 
-				case 'extension' :
-					let found = false;
+				case 'plugins' :
+				case 'themes'  :
+					
+					let       found  = false;
+					const is_plugins = _slds_intent === 'plugins';
+
+					// Loop through plugins/themes to avtivate network wide
 					for ( let i=0; i<_slds_exts.length; i++ ) {
-						const {dir_name, type, network=false} = _slds_exts[i];
-						const anchor = window.jQuery(`[data-plugin^="${dir_name}/"] span.activate a`);
-						if ( network && anchor.length ) {
+
+						const {
+							dir_name, 
+							type, 
+							network=false
+						} = _slds_exts[i];
+
+						const network_wide = !is_plugins || network;
+						const selector     = is_plugins ? `[data-plugin^="${dir_name}/"] span.activate a` : `[data-slug="${dir_name}"] span.enable a`;
+						const anchor       = window.jQuery(selector);
+
+						if ( network_wide && anchor.length ) {
 							found = true;
 							window.location.assign(anchor.attr('href'));
 						}
+					}
+
+					// Open themes page now if no more plugins to activate network wide.
+					if ( ! found && is_plugins ) {
+						window.location.assign(_slds_net_theme_url);
+						return;
 					}
 
 					if ( ! found ) {

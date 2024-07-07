@@ -303,7 +303,7 @@ export function HostInstance({configs={}}) {
 			</div>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70'.classNames()}>
-				{__('You can also sell any type of content, such as audio, video, images, apps, fonts, 3d models and more, all from your own website.')}
+				{__('You can also sell any type of content, such as audio, video, images, apps, fonts, 3d models and more, all from your own website. Plus earn commissions from third party contributors too.')}
 			</span>
 		</div>
 	</div> 
