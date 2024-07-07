@@ -416,7 +416,7 @@ export function HomeBackend(props) {
 					<div className={status_class}>
 						{state.step==2 ? __('Setting up Network') : __('Activating network wide themes and plugins')}
 					</div>
-					<div style={{margin: '0 auto', /* height: '2px', overflow: 'hidden', visibility: 'hidden' */}}>
+					<div style={{margin: '0 auto', height: '2px', overflow: 'hidden', visibility: 'hidden'}}>
 						<iframe style={{width: '800px', height: `${window.innerHeight - 150}px`}} src={state.iframe_url}></iframe>
 					</div>
 				</div>

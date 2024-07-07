@@ -13,7 +13,7 @@ use Solidie_Sandbox\Setup\AdminPage;
 use Solidie_Sandbox\Setup\Cron;
 use Solidie_Sandbox\Setup\Database;
 use Solidie_Sandbox\Setup\Dispatcher;
-use Solidie_Sandbox\Setup\Sandbox;
+use Solidie_Sandbox\Setup\SandboxSetup;
 use Solidie_Sandbox\Setup\Scripts;
 
 /**
@@ -60,7 +60,7 @@ class Main {
 		new Dispatcher();
 		new Scripts();
 		new AdminPage();
-		new Sandbox();
+		new SandboxSetup();
 		new Cron();
 
 		do_action( 'slds_loaded' );

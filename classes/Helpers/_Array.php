@@ -293,11 +293,13 @@ class _Array {
 	/**
 	 * Group multiple rows by a common field
 	 *
-	 * @param  array  $array    The table array to group rows
-	 * @param  string $col_name The column name to group by
+	 * @param array  $array    The table array to group rows
+	 * @param string $col_name The column name to group by
+	 * @param string $singular_field
+	 *
 	 * @return array
 	 */
-	public static function groupRows( $array, $col_name ) {
+	public static function groupRows( $array, $col_name, $singular_field = null ) {
 		$grouped_array = array();
 
 		foreach ( $array as $item ) {
@@ -307,7 +309,7 @@ class _Array {
 				$grouped_array[ $group_key ] = array();
 			}
 
-			$grouped_array[ $group_key ][] = $item;
+			$grouped_array[ $group_key ][] = $singular_field ? $item[ $singular_field ] : $item;
 		}
 
 		return $grouped_array;

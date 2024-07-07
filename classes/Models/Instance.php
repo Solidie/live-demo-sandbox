@@ -20,6 +20,13 @@ class Instance {
 	const CONF_PLACE = '// multisite_configs';
 
 	/**
+	 * Multsite host ID
+	 *
+	 * @var string
+	 */
+	private $host_id;
+
+	/**
 	 * Multisite configs array
 	 *
 	 * @var array
@@ -35,11 +42,15 @@ class Instance {
 
 	/**
 	 * Instance constructor
+	 * 
+	 * @param string $host_id Multisite host ID
+	 * @param array  $configs Optional configs, passed esepcially when saving new configs for a host.
 	 *
 	 * @param array|null $configs The multsite config to initiate
 	 */
-	public function __construct( $configs = null ) {
+	public function __construct( string $host_id, $configs = null ) {
 
+		$this->host_id = $host_id;
 		$this->configs = $configs ? $configs : $this->getConfigs();
 
 		$db_name     = $this->configs['db_name'];
@@ -236,6 +247,7 @@ class Instance {
 				'pass'                => DB_PASSWORD,
 				'table_prefix'        => $wpdb->prefix,
 				'configs_option_name' => self::OPTION_KEY,
+				'host_id'             => $this->host_id,
 				'tables'              => array(
 					'sandboxes' => $wpdb->slds_sandboxes,
 					'options'   => $wpdb->prefix . 'options',
@@ -260,7 +272,12 @@ class Instance {
 
 		// Delete all the sandbox list from main db
 		global $wpdb;
-		$wpdb->query( "DELETE FROM {$wpdb->slds_sandboxes}" );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->slds_sandboxes} WHERE host_id=%s",
+				$this->host_id
+			)
+		);
 
 		// Delete all db tables from multsite db
 		$tables = $this->db->get_col(
@@ -276,7 +293,7 @@ class Instance {
 			}
 		}
 
-		delete_option( self::OPTION_KEY );
+		$this->updateConfigs( array(), true );
 	}
 
 	/**
@@ -285,9 +302,9 @@ class Instance {
 	 * @param array $configs Multsite configs array
 	 * @return void
 	 */
-	private function updateConfigs( $configs = array() ) {
+	private function updateConfigs( $configs = array(), $replace = false ) {
 
-		$options = array_merge( $this->configs, $configs );
+		$options = $replace ? $configs : array_replace_recursive( $this->configs, $configs );
 
 		if ( isset( $options['plugins'] ) ) {
 			unset( $options['plugins'] );
@@ -297,7 +314,12 @@ class Instance {
 			unset( $options['theme'] );
 		}
 
-		update_option( self::OPTION_KEY, $options );
+		$this->configs = $options;
+
+		$raw = $this->getConfigs( null, null, true );
+		$raw[ $this->host_id ] = $this->configs;
+
+		update_option( self::OPTION_KEY, $raw );
 	}
 
 	/**
@@ -305,17 +327,18 @@ class Instance {
 	 *
 	 * @param string|null $key To get specific value from configs
 	 * @param mixed       $def Default return value
+	 * @param bool        $get_raw Whether to return raw
 	 *
 	 * @return array
 	 */
-	public static function getConfigs( $key = null, $def = null ) {
+	public function getConfigs( $key = null, $def = null, $get_raw = false ) {
 
 		$defaults = array(
 			'db_name'      => DB_NAME,
 			'db_user'      => DB_USER,
 			'db_password'  => DB_PASSWORD,
 			'db_host'      => DB_HOST,
-			'table_prefix' => Main::$configs->db_prefix . 'sandbox_instance_',
+			'table_prefix' => Main::$configs->db_prefix . 'sandbox_' . $this->host_id . '_',
 			'settings'     => array(
 				'concurrency_limit'         => 100,
 				'inactivity_time_allowed'   => 1,
@@ -326,9 +349,15 @@ class Instance {
 			)
 		);
 
-		$option = _Array::getArray( get_option( self::OPTION_KEY ) );
-		$option = array_replace_recursive( $defaults, $option );
+		$options = _Array::getArray( get_option( self::OPTION_KEY ) );
+		$options[ $this->host_id ] = array_replace_recursive( $defaults, $options[ $this->host_id ] ?? array() );
+		if ( $get_raw ) {
+			return $options;
+		}
 
+		// Get option for individual host context
+		$option = $options[ $this->host_id ] ?? array();
+		
 		return $key ? ( $option[ $key ] ?? $def ) : $option;
 	}
 

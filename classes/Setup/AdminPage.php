@@ -77,9 +77,8 @@ class AdminPage {
 	 */
 	public function homePage() {
 
-		$instance                 = new Instance();
-		$configs                  = $instance->getConfigs();
-		$configs['dashboard_url'] = $instance->multiSiteHomeURL() . 'wp-admin/';
+		$instance                 = new Instance( '' );
+		$configs                  = ( object ) $instance->getConfigs( null, null, true);
 		$configs['sandbox_url']   = Sandbox::getSandboxInitURL();
 		$configs['is_apache']     = strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ), 'Apache' ) !== false;
 

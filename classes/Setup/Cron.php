@@ -7,6 +7,7 @@
 
 namespace Solidie_Sandbox\Setup;
 
+use Solidie_Sandbox\Helpers\_Array;
 use Solidie_Sandbox\Models\Sandbox;
 
 /**
@@ -63,24 +64,25 @@ class Cron {
 		$timestamp = gmdate( 'Y-m-d H:i:s' );
 		
 		global $wpdb;
-		$sandbox_ids = $wpdb->get_col(
+		$sandboxes = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT
-					sandbox_id
+					sandbox_id,
+					host_id
 				FROM
 					{$wpdb->slds_sandboxes}
 				WHERE
 					expires_at<%s",
 				$timestamp
-			)
+			),
+			ARRAY_A
 		);
 
-		if ( ! empty( $sandbox_ids ) ) {
+		$group = _Array::groupRows( $sandboxes, 'host_id', 'sandbox_id' );
 
-			$instance    = ( new Sandbox() );
-			$sandbox_ids = array_map( 'intval', $sandbox_ids );
-
-			$instance->deleteSandbox( $sandbox_ids );
+		// Loop through host groups
+		foreach ( $group as $host_id => $sandbox_ids ) {
+			( new Sandbox( $host_id ) )->deleteSandbox( array_map( 'intval', $sandbox_ids ) );
 		}
 	}
 }

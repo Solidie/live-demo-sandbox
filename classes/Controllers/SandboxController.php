@@ -32,14 +32,16 @@ class SandboxController {
 	/**
 	 * Get sandbox list in browser
 	 *
+	 * @param string $host_id Multsite host
+	 * 
 	 * @return void
 	 */
-	public static function getSandboxes( int $page = 1 ) {
+	public static function getSandboxes( string $host_id, int $page = 1 ) {
 
 		do_action( Cron::HOOK_NAME );
 
 		$args      = array( 'page' => $page );
-		$instance  = new Sandbox();
+		$instance  = new Sandbox( $host_id );
 		
 		wp_send_json_success(
 			array( 
@@ -52,12 +54,14 @@ class SandboxController {
 	/**
 	 * Delete sandbox by id
 	 *
+	 * @param string  $host_id Multsite host
 	 * @param integer $sandbox_id The sandbox ID to delete
+	 * 
 	 * @return void
 	 */
-	public static function deleteSandbox( int $sandbox_id ) {
+	public static function deleteSandbox( string $host_id, int $sandbox_id ) {
 
-		$deleted = ( new Sandbox() )->deleteSandbox( $sandbox_id );
+		$deleted = ( new Sandbox( $host_id ) )->deleteSandbox( $sandbox_id );
 
 		if ( true === $deleted ) {
 			wp_send_json_success( array( 'message' => __( 'Sandbox deleted successfully', 'live-demo-sandbox' ) ) );
@@ -75,10 +79,12 @@ class SandboxController {
 	 * Save sandbox settings
 	 *
 	 * @param array $settings
+	 * @param string $host_id
+	 *
 	 * @return void
 	 */
-	public static function saveSandboxSettings( array $settings ) {
-		( new Instance() )->updateSettings( $settings );
+	public static function saveSandboxSettings( array $settings, string $host_id ) {
+		( new Instance( $host_id ) )->updateSettings( $settings );
 		wp_send_json_success();
 	}
 }

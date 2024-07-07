@@ -56,13 +56,14 @@ class InstanceController {
 	/**
 	 * Provide content list for various area like dashboard, gallery and so on.
 	 *
-	 * @param  array $configs Multsite init configs
+	 * @param array  $configs Multsite init configs
+	 * @param string $host_id Sandbox host ID
 	 *
 	 * @return void
 	 */
-	public static function initBaseInstance( array $configs ) {
+	public static function initBaseInstance( array $configs, string $host_id ) {
 
-		$ret = ( new Instance( $configs ) )->createMultiSite();
+		$ret = ( new Instance( $host_id, $configs ) )->createMultiSite();
 
 		if ( ! ( $ret['success'] ?? false ) ) {
 			wp_send_json_error(
@@ -78,11 +79,13 @@ class InstanceController {
 
 	/**
 	 * Deploy multsite constants
+	 * 
+	 * @param string $host_id Multisite host ID
 	 *
 	 * @return void
 	 */
-	public static function deployNetworkConfigs() {
-		$instance = new Instance();
+	public static function deployNetworkConfigs( string $host_id ) {
+		$instance = new Instance( $host_id );
 		$instance->deployNetworkConfigs();
 		wp_send_json_success( array( 'iframe_url' => $instance->multiSiteHomeURL() ) );
 	}
@@ -90,20 +93,24 @@ class InstanceController {
 	/**
 	 * Mark multisite as completed setup
 	 *
+	 * @param string $host_id Multisite host ID
+	 *
 	 * @return void
 	 */
-	public static function multisiteSetupComplete() {
-		( new Instance() )->markMultiSiteCompleted();
+	public static function multisiteSetupComplete( string $host_id ) {
+		( new Instance( $host_id ) )->markMultiSiteCompleted();
 		wp_send_json_success();
 	}
 
 	/**
 	 * Delete multsite entirely
 	 *
+	 * @param string $host_id Multsite host ID
+	 *
 	 * @return void
 	 */
-	public static function deleteEntireHost() {
-		( new Instance() )->deleteMultiSite();
+	public static function deleteEntireHost( string $host_id) {
+		( new Instance( $host_id ) )->deleteMultiSite();
 		wp_send_json_success();
 	}
 }

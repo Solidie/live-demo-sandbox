@@ -77,6 +77,7 @@ function _slds_control_panel_get_configs( $key = null, $def = null ) {
 
 	$configs = maybe_unserialize( $configs );
 	$configs = is_array( $configs ) ? $configs : array();
+	$configs = $configs[ $slds_meta_data['host_id'] ] ?? array();
 
 	return $key ? ( $configs[ $key ] ?? $def ) : $configs;
 }

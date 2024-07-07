@@ -38,7 +38,7 @@ class Sandbox extends Instance {
 		}
 
 		// Create internal request to sandbox host to create one
-		$response = ( new Postman( 'create_sandbox' ) )->request( array( 'role' => 'administrator' ) );
+		$response = ( new Postman( 'create_sandbox', $this->multiSiteHomeURL() ) )->request( array( 'role' => 'administrator' ) );
 		if ( ! $response->success ) {
 			return array(
 				'success' => false,
@@ -195,7 +195,7 @@ class Sandbox extends Instance {
 			return true;
 		}
 
-		$response = ( new Postman( 'delete_sandbox' ) )->request( array( 'site_ids' => array_map( 'intval', $site_ids ) ) );
+		$response = ( new Postman( 'delete_sandbox', $this->multiSiteHomeURL() ) )->request( array( 'site_ids' => array_map( 'intval', $site_ids ) ) );
 
 		if ( $response->success ) {
 			$wpdb->query(

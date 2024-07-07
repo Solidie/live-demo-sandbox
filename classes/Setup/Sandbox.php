@@ -13,7 +13,7 @@ use Solidie_Sandbox\Models\Sandbox as ModelsSandbox;
 /**
  * Sandbox class
  */
-class Sandbox {
+class SandboxSetup {
 
 	/**
 	 * Setup constructor to register hooks

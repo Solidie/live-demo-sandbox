@@ -20,13 +20,6 @@ class Postman {
 	private $action;
 
 	/**
-	 * The sandbox row from sandboxes table
-	 *
-	 * @var array
-	 */
-	private $sandbox;
-
-	/**
 	 * The ajax url to the instance multisite
 	 *
 	 * @var string
@@ -37,15 +30,14 @@ class Postman {
 	 * Post constructor
 	 *
 	 * @param string $action The ajax action
-	 * @param array  $sandbox The sandbox data
+	 * @param string $host Home URL of multisite
 	 */
-	public function __construct( string $action, $sandbox = null ) {
+	public function __construct( string $action, string $home_url  ) {
 
 		// Set ajax action
 		$this->action = $action;
 
 		// Set ajax url
-		$home_url       = $sandbox ? Sandbox::getAbsoluteRootURL() . $sandbox['site_path'] . '/' : ( new Instance() )->multiSiteHomeURL();
 		$this->ajax_url = $home_url . 'wp-admin/admin-ajax.php';
 	}
 
