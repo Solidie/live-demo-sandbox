@@ -87,19 +87,22 @@ class SandboxSetup {
 			return;
 		}
 
-		$parsed = wp_parse_url( Main::$configs->current_url );
-		$path   = $parsed['path'];
-		$path   = trim( $path, '/' );
-		$path   = explode( '/', $path );
-		$path   = end( $path );
+		$parsed     = wp_parse_url( Main::$configs->current_url );
+		$path       = $parsed['path'];
+		$path       = trim( $path, '/' );
+		$path       = explode( '/', $path );
+		$segm_count = count( $path );
+
+		$action  = $path[ $segm_count - 2 ] ?? null;
+		$host_id = $path[ $segm_count - 1 ] ?? null;
 
 		// Check if if the path is targeted URL to hit
-		if ( ModelsSandbox::getSandboxInitPath() !== $path ) {
+		if ( empty( $action ) || empty( $host_id ) || ModelsSandbox::getSandboxInitPath() !== $action ) {
 			return;
 		}
 
 		// Sandbox instance
-		$instance = new ModelsSandbox();
+		$instance = new ModelsSandbox( $host_id );
 
 		// Sandbox info
 		$pointer    = explode( '_', ( sanitize_text_field( wp_unslash( $_COOKIE['slds_sandbox_pointer'] ?? '' ) ) ) );

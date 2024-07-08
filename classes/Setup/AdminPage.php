@@ -77,14 +77,19 @@ class AdminPage {
 	 */
 	public function homePage() {
 
-		$instance                 = new Instance( '' );
-		$configs                  = ( object ) $instance->getConfigs( null, null, true);
-		$configs['sandbox_url']   = Sandbox::getSandboxInitURL();
-		$configs['is_apache']     = strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ), 'Apache' ) !== false;
+		$instance = new Instance( 'new' );
+		$hosts    = ( object ) $instance->getConfigs( null, null, true);
+		$configs  = ( object ) $instance->getDefaultHostConfigs();
+
+		$meta_data = array(
+			'is_apache' => strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ), 'Apache' ) !== false
+		);
 
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"
-			data-configs="' . esc_attr( wp_json_encode( (object) $configs ) ) . '"
+			data-configs="' . esc_attr( wp_json_encode( $configs ) ) . '"
+			data-hosts="' . esc_attr( wp_json_encode( $hosts ) ) . '"
+			data-meta_data="' . esc_attr( wp_json_encode( $meta_data ) ) . '"
 		></div>';
 	}
 }

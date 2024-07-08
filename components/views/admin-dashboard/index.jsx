@@ -5,6 +5,7 @@ import { MountPoint } from 'crewhrm-materials/mountpoint.jsx';
 import { getElementDataSet } from 'crewhrm-materials/helpers.jsx';
 import {WpDashboardFullPage} from 'crewhrm-materials/backend-dashboard-container/full-page-container.jsx';
 import { HomeBackend } from "./pages/home/home.jsx";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 const home = document.getElementById('Solidie_Sandbox_Backend_Dashboard');
 
@@ -13,7 +14,11 @@ if ( home ) {
 		<MountPoint>
 			<WpDashboardFullPage>
 				<div className={'padding-15'.classNames()}>
-					<HomeBackend {...getElementDataSet(home)}/>
+					<HashRouter>
+						<Routes>
+							<Route path="/:sub_path?/" element={<HomeBackend {...getElementDataSet(home)}/>}/>
+						</Routes>
+					</HashRouter>
 				</div>
 			</WpDashboardFullPage>
 		</MountPoint>

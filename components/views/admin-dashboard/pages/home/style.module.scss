@@ -1,0 +1,17 @@
+.single-item {
+
+	color: var(--solidie-color-text-70);
+
+	.icon {
+		color: var(--solidie-color-text-40);
+	}
+
+	&:hover {
+
+		color: var(--solidie-color-text);
+		
+		.icon {
+			color: var(--solidie-color-text);
+		}
+	}
+}

@@ -38,7 +38,7 @@ class FileManager {
 	 * @param  string $folder Dir path to delete including files and sub folders
 	 * @return bool
 	 */
-	public static function deleteDirectory( string $folder ) {
+	public static function deleteDirectory( $folder ) {
 
 		// Check if the folder exists
 		if ( ! is_string( $folder ) || ! file_exists( $folder ) || ! is_dir( $folder ) ) {

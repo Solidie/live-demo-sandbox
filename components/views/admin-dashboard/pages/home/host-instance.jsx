@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
+import {__, copyToClipboard, data_pointer, getBack, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
 import { confirm } from "crewhrm-materials/prompts.jsx";
 import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
@@ -13,10 +14,11 @@ import { HostSettings } from "./host-settings.jsx";
 
 const section_class = 'bg-color-white box-shadow-thin padding-20 border-radius-8 margin-bottom-20'.classNames();
 
-export function HostInstance({configs={}}) {
+export function HostInstance({host_id, configs={}, onAdd, onBack}) {
 
 	const {ajaxToast, addToast} = useContext(ContextToast); 
-	const {dashboard_url, sandbox_url, settings={}} = configs;
+	const {dashboard_url, settings={}, new_sandbox_url} = configs;
+	const navigate = useNavigate();
 
 	const [state, setState] = useState({
 		deleting_host: false,
@@ -47,7 +49,7 @@ export function HostInstance({configs={}}) {
 			fetching: true,
 		});
 
-		request('getSandboxes', state.filters, resp=>{
+		request('getSandboxes', {...state.filters, host_id}, resp=>{
 			
 			const {sandboxes=[], segmentation={}} = resp.data;
 
@@ -74,8 +76,9 @@ export function HostInstance({configs={}}) {
 					deleting_host: true
 				});
 				
-				request('deleteEntireHost', {}, resp=>{
+				request('deleteEntireHost', {host_id}, resp=>{
 					if ( resp.success ) {
+						navigate(`/`, {replace: true});
 						window.location.reload();
 					} else {
 						setState({
@@ -99,7 +102,7 @@ export function HostInstance({configs={}}) {
 					deleting_sandboxes:[...state.deleting_sandboxes, sandbox_id],
 				});
 
-				request('deleteSandbox', {sandbox_id}, resp=>{
+				request('deleteSandbox', {sandbox_id, host_id}, resp=>{
 
 					setState({
 						...state,
@@ -134,10 +137,55 @@ export function HostInstance({configs={}}) {
 			</Modal>
 		}
 
+		{
+			(!onBack && !onAdd) ? null :
+			<div className={'d-flex align-items-center column-gap-8 margin-bottom-15'.classNames()}>
+				{
+					!onBack ? null :
+					<Link 
+						to="/"
+						className={'d-flex align-items-center column-gap-8 color-text-80 cursor-pointer'.classNames()} 
+						onClick={getBack}
+					>
+						<i className={'ch-icon ch-icon-arrow-left font-size-18'.classNames()}></i> {__('Back')}
+					</Link>
+				}
+
+				{
+					(!onBack || !onAdd) ? null :
+					<span className={'color-text-40'.className}>
+						|
+					</span>
+				}
+
+				{
+					!onAdd ? null :
+					<span className={'d-block cursor-pointer font-weight-500 color-material-80 interactive'.classNames()} onClick={onAdd}>
+						{__('Add New Host')}
+					</span>
+				}
+			</div>
+		}
+		
 		<div className={'d-flex align-items-center column-gap-15'.classNames() + section_class}>
 			<div className={'flex-1'.classNames()}>
-				<span className={'font-size-18 font-weight-700'.classNames()}>
-					{__('Sandbox Host')}
+				<span className={'d-block margin-bottom-15 font-size-18 font-weight-700'.classNames()}>
+					{configs.site_title}
+				</span>
+				<span 
+					className={'font-size-13'.classNames()}
+				>
+					<span className={'color-text-50 font-weight-500'.classNames()}>
+						{__('Demo')}:
+					</span>
+					&nbsp;
+					<span 
+						onClick={()=>copyToClipboard(new_sandbox_url, addToast)}
+						className={'color-text-90 font-weight-400'.classNames()} 
+						style={{cursor: 'context-menu', wordBreak: 'break-all'}}
+					>
+						{configs.new_sandbox_url}
+					</span>
 				</span>
 			</div>
 			<div>
@@ -179,11 +227,16 @@ export function HostInstance({configs={}}) {
 					{
 						state.fetching ? 
 							<LoadingIcon show={true}/> :
-							<i 
-								className={'ch-icon ch-icon-reload color-material-90 interactive cursor-pointer'.classNames()}
+							<span 
+								className={'d-flex align-items-center column-gap-5 color-material-90 interactive cursor-pointer'.classNames()}
 								onClick={getSandboxes}
-								title={__('Refresh Sandbox List')}
-							></i>
+							>
+								<i 
+									className={'ch-icon ch-icon-reload'.classNames()}
+									title={__('Refresh Sandbox List')}
+								></i> {__('Refresh')}
+							</span>
+							
 					}
 				</div>
 			</div>
@@ -263,25 +316,6 @@ export function HostInstance({configs={}}) {
 			</div>
 		</div>
 
-		<div className={section_class}>
-			<span className={'d-block font-size-14 font-weight-600 margin-bottom-15'.classNames()}>
-				{__('Live Demo URL')}
-			</span>
-
-			<div className={'d-flex align-items-center column-gap-15 bg-color-material-3 border-radius-10 padding-15 border-1 b-color-material-7'.classNames()}>	
-				<div className={'flex-1 font-weight-500 font-size-13'.classNames()} style={{wordBreak: 'break-all'}}>
-					{sandbox_url}
-				</div>
-				<div className={'d-flex'.classNames()}>
-					<i 
-						className={'ch-icon ch-icon-copy font-size-20 cursor-pointer'.classNames()}
-						onClick={()=>copyToClipboard(sandbox_url, addToast)}
-					></i>
-				</div>
-			</div>
-		</div>
-
-		
 		<div className={section_class + 'border-1 b-color-text-10 box-shadow-thick'.classNames()}>
 			<span className={'d-block font-size-16 font-weight-500 color-text-90 margin-bottom-15'.classNames()}>
 				{sprintf(__('Hi %s'), window[data_pointer].user.display_name)},

@@ -22,7 +22,19 @@ class Sandbox extends Instance {
 	 */
 	public function createSandboxSite() {
 
-		// Check if limit reached
+		// Check if targeted host is valid
+		if ( ! $this->isHostValid() ) {
+			return array(
+				'success' => false,
+				'message' => array(
+					__( 'Invalid Host', 'live-demo-sandbox' ),
+					__( 'The targeted sandbox host was not found', 'live-demo-sandbox' ),
+					__( 'Please checkout the origin page of live demo link', 'live-demo-sandbox' ),
+				),
+			);
+		}
+
+		// Check limit
 		$settings = $this->getConfigs( 'settings', array() );
 		$limit    = $settings['concurrency_limit'] ?? 100;
 		$created  = $this->getSandboxes( array(), true )['total_count'];
@@ -102,7 +114,7 @@ class Sandbox extends Instance {
 
 		global $wpdb;
 
-		$page         = max( absint( ( int ) $args['page'] ?? 1 ), 1 );
+		$page         = max( absint( ( int ) ( $args['page'] ?? 1 ) ), 1 );
 		$limit        = 30;
 		$offset       = ( $page - 1 ) * $limit;
 		$limit_clause = $wpdb->prepare( ' LIMIT %d OFFSET %d', $limit, $offset );
@@ -216,16 +228,7 @@ class Sandbox extends Instance {
 	 * @return string
 	 */
 	public static function getSandboxInitPath() {
-		return apply_filters( 'slds_get_instance_path', 'live-demo-sandbox-instance' );
-	}
-
-	/**
-	 * Get the multisite root dir url
-	 *
-	 * @return string
-	 */
-	public static function getSandboxInitURL() {
-		return get_home_url() . '/' . self::getSandboxInitPath() . '/';
+		return apply_filters( 'slds_get_instance_path', 'live-demo-sandbox' );
 	}
 
 	/**
