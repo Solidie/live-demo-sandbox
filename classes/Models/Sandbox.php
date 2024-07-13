@@ -75,6 +75,7 @@ class Sandbox extends Instance {
 			$wpdb->slds_sandboxes,
 			array(
 				'site_id'    => $response->data->site_id,
+				'host_id'    => $this->host_id,
 				'site_title' => $response->data->site_title,
 				'user_ip'    => ! empty( $user_ip ) ? $user_ip : null,
 				'site_path'  => $response->data->site_path,
@@ -207,7 +208,11 @@ class Sandbox extends Instance {
 			return true;
 		}
 
-		$response = ( new Postman( 'delete_sandbox', $this->multiSiteHomeURL() ) )->request( array( 'site_ids' => array_map( 'intval', $site_ids ) ) );
+		$response = ( new Postman( 'delete_sandbox', $this->multiSiteHomeURL() ) )->request(
+			array( 
+				'site_ids' => array_map( 'intval', $site_ids ) 
+			) 
+		);
 
 		if ( $response->success ) {
 			$wpdb->query(

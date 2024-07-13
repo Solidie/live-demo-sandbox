@@ -8,10 +8,11 @@ import { __, data_pointer, getBack, getRandomString, isEmpty, purgeBasePath } fr
 import { TextField } from "crewhrm-materials/text-field/text-field.jsx";
 import { confirm } from "crewhrm-materials/prompts.jsx";
 import { FileUpload } from "crewhrm-materials/file-upload/file-upload.jsx";
-
+import { applyFilters } from 'crewhrm-materials/hooks.jsx';
 import { ToggleSwitch } from "crewhrm-materials/toggle-switch/ToggleSwitch.jsx";
+import { section_class } from "./host-instance";
 
-const status_class = 'text-align-center font-size-500 font-size-16'.classNames();
+const status_class = 'text-align-center font-weight-500 font-size-16'.classNames();
 const reserved_dirs = ['wp-admin', 'wp-content', 'wp-includes'];
 
 function generateStrongPassword(length = 12) {
@@ -40,9 +41,8 @@ function generateStrongPassword(length = 12) {
     return password;
 }
 
-export function HostInstaller(props) {
+export function HostInstaller({configs={}, slots}) {
 
-	const {configs={}} = props;
 	const {ajaxToast} = useContext(ContextToast);
 	const {user={}} = window[data_pointer];
 	const navigate = useNavigate();
@@ -263,8 +263,7 @@ export function HostInstaller(props) {
 						ajaxToast(resp);
 					} else {
 						// Reload the page after multisite setup completed
-						navigate(`/${state.host_id}/`, {replace: true});
-						window.location.reload();
+						navigate(`/`, {replace: true});
 					}
 				});
 			}
@@ -276,6 +275,22 @@ export function HostInstaller(props) {
 	}, []);
 
 	const has_empty = field_keys.filter(name=>!fields[name].optional && isEmpty(state.values[name])).length;
+	const form = slots >= 1 && ! applyFilters( 'slds_multi', false );
+
+	if ( form ) {
+		return <div className={section_class + 'text-align-center'.classNames()} style={{padding: '30px 10px'}}>
+			<strong className={'d-block font-size-16 color-text-90 margin-bottom-15'.classNames()}>
+				{__('Multiple Host is a Pro feature')}
+			</strong>
+			<a 
+				href='https://solidie.com/live-demo-sandbox-pro/'
+				target='_blank'
+				className={'button button-primary'.classNames()}
+			>
+				{__('Upgrade Now')}
+			</a>
+		</div>
+	}
 
 	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		<div 

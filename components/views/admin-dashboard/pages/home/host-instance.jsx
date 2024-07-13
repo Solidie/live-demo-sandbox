@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
 import { confirm } from "crewhrm-materials/prompts.jsx";
@@ -12,14 +12,11 @@ import { Pagination } from "crewhrm-materials/pagination/pagination.jsx";
 
 import { HostSettings } from "./host-settings.jsx";
 
-import style from './style.module.scss';
-
-const section_class = 'bg-color-white box-shadow-thin padding-20 border-radius-8 margin-bottom-20'.classNames();
+export const section_class = 'bg-color-white box-shadow-thin padding-20 border-radius-8 margin-bottom-20'.classNames();
 
 export function HostInfoSingle({configs, onDelete, singular}) {
 
 	const {ajaxToast, addToast} = useContext(ContextToast); 
-	const navigate = useNavigate();
 
 	const [state, setState] = useState({
 		deleting_host: false,
@@ -43,7 +40,7 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 					deleting_host: true
 				});
 				
-				request('deleteEntireHost', {host_id}, resp=>{
+				request('deleteEntireHost', {host_id: configs.host_id}, resp=>{
 					if ( resp.success ) {
 						onDelete();
 					} else {
@@ -70,12 +67,17 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 		}
 
 		<div 
-			className={'d-flex align-items-center column-gap-15'.classNames() + section_class + (singular ? '' : 'host-list-single'.classNames(style))}
-			onClick={singular ? null : ()=>navigate(`/${configs.host_id}/`)}
+			className={'d-flex align-items-center column-gap-15'.classNames() + section_class}
 		>
 			<div className={'flex-1'.classNames()}>
 				<span className={'d-block margin-bottom-15 font-size-18 font-weight-700'.classNames()}>
-					{configs.site_title}
+					{configs.site_title}&nbsp;
+					{
+						configs.setup_complete ? null : 
+						<i className={'color-error font-size-13'.classNames()}>
+							{__('Incomplete')}
+						</i>
+					}
 				</span>
 				<span 
 					className={'font-size-13'.classNames()}
@@ -88,7 +90,6 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 						className={'color-text-90 font-weight-400'.classNames()} 
 						style={{cursor: 'context-menu', wordBreak: 'break-all'}}
 						onClick={e=>{
-							e.stopPropagation();
 							copyToClipboard(configs.new_sandbox_url, addToast);
 						}}
 					>
@@ -96,44 +97,49 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 					</span>
 				</span>
 			</div>
-			<div>
+			<div className={'d-flex align-items-center column-gap-15'.classNames()}>
 				{
 					state.deleting_host ? <LoadingIcon show={true}/> :
-					<div className={'d-flex align-items-center column-gap-15'.classNames()}>
-						<i 
-							className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
-							onClick={e=>{
-								e.stopPropagation();
-								deleteInstance();
-							}}
-						></i>
+					(
+						singular ? 
+							<a 
+								className={'button button-primary'.classNames()} 
+								href={configs.dashboard_url}
+								target="_blank"
+							>
+								{__('Dashboard')}
+							</a>
+							:
+							<>
+								<i 
+									className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
+									onClick={e=>{
+										deleteInstance();
+									}}
+								></i>
 
-						<i 
-							className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
-							onClick={e=>{
-								e.stopPropagation();
-								toggleSettingsModal(true);
-							}}
-						></i>
-					</div>
-					
+								<i 
+									className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
+									onClick={e=>{
+										toggleSettingsModal(true);
+									}}
+								></i>
+
+								<Link
+									to={`/${configs.host_id}/`}
+									className={'button button-small button-primary'.classNames()}
+								>
+									{__('Details')}
+								</Link>
+							</>
+					)
 				}
-			</div>
-			<div>
-				<a 
-					className={singular ? 'button button-primary'.classNames() : 'dashicons dashicons-dashboard ' + 'font-size-20 color-text-70 interactive'.classNames()} 
-					href={configs.dashboard_url}
-					target="_blank"
-					onClick={e=>e.stopPropagation()}
-				>
-					{!singular ? null : __('Dashboard')}
-				</a>
 			</div>
 		</div>
 	</> 
 }
 
-export function HostInstance({host_id, configs={}, onAdd}) {
+export function HostInstance({host_id, configs={}}) {
 
 	const {ajaxToast} = useContext(ContextToast); 
 	const navigate = useNavigate();
@@ -210,25 +216,13 @@ export function HostInstance({host_id, configs={}, onAdd}) {
 		);
 	}
 
-	return <div style={{margin: '50px auto', maxWidth: '850px'}}>
-		{
-			!onAdd ? null :
-			<div className={'d-flex align-items-center column-gap-8 margin-bottom-15'.classNames()}>
-				{
-					!onAdd ? null :
-					<span className={'d-block cursor-pointer font-weight-500 color-material-80 interactive'.classNames()} onClick={onAdd}>
-						{__('Add New Host')}
-					</span>
-				}
-			</div>
-		}
+	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		
 		<HostInfoSingle 
 			singular={true}
 			configs={configs} 
 			onDelete={()=>{
 				navigate(`/`, {replace: true});
-				window.location.reload();
 			}}
 		/>
 
@@ -330,31 +324,6 @@ export function HostInstance({host_id, configs={}, onAdd}) {
 					pageCount={state.segmentation.page_count}
 				/>
 			</div>
-		</div>
-
-		<div className={section_class + 'border-1 b-color-text-10 box-shadow-thick'.classNames()}>
-			<span className={'d-block font-size-16 font-weight-500 color-text-90 margin-bottom-15'.classNames()}>
-				{sprintf(__('Hi %s'), window[data_pointer].user.display_name)},
-			</span>
-
-			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-5'.classNames()}>
-				{__('What if you could showcase and sell your themes and plugins directly from your own website? Imagine having the ability to manage new version releases, auto updates, licenses, and documentation all in one convenient place.')}
-			</span>
-
-			<span className={'d-block font-size-14 font-weight-400 color-text-70 margin-bottom-25'.classNames()}>
-				{__('Introducing')} <strong className={'font-weight-700'.classNames()}>{__('Solidie')}</strong>, &nbsp;
-				{__('the ultimate plugin that transforms a simple WordPress website into a full-fledged digital content marketplace.')}
-			</span>
-
-			<div className={'text-align-center margin-bottom-25'.classNames()}>
-				<a href='https://solidie.com/' target='_blank' className={'button button-primary'.classNames()}>
-					{__('Learn More')}
-				</a>
-			</div>
-
-			<span className={'d-block font-size-14 font-weight-400 color-text-70'.classNames()}>
-				{__('You can also sell any type of content, such as audio, video, images, apps, fonts, 3d models and more, all from your own website. Plus earn commissions from third party contributors too.')}
-			</span>
 		</div>
 	</div> 
 }

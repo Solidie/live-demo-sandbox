@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Live Demo Sandbox
- * Plugin URI: https://wordpress.org/plugins/live-demo-sandbox/
- * Description: Live demo sandbox instance creator
+ * Plugin URI: https://solidie.com/live-demo-sandbox/
+ * Description: Live demo sandbox instance creator utilizing WordPress multisite setup
  * Version: 1.0.0
  * Author: Solidie
  * Author URI: https://solidie.com

@@ -24,14 +24,14 @@ class Instance {
 	 *
 	 * @var string
 	 */
-	private $host_id;
+	protected $host_id;
 
 	/**
 	 * Multisite configs array
 	 *
 	 * @var array
 	 */
-	private $configs;
+	protected $configs;
 
 	/**
 	 * Database connection for multsite
@@ -168,6 +168,9 @@ class Instance {
 			);
 		}
 
+		// Save the configs into database little earliar, so aborted hosts can be deleted later
+		$this->updateConfigs();
+
 		// Move cotnents from ~/wordpress to sandbox host root.
 		FileManager::moveDirectory( $subsite_path . '/wordpress', $subsite_path );
 
@@ -205,9 +208,6 @@ class Instance {
 
 		// Install necessary plugins into plugins directory
 		$this->installExtensions( $site_configs );
-
-		// Save the configs into database
-		$this->updateConfigs();
 
 		return array(
 			'success'    => true,

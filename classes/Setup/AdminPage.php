@@ -78,7 +78,6 @@ class AdminPage {
 	public function homePage() {
 
 		$instance = new Instance( 'new' );
-		$hosts    = ( object ) $instance->getConfigs( null, null, true);
 		$configs  = ( object ) $instance->getDefaultHostConfigs();
 
 		$meta_data = array(
@@ -88,7 +87,6 @@ class AdminPage {
 		echo '<div 
 			id="Solidie_Sandbox_Backend_Dashboard"
 			data-configs="' . esc_attr( wp_json_encode( $configs ) ) . '"
-			data-hosts="' . esc_attr( wp_json_encode( $hosts ) ) . '"
 			data-meta_data="' . esc_attr( wp_json_encode( $meta_data ) ) . '"
 		></div>';
 	}

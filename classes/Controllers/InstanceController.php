@@ -31,6 +31,9 @@ class InstanceController {
 		'deleteEntireHost'       => array(
 			'role' => 'administrator',
 		),
+		'getHosts'               => array(
+			'role' => 'administrator',
+		),
 	);
 
 	/**
@@ -112,5 +115,21 @@ class InstanceController {
 	public static function deleteEntireHost( string $host_id) {
 		( new Instance( $host_id ) )->deleteMultiSite();
 		wp_send_json_success();
+	}
+
+	/**
+	 * Get created hosts array
+	 *
+	 * @return void
+	 */
+	public static function getHosts() {
+		
+		$instance = new Instance( '' );
+
+		wp_send_json_success(
+			array(
+				'hosts' => ( object ) $instance->getConfigs( null, null, true)
+			)
+		);
 	}
 }
