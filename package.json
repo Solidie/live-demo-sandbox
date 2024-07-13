@@ -1,7 +1,7 @@
 {
   "name": "live-demo-sandbox",
   "version": "1.0.0",
-  "description": "HR Management System",
+  "description": "Live demo sandbox using WP multisite",
   "main": "index.js",
   "scripts": {
     "compile": "webpack --env=build --mode=production",

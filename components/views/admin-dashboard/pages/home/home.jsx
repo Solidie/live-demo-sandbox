@@ -24,7 +24,7 @@ export function HomeBackend(props) {
 
 
 	const [state, setState] = useState({
-		hosts: {},
+		hosts: props.hosts || {},
 		fetching: true
 	});
 
