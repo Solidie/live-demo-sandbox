@@ -1,19 +1,14 @@
-import React, { useContext } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
-import { __, data_pointer } from "crewhrm-materials/helpers.jsx";
+import { __, getBack } from "crewhrm-materials/helpers.jsx";
 
-import {HostInstance} from './host-instance.jsx';
+import {HostInfoSingle, HostInstance} from './host-instance.jsx';
 import { HostInstaller } from "./host-installer";
-
-import style from './style.module.scss';
 
 export function HomeBackend(props) {
 
 	const {hosts={}, configs={}, meta_data={}} = props;
-	const {ajaxToast} = useContext(ContextToast);
-	const {user={}} = window[data_pointer];
 	const {is_apache} = meta_data;
 	const host_ids = Object.keys(hosts);
 	const {port} = window.location;
@@ -26,9 +21,20 @@ export function HomeBackend(props) {
 
 	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 
-		<strong className={'d-block font-weight-600 font-size-24 margin-bottom-20'.classNames()}>
-			{__('Live Demo Sandbox')}
-		</strong>
+		<div className={'d-flex align-items-center column-gap-8 margin-bottom-20'.classNames()}>
+			{
+				!sub_path ? null :
+				<Link 
+					to="/"
+					onClick={getBack}
+					className={'ch-icon ch-icon-arrow-left font-size-24 color-text-70 interactive'.classNames()}
+				/>
+			}
+			
+			<strong className={'d-block font-weight-600 font-size-24'.classNames()}>
+				{show_form ? __( 'Configure New Host' ) : __('Live Demo Sandbox')}
+			</strong>
+		</div>
 		
 		{
 			!show_form ? null : <HostInstaller configs={configs}/>
@@ -41,7 +47,6 @@ export function HomeBackend(props) {
 					host_id={host_id}
 					configs={hosts[host_id]} 
 					meta_data={meta_data}
-					onBack={host_ids.length>1}
 					onAdd={()=>navigate('/new-host/')}
 				/>
 			</div>
@@ -49,44 +54,14 @@ export function HomeBackend(props) {
 
 		{
 			(host_ids.length < 2 || show_form || host_id)? null :
-			<div
-				className={'border-1 b-color-text-20 border-radius-10 bg-color-white'.classNames()}
-			>
-				{host_ids.map((host_id, index) => {
-
-					const { site_title } = hosts[host_id];
-					const is_last = index === host_ids.length - 1;
-
-					return <div
-						key={host_id}
-						className={
-							`d-flex align-items-center column-gap-10 cursor-pointer padding-vertical-10 padding-horizontal-15 ${!is_last ? 'border-bottom-1 b-color-text-20' : ''}`.classNames() +
-							`single-item`.classNames(style)
-						}
-						onClick={()=>navigate(`/${host_id}/`)}
-					>
-						<div className={'flex-1 d-flex align-items-center column-gap-10'.classNames()}>
-							<div className={'flex-1'.classNames()}>
-								<span
-									className={
-										'd-block font-size-15 font-weight-500 line-height-25'.classNames()
-									}
-								>
-									{site_title}
-								</span>
-							</div>
-						</div>
-						<div>
-							<i
-								className={
-									'ch-icon ch-icon-arrow-right font-size-24'.classNames() +
-									`icon`.classNames(style)
-								}
-							></i>
-						</div>
-					</div>
-				})}
-			</div>
+			host_ids.map((host_id) => {
+				return <HostInfoSingle 
+					key={host_id} 
+					singular={false}
+					configs={hosts[host_id]} 
+					onDelete={()=>window.location.reload()}
+				/>
+			})
 		}
 
 		{

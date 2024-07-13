@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import {__, copyToClipboard, data_pointer, getBack, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
+import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
 import { confirm } from "crewhrm-materials/prompts.jsx";
 import { request } from "crewhrm-materials/request.jsx";
 import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
@@ -12,12 +12,130 @@ import { Pagination } from "crewhrm-materials/pagination/pagination.jsx";
 
 import { HostSettings } from "./host-settings.jsx";
 
+import style from './style.module.scss';
+
 const section_class = 'bg-color-white box-shadow-thin padding-20 border-radius-8 margin-bottom-20'.classNames();
 
-export function HostInstance({host_id, configs={}, onAdd, onBack}) {
+export function HostInfoSingle({configs, onDelete, singular}) {
 
 	const {ajaxToast, addToast} = useContext(ContextToast); 
-	const {dashboard_url, settings={}, new_sandbox_url} = configs;
+	const navigate = useNavigate();
+
+	const [state, setState] = useState({
+		deleting_host: false,
+		show_settings: false
+	});
+
+	const toggleSettingsModal=(show)=>{
+		setState({
+			...state,
+			show_settings: show
+		});
+	}
+
+	const deleteInstance=()=>{
+		confirm(
+			__('Sure to delete the host?'),
+			__('Proceeding will delete all the sandbox instances too. You\'ll be able to set up again then.'),
+			()=>{
+				setState({
+					...state,
+					deleting_host: true
+				});
+				
+				request('deleteEntireHost', {host_id}, resp=>{
+					if ( resp.success ) {
+						onDelete();
+					} else {
+						setState({
+							...state,
+							deleting_host: false
+						});
+						ajaxToast(resp);
+					}
+				});
+			}
+		);
+	}
+
+	return <>
+		{
+			!state.show_settings ? null :
+			<Modal>
+				<HostSettings 
+					closePanel={()=>toggleSettingsModal(false)}
+					settings={configs.settings}
+				/>
+			</Modal>
+		}
+
+		<div 
+			className={'d-flex align-items-center column-gap-15'.classNames() + section_class + (singular ? '' : 'host-list-single'.classNames(style))}
+			onClick={singular ? null : ()=>navigate(`/${configs.host_id}/`)}
+		>
+			<div className={'flex-1'.classNames()}>
+				<span className={'d-block margin-bottom-15 font-size-18 font-weight-700'.classNames()}>
+					{configs.site_title}
+				</span>
+				<span 
+					className={'font-size-13'.classNames()}
+				>
+					<span className={'color-text-50 font-weight-500'.classNames()}>
+						{__('Demo')}:
+					</span>
+					&nbsp;
+					<span 
+						className={'color-text-90 font-weight-400'.classNames()} 
+						style={{cursor: 'context-menu', wordBreak: 'break-all'}}
+						onClick={e=>{
+							e.stopPropagation();
+							copyToClipboard(configs.new_sandbox_url, addToast);
+						}}
+					>
+						{configs.new_sandbox_url}
+					</span>
+				</span>
+			</div>
+			<div>
+				{
+					state.deleting_host ? <LoadingIcon show={true}/> :
+					<div className={'d-flex align-items-center column-gap-15'.classNames()}>
+						<i 
+							className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
+							onClick={e=>{
+								e.stopPropagation();
+								deleteInstance();
+							}}
+						></i>
+
+						<i 
+							className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
+							onClick={e=>{
+								e.stopPropagation();
+								toggleSettingsModal(true);
+							}}
+						></i>
+					</div>
+					
+				}
+			</div>
+			<div>
+				<a 
+					className={singular ? 'button button-primary'.classNames() : 'dashicons dashicons-dashboard ' + 'font-size-20 color-text-70 interactive'.classNames()} 
+					href={configs.dashboard_url}
+					target="_blank"
+					onClick={e=>e.stopPropagation()}
+				>
+					{!singular ? null : __('Dashboard')}
+				</a>
+			</div>
+		</div>
+	</> 
+}
+
+export function HostInstance({host_id, configs={}, onAdd}) {
+
+	const {ajaxToast} = useContext(ContextToast); 
 	const navigate = useNavigate();
 
 	const [state, setState] = useState({
@@ -25,7 +143,6 @@ export function HostInstance({host_id, configs={}, onAdd, onBack}) {
 		deleting_sandboxes: [],
 		fetching: true,
 		sandboxes: [],
-		show_settings: false,
 		segmentation: {},
 		filters: {
 			page: 1
@@ -66,32 +183,6 @@ export function HostInstance({host_id, configs={}, onAdd, onBack}) {
 		getSandboxes();
 	}, [state.filters]);
 
-	const deleteInstance=()=>{
-		confirm(
-			__('Sure to delete the host?'),
-			__('Proceeding will delete all the sandbox instances too. You\'ll be able to set up again then.'),
-			()=>{
-				setState({
-					...state,
-					deleting_host: true
-				});
-				
-				request('deleteEntireHost', {host_id}, resp=>{
-					if ( resp.success ) {
-						navigate(`/`, {replace: true});
-						window.location.reload();
-					} else {
-						setState({
-							...state,
-							deleting_host: false
-						});
-						ajaxToast(resp);
-					}
-				});
-			}
-		);
-	}
-
 	const deleteSandbox=(sandbox_id)=>{
 		confirm(
 			__('Sure to delete?'),
@@ -119,45 +210,10 @@ export function HostInstance({host_id, configs={}, onAdd, onBack}) {
 		);
 	}
 
-	const toggleSettingsModal=(show)=>{
-		setState({
-			...state,
-			show_settings: show
-		});
-	}
-
 	return <div style={{margin: '50px auto', maxWidth: '850px'}}>
 		{
-			!state.show_settings ? null :
-			<Modal>
-				<HostSettings 
-					closePanel={()=>toggleSettingsModal(false)}
-					settings={settings}
-				/>
-			</Modal>
-		}
-
-		{
-			(!onBack && !onAdd) ? null :
+			!onAdd ? null :
 			<div className={'d-flex align-items-center column-gap-8 margin-bottom-15'.classNames()}>
-				{
-					!onBack ? null :
-					<Link 
-						to="/"
-						className={'d-flex align-items-center column-gap-8 color-text-80 cursor-pointer'.classNames()} 
-						onClick={getBack}
-					>
-						<i className={'ch-icon ch-icon-arrow-left font-size-18'.classNames()}></i> {__('Back')}
-					</Link>
-				}
-
-				{
-					(!onBack || !onAdd) ? null :
-					<span className={'color-text-40'.className}>
-						|
-					</span>
-				}
-
 				{
 					!onAdd ? null :
 					<span className={'d-block cursor-pointer font-weight-500 color-material-80 interactive'.classNames()} onClick={onAdd}>
@@ -167,54 +223,14 @@ export function HostInstance({host_id, configs={}, onAdd, onBack}) {
 			</div>
 		}
 		
-		<div className={'d-flex align-items-center column-gap-15'.classNames() + section_class}>
-			<div className={'flex-1'.classNames()}>
-				<span className={'d-block margin-bottom-15 font-size-18 font-weight-700'.classNames()}>
-					{configs.site_title}
-				</span>
-				<span 
-					className={'font-size-13'.classNames()}
-				>
-					<span className={'color-text-50 font-weight-500'.classNames()}>
-						{__('Demo')}:
-					</span>
-					&nbsp;
-					<span 
-						onClick={()=>copyToClipboard(new_sandbox_url, addToast)}
-						className={'color-text-90 font-weight-400'.classNames()} 
-						style={{cursor: 'context-menu', wordBreak: 'break-all'}}
-					>
-						{configs.new_sandbox_url}
-					</span>
-				</span>
-			</div>
-			<div>
-				{
-					state.deleting_host ? <LoadingIcon show={true}/> :
-					<div className={'d-flex align-items-center column-gap-15'.classNames()}>
-						<i 
-							className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
-							onClick={deleteInstance}
-						></i>
-
-						<i 
-							className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
-							onClick={()=>toggleSettingsModal(true)}
-						></i>
-					</div>
-					
-				}
-			</div>
-			<div>
-				<a 
-					className={'button button-primary'.classNames()} 
-					href={dashboard_url}
-					target="_blank"
-				>
-					{__('Dashboard')}
-				</a>
-			</div>
-		</div>
+		<HostInfoSingle 
+			singular={true}
+			configs={configs} 
+			onDelete={()=>{
+				navigate(`/`, {replace: true});
+				window.location.reload();
+			}}
+		/>
 
 		<div className={section_class}>
 			<div className={'d-flex align-items-center column-gap-8 margin-bottom-10 justify-content-space-between'.classNames()}>

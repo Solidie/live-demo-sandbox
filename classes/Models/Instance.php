@@ -74,8 +74,11 @@ class Instance {
 	 *
 	 * @return string|null
 	 */
-	public function multiSiteHomeURL() {
-		return ! empty( $this->configs['directory_name'] ) ? get_home_url() . '/' . $this->configs['directory_name'] . '/' : null;
+	public function multiSiteHomeURL( $configs = null ) {
+		if ( $configs === null ) {
+			$configs = $this->configs;
+		}
+		return ! empty( $configs['directory_name'] ) ? get_home_url() . '/' . $configs['directory_name'] . '/' : null;
 	}
 
 	/**
@@ -389,6 +392,8 @@ class Instance {
 			}
 
 			$options[ $host_id ]['new_sandbox_url'] = $this->getSandboxInitURL( $host_id );
+			$options[ $host_id ]['dashboard_url']   = $this->multiSiteHomeURL( $option ) . 'wp-admin/';
+			$options[ $host_id ]['host_id']         = $host_id;
 		}
 
 		if ( $get_raw ) {

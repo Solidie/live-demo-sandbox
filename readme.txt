@@ -1,4 +1,4 @@
-=== Live Demo Sandbox - No extra server ===
+=== Live Demo Sandbox ===
 Contributors: jayedul
 Tags: live demo, sandbox, instance
 Requires at least: 5.3

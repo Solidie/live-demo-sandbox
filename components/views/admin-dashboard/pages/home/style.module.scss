@@ -1,17 +1,6 @@
-.single-item {
-
-	color: var(--solidie-color-text-70);
-
-	.icon {
-		color: var(--solidie-color-text-40);
-	}
-
+.host-list-single {
+	cursor: pointer;
 	&:hover {
-
-		color: var(--solidie-color-text);
-		
-		.icon {
-			color: var(--solidie-color-text);
-		}
+		box-shadow: 1px 1px 4px rgba(0, 0, 0, .3);
 	}
 }
