@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
-import {request} from 'crewhrm-materials/request.jsx';
-import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
-import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
-import { __, data_pointer, getBack, getRandomString, isEmpty, purgeBasePath } from "crewhrm-materials/helpers.jsx";
-import { TextField } from "crewhrm-materials/text-field/text-field.jsx";
-import { confirm } from "crewhrm-materials/prompts.jsx";
-import { FileUpload } from "crewhrm-materials/file-upload/file-upload.jsx";
-import { applyFilters } from 'crewhrm-materials/hooks.jsx';
-import { ToggleSwitch } from "crewhrm-materials/toggle-switch/ToggleSwitch.jsx";
+import {request} from 'solidie-materials/request.jsx';
+import { ContextToast } from "solidie-materials/toast/toast.jsx";
+import { LoadingIcon } from "solidie-materials/loading-icon/loading-icon.jsx";
+import { __, data_pointer, getBack, getRandomString, isEmpty, purgeBasePath } from "solidie-materials/helpers.jsx";
+import { TextField } from "solidie-materials/text-field/text-field.jsx";
+import { confirm } from "solidie-materials/prompts.jsx";
+import { FileUpload } from "solidie-materials/file-upload/file-upload.jsx";
+import { applyFilters } from 'solidie-materials/hooks.jsx';
+import { ToggleSwitch } from "solidie-materials/toggle-switch/ToggleSwitch.jsx";
 import { section_class } from "./host-instance";
 
 const status_class = 'text-align-center font-weight-500 font-size-16'.classNames();
@@ -301,7 +301,7 @@ export function HostInstaller({configs={}, slots}) {
 				state.step !== null ? <div className={'padding-vertical-15 margin-bottom-15'.classNames()}>
 					<LoadingIcon show={true} center={true}/>
 					<div className={'text-align-center color-error font-size-13 margin-top-10'.classNames()}>
-						<i>{__('Do not close this tab until the process is complete.')}</i>
+						<i>{__('Do not close this screen until the process is complete.')}</i>
 					</div>
 				</div> 
 				: 

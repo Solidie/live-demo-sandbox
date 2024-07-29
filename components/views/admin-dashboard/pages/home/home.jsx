@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { __, getBack } from "crewhrm-materials/helpers.jsx";
-import { request } from "crewhrm-materials/request.jsx";
-import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
+import { __, getBack } from "solidie-materials/helpers.jsx";
+import { request } from "solidie-materials/request.jsx";
+import { ContextToast } from "solidie-materials/toast/toast.jsx";
 
 import {HostInfoSingle, HostInstance, section_class} from './host-instance.jsx';
 import { HostInstaller } from "./host-installer";
 import { Promotional } from "./promotional.jsx";
-import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
+import { LoadingIcon } from "solidie-materials/loading-icon/loading-icon.jsx";
 
 const new_host = 'new-host';
 
@@ -87,7 +87,7 @@ export function HomeBackend(props) {
 				<Link 
 					to="/"
 					onClick={getBack}
-					className={'ch-icon ch-icon-arrow-left font-size-24 color-text-70 interactive'.classNames()}
+					className={'sicon sicon-arrow-left font-size-24 color-text-70 interactive'.classNames()}
 				/>
 			}
 			
@@ -100,7 +100,7 @@ export function HomeBackend(props) {
 				<Link
 					to={`/${new_host}/`}
 					title={__('Add New Host')}
-					className={'ch-icon ch-icon-add-circle font-size-24 color-material-80 interactive'.classNames()}
+					className={'sicon sicon-add-circle font-size-24 color-material-80 interactive'.classNames()}
 				/>
 			}
 		</div>

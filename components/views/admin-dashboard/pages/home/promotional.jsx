@@ -1,6 +1,6 @@
 import React from "react";
 
-import { data_pointer, __ } from "crewhrm-materials/helpers.jsx";
+import { data_pointer, __ } from "solidie-materials/helpers.jsx";
 import { section_class } from "./host-instance.jsx";
 
 import img from '../../../../images/promotional.png';

@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'crewhrm-materials/helpers.jsx';
-import { confirm } from "crewhrm-materials/prompts.jsx";
-import { request } from "crewhrm-materials/request.jsx";
-import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
-import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
-import { TableStat } from "crewhrm-materials/table-stat.jsx";
-import { Modal } from "crewhrm-materials/modal.jsx";
-import { Pagination } from "crewhrm-materials/pagination/pagination.jsx";
+import {__, copyToClipboard, data_pointer, sprintf, timeAgoOrAfter} from 'solidie-materials/helpers.jsx';
+import { confirm } from "solidie-materials/prompts.jsx";
+import { request } from "solidie-materials/request.jsx";
+import { ContextToast } from "solidie-materials/toast/toast.jsx";
+import { LoadingIcon } from "solidie-materials/loading-icon/loading-icon.jsx";
+import { TableStat } from "solidie-materials/table-stat.jsx";
+import { Modal } from "solidie-materials/modal.jsx";
+import { Pagination } from "solidie-materials/pagination/pagination.jsx";
 
 import { HostSettings } from "./host-settings.jsx";
 
@@ -62,6 +62,7 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 				<HostSettings 
 					closePanel={()=>toggleSettingsModal(false)}
 					settings={configs.settings}
+					host_id={configs.host_id}
 				/>
 			</Modal>
 		}
@@ -112,14 +113,14 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 							:
 							<>
 								<i 
-									className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
+									className={'sicon sicon-trash color-error interactive cursor-pointer font-size-18'.classNames()}
 									onClick={e=>{
 										deleteInstance();
 									}}
 								></i>
 
 								<i 
-									className={'ch-icon ch-icon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
+									className={'sicon sicon-settings-gear color-text interactive cursor-pointer font-size-18'.classNames()}
 									onClick={e=>{
 										toggleSettingsModal(true);
 									}}
@@ -242,7 +243,7 @@ export function HostInstance({host_id, configs={}}) {
 								onClick={getSandboxes}
 							>
 								<i 
-									className={'ch-icon ch-icon-reload'.classNames()}
+									className={'sicon sicon-reload'.classNames()}
 									title={__('Refresh Sandbox List')}
 								></i> {__('Refresh')}
 							</span>
@@ -298,7 +299,7 @@ export function HostInstance({host_id, configs={}}) {
 										{
 											state.deleting_sandboxes.indexOf(sandbox_id)>-1 ? <LoadingIcon show={true}/> :
 											<i 
-												className={'ch-icon ch-icon-trash color-error interactive cursor-pointer font-size-14'.classNames()}
+												className={'sicon sicon-trash color-error interactive cursor-pointer font-size-14'.classNames()}
 												onClick={()=>deleteSandbox(sandbox_id)}
 											></i>
 										}

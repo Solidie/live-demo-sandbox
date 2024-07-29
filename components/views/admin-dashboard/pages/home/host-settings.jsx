@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 
-import { __ } from "crewhrm-materials/helpers.jsx";
-import { TextField } from "crewhrm-materials/text-field/text-field.jsx";
-import { NumberField } from "crewhrm-materials/number-field/number-field.jsx";
-import { DropDown } from "crewhrm-materials/dropdown/dropdown.jsx";
-import { ToggleSwitch } from "crewhrm-materials/toggle-switch/ToggleSwitch.jsx";
-import { request } from "crewhrm-materials/request.jsx";
-import { ContextToast } from "crewhrm-materials/toast/toast.jsx";
-import { LoadingIcon } from "crewhrm-materials/loading-icon/loading-icon.jsx";
+import { __ } from "solidie-materials/helpers.jsx";
+import { TextField } from "solidie-materials/text-field/text-field.jsx";
+import { NumberField } from "solidie-materials/number-field/number-field.jsx";
+import { DropDown } from "solidie-materials/dropdown/dropdown.jsx";
+import { ToggleSwitch } from "solidie-materials/toggle-switch/ToggleSwitch.jsx";
+import { request } from "solidie-materials/request.jsx";
+import { ContextToast } from "solidie-materials/toast/toast.jsx";
+import { LoadingIcon } from "solidie-materials/loading-icon/loading-icon.jsx";
 
 const fields = [
 	{
@@ -105,7 +105,7 @@ function RenderField({field:{min, name, value, type, options, switch_label, clea
 	return null;
 }
 
-export function HostSettings({closePanel, settings={}}) {
+export function HostSettings({closePanel, settings={}, host_id}) {
 
 	const {ajaxToast} = useContext(ContextToast);
 
@@ -133,7 +133,7 @@ export function HostSettings({closePanel, settings={}}) {
 			saving: true
 		});
 		
-		request('saveSandboxSettings', {settings: state.values}, resp=>{
+		request('saveSandboxSettings', {settings: state.values, host_id}, resp=>{
 
 			if ( resp.success ) {
 				window.location.reload();
