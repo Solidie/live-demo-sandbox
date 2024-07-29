@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "webpack --env=build --mode=production",
-    "clear": "node ./components/builders/clear-dist.js",
+    "clear": "node ./node_modules/solidie-materials/builders/clear-dist.js",
     "build": "npm run clear && npm run compile && gulp build",
     "watch": "npm run clear && webpack --watch --mode=development",
     "lint": "eslint ./components/**/*.jsx",
