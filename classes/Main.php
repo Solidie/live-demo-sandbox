@@ -7,14 +7,16 @@
 
 namespace Solidie_Sandbox;
 
-use Solidie_Sandbox\Helpers\_Array;
+use SolidieLib\_Array;
 use Solidie_Sandbox\Helpers\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
 use Solidie_Sandbox\Setup\Cron;
 use Solidie_Sandbox\Setup\Database;
-use Solidie_Sandbox\Setup\Dispatcher;
 use Solidie_Sandbox\Setup\SandboxSetup;
 use Solidie_Sandbox\Setup\Scripts;
+use SolidieLib\Dispatcher;
+use Solidie_Sandbox\Controllers\InstanceController;
+use Solidie_Sandbox\Controllers\SandboxController;
 
 /**
  * Main class to initiate app
@@ -41,6 +43,7 @@ class Main {
 		self::$configs           = $configs;
 		self::$configs->dir      = dirname( $configs->file ) . '/';
 		self::$configs->basename = plugin_basename( $configs->file );
+		self::$configs->api_host = 'development' === $configs->mode ? 'http://localhost:10019' : 'https://solidie.com';
 
 		// Loading Autoloader
 		spl_autoload_register( array( $this, 'loader' ) );
@@ -54,16 +57,20 @@ class Main {
 
 		// Register Activation/Deactivation Hook
 		register_activation_hook( self::$configs->file, array( $this, 'activate' ) );
-		register_deactivation_hook( self::$configs->file, array( $this, 'deactivate' ) );
 
 		new Database();
-		new Dispatcher();
 		new Scripts();
 		new AdminPage();
 		new SandboxSetup();
 		new Cron();
 
-		do_action( 'slds_loaded' );
+		new Dispatcher( 
+			self::$configs->app_id, 
+			array(
+				InstanceController::class,
+				SandboxController::class,
+			)
+		);
 	}
 
 	/**
@@ -98,14 +105,5 @@ class Main {
 	 */
 	public static function activate() {
 		do_action( 'slds_activated' );
-	}
-
-	/**
-	 * Execute deactivation hook
-	 *
-	 * @return void
-	 */
-	public static function deactivate() {
-		do_action( 'slds_deactivated' );
 	}
 }

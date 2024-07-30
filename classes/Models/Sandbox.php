@@ -7,8 +7,8 @@
 
 namespace Solidie_Sandbox\Models;
 
-use Solidie_Sandbox\Helpers\_Array;
-use Solidie_Sandbox\Helpers\_String;
+use SolidieLib\_Array;
+use SolidieLib\_String;
 
 /**
  * Sandbox functions
