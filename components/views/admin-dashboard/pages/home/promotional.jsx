@@ -34,7 +34,7 @@ export function Promotional() {
 			</div>
 
 			<span className={'d-block font-size-14 font-weight-400 color-text-70'.classNames()}>
-				{__('Also sell audio, video, images, fonts, 3D models, and more from your website. Earn commissions from third-party contributors too.')}
+				{__('Also sell audio, video, images, fonts, 3D models, and more. Earn commissions from third-party contributors too.')}
 			</span>
 		</div>
 	</div>

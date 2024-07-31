@@ -8,7 +8,7 @@
 namespace Solidie_Sandbox;
 
 use SolidieLib\_Array;
-use Solidie_Sandbox\Helpers\Utilities;
+use SolidieLib\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
 use Solidie_Sandbox\Setup\Cron;
 use Solidie_Sandbox\Setup\Database;
@@ -53,7 +53,7 @@ class Main {
 		self::$configs = (object) array_merge( $manifest, (array) self::$configs );
 
 		// Prepare the unique app name
-		self::$configs->app_id = Utilities::getPluginId( self::$configs->url );
+		self::$configs->app_id = Utilities::getAppId( self::$configs->url );
 
 		// Register Activation/Deactivation Hook
 		register_activation_hook( self::$configs->file, array( $this, 'activate' ) );

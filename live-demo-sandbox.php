@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit;
 }
 
 // Load autoloader
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/classes/Main.php';
 
 ( new Solidie_Sandbox\Main() )->init(

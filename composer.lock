@@ -4,8 +4,37 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "df7a26e0d20d3eae745ecda838bbc948",
-    "packages": [],
+    "content-hash": "c8222e013189deca5a3a3c295b33681c",
+    "packages": [
+        {
+            "name": "solidie/solidie-lib",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:Solidie/solidie-lib.git",
+                "reference": "34ca1edc953c3ac51f6103de3e3f48035ebc7445"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Solidie/solidie-lib/zipball/34ca1edc953c3ac51f6103de3e3f48035ebc7445",
+                "reference": "34ca1edc953c3ac51f6103de3e3f48035ebc7445",
+                "shasum": ""
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SolidieLib\\": "src/"
+                }
+            },
+            "description": "WP PHP scripts for plugins and themes",
+            "support": {
+                "source": "https://github.com/Solidie/solidie-lib/tree/main",
+                "issues": "https://github.com/Solidie/solidie-lib/issues"
+            },
+            "time": "2024-07-31T08:11:22+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "10up/phpcs-composer",
@@ -565,6 +594,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "solidie/solidie-lib": 20,
         "10up/phpcs-composer": 20
     },
     "prefer-stable": false,

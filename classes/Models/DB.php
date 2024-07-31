@@ -7,7 +7,7 @@
 
 namespace Solidie_Sandbox\Models;
 
-use Solidie_Sandbox\Helpers\_Number;
+use SolidieLib\_Number;
 use Solidie_Sandbox\Main;
 
 /**

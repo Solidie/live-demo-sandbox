@@ -7,8 +7,8 @@
 
 namespace Solidie_Sandbox\Setup;
 
-use Solidie_Sandbox\Helpers\Colors;
-use Solidie_Sandbox\Helpers\Utilities;
+use SolidieLib\Colors;
+use SolidieLib\Utilities;
 use Solidie_Sandbox\Main;
 
 /**
@@ -126,7 +126,7 @@ class Scripts {
 	 * @return void
 	 */
 	public function adminScripts() {
-		if ( Utilities::isAdminDashboard() ) {
+		if ( Utilities::isAdminScreen( Main::$configs->root_menu_slug ) ) {
 			wp_enqueue_script( 'slds-backend', Main::$configs->dist_url . 'admin-dashboard.js', array( 'jquery' ), Main::$configs->version, true );
 		}
 	}
