@@ -147,8 +147,8 @@ export function HomeBackend(props) {
 						{
 							state.fetching ? 
 							<LoadingIcon show={true} center={true}/> :
-							<div className={'padding-vertical-15 margin-bottom-15 text-align-center'.classNames()}>
-								<span className={'d-block margin-bottom-15 font-size-16 font-weight-400 color-text-80'.classNames()}>
+							<div className={'padding-vertical-25 margin-bottom-15 text-align-center'.classNames()}>
+								<span className={'d-block margin-bottom-25 font-size-16 font-weight-400 color-text-80'.classNames()}>
 									{__('No multsite was found to create demo under.')}
 								</span>
 								<button 
