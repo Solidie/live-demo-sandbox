@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 
-import { __ } from "solidie-materials/helpers.jsx";
+import { __, isEmpty } from "solidie-materials/helpers.jsx";
 import { TextField } from "solidie-materials/text-field/text-field.jsx";
 import { NumberField } from "solidie-materials/number-field/number-field.jsx";
 import { DropDown } from "solidie-materials/dropdown/dropdown.jsx";
@@ -43,14 +43,14 @@ const fields = [
 		]
 	},
 	{
-		label: __('Sandbox site title'),
+		label: __('Site Title'),
 		name: 'sandbox_site_title',
 		type: 'text'
 	},
 	{
 		label: <>
 				{__('Role to create a user with (if need)')}<br/>
-				<small>{__('Applicable for new sandboxes only')}</small>
+				<small>{__('Applicable for new demo sites only')}</small>
 			</>,
 		name: 'new_user_role',
 		type: 'text'
@@ -155,7 +155,7 @@ export function HostSettings({closePanel, settings={}, host_id}) {
 			className={'d-block font-size-18 color-text-80'.classNames()}
 			style={{marginBottom: '35px'}}
 		>
-			{__('Individual Sandbox Settings')}
+			{__('Demo Site Settings')}
 		</strong>
 
 		{
@@ -172,10 +172,13 @@ export function HostSettings({closePanel, settings={}, host_id}) {
 					<div className={'flex-1'.classNames()}>
 						{
 							!fields ? 
-								<RenderField 
-									field={{...field, value: state.values[name] || ''}} 
-									onChange={onChange}
-								/>
+								(
+									(name==='auto_login_new_user' && isEmpty(state.values.new_user_role)) ? null :
+									<RenderField 
+										field={{...field, value: state.values[name] || ''}} 
+										onChange={onChange}
+									/>
+								)
 								:
 								<div className={'d-flex align-items-center column-gap-15'.classNames()}>
 									{

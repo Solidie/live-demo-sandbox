@@ -63,8 +63,8 @@ class AdminPage {
 		// Register dashboard home
 		add_submenu_page(
 			Main::$configs->root_menu_slug,
-			esc_html__( 'Instances', 'live-demo-sandbox' ),
-			esc_html__( 'Instances', 'live-demo-sandbox' ),
+			esc_html__( 'Multisites', 'live-demo-sandbox' ),
+			esc_html__( 'Multisites', 'live-demo-sandbox' ),
 			$role,
 			Main::$configs->root_menu_slug,
 			array( $this, 'homePage' )

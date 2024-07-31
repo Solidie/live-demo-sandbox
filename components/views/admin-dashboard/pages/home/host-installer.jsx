@@ -173,8 +173,8 @@ export function HostInstaller({configs={}, slots}) {
 		}
 
 		confirm(
-			__('Sure to Start setup?'),
-			__('You must keep the tab open until completion. Otherwise you\'ll have to reset setup.'),
+			__('Start Setup?'),
+			__('Once started, keep the tab open until completion.'),
 			()=>{
 				setState({
 					...state,
@@ -280,7 +280,7 @@ export function HostInstaller({configs={}, slots}) {
 	if ( form ) {
 		return <div className={section_class + 'text-align-center'.classNames()} style={{padding: '30px 10px'}}>
 			<strong className={'d-block font-size-16 color-text-90 margin-bottom-15'.classNames()}>
-				{__('Multiple Host is a Pro feature')}
+				{__('Multiple multsite is a Pro feature')}
 			</strong>
 			<a 
 				href='https://solidie.com/live-demo-sandbox-pro/'

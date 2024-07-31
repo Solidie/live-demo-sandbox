@@ -32,8 +32,8 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 
 	const deleteInstance=()=>{
 		confirm(
-			__('Sure to delete the host?'),
-			__('Proceeding will delete all the sandbox instances too. You\'ll be able to set up again then.'),
+			__('Sure to delete?'),
+			__('It will also delete all the demo sites under it.'),
 			()=>{
 				setState({
 					...state,
@@ -84,7 +84,7 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 					className={'font-size-13'.classNames()}
 				>
 					<span className={'color-text-50 font-weight-500'.classNames()}>
-						{__('Demo')}:
+						{__('Demo URL')}:
 					</span>
 					&nbsp;
 					<span 
@@ -231,7 +231,7 @@ export function HostInstance({host_id, configs={}}) {
 			<div className={'d-flex align-items-center column-gap-8 margin-bottom-10 justify-content-space-between'.classNames()}>
 				<div>
 					<span className={'font-size-16 font-weight-600 margin-bottom-15'.classNames()}>
-						{__('Sandboxes')}: {__(state.segmentation.total_count)}
+						{__('Demo Sites')}: {__(state.segmentation.total_count)}
 					</span>
 				</div>
 				<div className={'d-flex'.classNames()}>

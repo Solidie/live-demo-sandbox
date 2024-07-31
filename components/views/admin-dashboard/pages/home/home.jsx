@@ -67,15 +67,15 @@ export function HomeBackend(props) {
 	let page_name   = '';
 
 	if ( show_installer ) {
-		page_title = __( 'Configure New Host' );
+		page_title = __( 'Configure New Multisite' );
 		page_name  = 'installer';
 
 	} else if ( !sub_path ) {
-		page_title = __('Sandbox Hosts');
+		page_title = __('Multisites');
 		page_name  = 'hosts';
 
 	} else if( sub_path ) {
-		page_title = __('Running Sandboxes');
+		page_title = __('Multisite Stats');
 		page_name  = 'sandboxes';
 	}
 
@@ -149,7 +149,7 @@ export function HomeBackend(props) {
 							<LoadingIcon show={true} center={true}/> :
 							<div className={'padding-vertical-15 margin-bottom-15 text-align-center'.classNames()}>
 								<span className={'d-block margin-bottom-15 font-size-16 font-weight-400 color-text-80'.classNames()}>
-									{__('No sandbox host was found.')}
+									{__('No multsite was found to create demo under.')}
 								</span>
 								<button 
 									className={'button button-primary'.classNames()} 
