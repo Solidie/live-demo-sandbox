@@ -412,7 +412,20 @@ export function HostInstaller({configs={}, slots}) {
 						{state.step==2 ? __('Setting up Network') : __('Activating network wide themes and plugins')}
 					</div>
 					<div style={{margin: '0 auto', height: '2px', overflow: 'hidden', visibility: 'hidden'}}>
-						<iframe style={{width: '800px', height: `${window.innerHeight - 150}px`}} src={state.iframe_url}></iframe>
+						{
+							!state.iframe_url ? 
+								<div className={'text-align-center color-error'.classNames()} style={{marginTop: '30px'}}>
+									<i>{__('Something went wrong!')}</i>
+								</div> 
+								:
+								<iframe 
+									src={state.iframe_url}
+									style={{
+										width: '800px', 
+										height: `${window.innerHeight - 150}px`
+									}} 
+								></iframe>
+						}
 					</div>
 				</div>
 			}

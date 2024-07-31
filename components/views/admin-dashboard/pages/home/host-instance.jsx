@@ -88,7 +88,7 @@ export function HostInfoSingle({configs, onDelete, singular}) {
 					</span>
 					&nbsp;
 					<span 
-						className={'color-text-90 font-weight-400'.classNames()} 
+						className={'color-text-90 font-weight-400 hover-underline'.classNames()} 
 						style={{cursor: 'context-menu', wordBreak: 'break-all'}}
 						onClick={e=>{
 							copyToClipboard(configs.new_sandbox_url, addToast);

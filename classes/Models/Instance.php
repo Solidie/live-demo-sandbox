@@ -122,7 +122,7 @@ class Instance {
 			if ( $host_id !== $this->host_id && $_host['directory_name'] === $this->configs['directory_name'] ) {
 				return array(
 					'success' => false,
-					'message' => __( 'The directory is used in another multsite already', 'live-demo-sandbox' ),
+					'message' => sprintf( __( 'The directory \'%s\' is used in another multsite already', 'live-demo-sandbox' ), $this->configs['directory_name'] ),
 				);
 			}
 		}
@@ -133,11 +133,11 @@ class Instance {
 				return array(
 					'success'   => false,
 					'duplicate' => true,
-					'message'   => __( 'The directory exists already', 'live-demo-sandbox' ),
+					'message'   => sprintf( __( 'The directory \'%s\' exists already.', 'live-demo-sandbox' ), $this->configs['directory_name'] ),
 				);
 			}
 
-			$this->deleteMultiSite();
+			$this->deleteMultiSite( false );
 		}
 
 		// Download WordPress
@@ -145,14 +145,14 @@ class Instance {
 		if ( ! file_exists( $zip_file ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'WordPress source file not found!', 'live-demo-sandbox' ),
+				'message' => __( 'WordPress source file not found! Try again to start over.', 'live-demo-sandbox' ),
 			);
 		}
 
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! $this->db->db_connect() || is_null( $this->db->get_results( "SHOW TABLES FROM `$db_name`" ) ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Could not connect to database', 'live-demo-sandbox' ),
+				'message' => __( 'Invalid database credentials. Could not connect.', 'live-demo-sandbox' ),
 			);
 		}
 
@@ -162,9 +162,15 @@ class Instance {
 		WP_Filesystem();
 		$result = unzip_file( $zip_file, $subsite_path, null, array( 'method' => 'direct' ) );
 		if ( is_wp_error( $result ) ) {
+
+			// Delete if the archive is incompatible
+			if ( file_exists( $zip_file ) ) {
+				unlink( $zip_file );
+			}
+
 			return array(
 				'success' => false,
-				'message' => $result->get_error_message(),
+				'message' => $result->get_error_message() . ' Retrying may resolve the issue.',
 			);
 		}
 
@@ -296,7 +302,7 @@ class Instance {
 	 *
 	 * @return void
 	 */
-	public function deleteMultiSite() {
+	public function deleteMultiSite( $clear_configs = true ) {
 
 		// Delete all files
 		FileManager::deleteDirectory( $this->getBaseDir() );
@@ -324,7 +330,7 @@ class Instance {
 			}
 		}
 
-		$this->updateConfigs( array(), true );
+		$this->updateConfigs( array(), $clear_configs );
 	}
 
 	/**

@@ -147,10 +147,13 @@ class Scripts {
 	 */
 	public function scriptTranslation() {
 
-		$domain = Main::$configs->text_domain;
-		$dir    = Main::$configs->dir . 'languages/';
+		if ( Utilities::isAdminScreen( Main::$configs->root_menu_slug ) ) {
+			
+			$domain = Main::$configs->text_domain;
+			$dir    = Main::$configs->dir . 'languages/';
 
-		wp_enqueue_script( 'slds-translations', Main::$configs->dist_url . 'libraries/translation-loader.js', array( 'jquery' ), Main::$configs->version, true );
-		wp_set_script_translations( 'slds-translations', $domain, $dir );
+			wp_enqueue_script( 'slds-translations', Main::$configs->dist_url . 'libraries/translation-loader.js', array( 'jquery' ), Main::$configs->version, true );
+			wp_set_script_translations( 'slds-translations', $domain, $dir );
+		}
 	}
 }

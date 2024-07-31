@@ -56,14 +56,15 @@ class AdminPage {
 			esc_html__( 'Sandbox', 'live-demo-sandbox' ),
 			$role,
 			Main::$configs->root_menu_slug,
-			array( $this, 'homePage' )
+			array( $this, 'homePage' ),
+			Main::$configs->dist_url . 'libraries/logo.svg'
 		);
 
 		// Register dashboard home
 		add_submenu_page(
 			Main::$configs->root_menu_slug,
-			esc_html__( 'Home', 'live-demo-sandbox' ),
-			esc_html__( 'Home', 'live-demo-sandbox' ),
+			esc_html__( 'Instances', 'live-demo-sandbox' ),
+			esc_html__( 'Instances', 'live-demo-sandbox' ),
 			$role,
 			Main::$configs->root_menu_slug,
 			array( $this, 'homePage' )

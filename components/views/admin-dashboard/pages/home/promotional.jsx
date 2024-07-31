@@ -1,12 +1,12 @@
 import React from "react";
 
-import { data_pointer, __ } from "solidie-materials/helpers.jsx";
+import { __ } from "solidie-materials/helpers.jsx";
 import { section_class } from "./host-instance.jsx";
 
 import img from '../../../../images/promotional.png';
 
 export function Promotional() {
-	return <div className={section_class + 'd-flex align-items-stretched border-1 b-color-text-10 box-shadow-thick'.classNames()} style={{padding: 0, marginTop: '70px'}}>
+	return <div className={section_class + 'd-flex align-items-stretch border-1 b-color-text-10 box-shadow-thick'.classNames()} style={{padding: 0, marginTop: '70px'}}>
 		<div 
 			className={'flex-1'.classNames()} 
 			style={{
