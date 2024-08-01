@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "webpack --env=build --mode=production",
     "clear": "node ./node_modules/solidie-materials/builders/clear-dist.js",
+    "release": "./node_modules/solidie-materials/release.sh",
     "build": "npm run clear && npm run compile && gulp build",
     "watch": "npm run clear && webpack --watch --mode=development",
     "lint": "eslint ./components/**/*.jsx",
@@ -49,7 +50,6 @@
     "moment-timezone": "^0.5.43",
     "node-sass": "^9.0.0",
     "path": "^0.12.7",
-    "pdfjs-dist": "^3.9.179",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",

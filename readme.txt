@@ -1,4 +1,4 @@
-=== Live Demo Sandbox ===
+=== Live Demo Sandbox - Demo Site per Visitor ===
 Contributors: jayedul
 Tags: live demo, sandbox, instance
 Requires at least: 5.3

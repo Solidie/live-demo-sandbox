@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Live Demo Sandbox
+ * Plugin Name: Sandbox
  * Plugin URI: https://solidie.com/live-demo-sandbox/
  * Description: Live demo sandbox instance creator utilizing WordPress multisite setup
  * Version: 1.0.0
