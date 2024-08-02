@@ -21,15 +21,15 @@ $slds_meta_data['auto_user_info'] = 'slds_demo_user_auto_created';
  * This plugin will be copied to multiste setup, and will work there only.
  */
 
-add_action( 'init', '_slds_redirect_home_to_demo' );
-add_action( 'init', '_slds_active_state_logger' );
-add_action( 'wp_head', '_slds_multisite_scripts_load' );
-add_action( 'admin_head', '_slds_multisite_scripts_load' );
-add_action( 'template_redirect', '_slds_handle_404_sandbox' );
+add_action( 'init', 'slds_redirect_home_to_demo' );
+add_action( 'init', 'slds_active_state_logger' );
+add_action( 'wp_head', 'slds_multisite_scripts_load' );
+add_action( 'admin_head', 'slds_multisite_scripts_load' );
+add_action( 'template_redirect', 'slds_handle_404_sandbox' );
 
 // Call from sandbax instances and host
-add_action( 'wp_ajax_slds_complete_setup', '_slds_complete_setup' );
-add_action( 'wp_ajax_nopriv_slds_login_to_admin', '_slds_admin_login' );
+add_action( 'wp_ajax_slds_complete_setup', 'slds_complete_setup' );
+add_action( 'wp_ajax_nopriv_slds_login_to_admin', 'slds_admin_login' );
 
 // Call from Main site
 add_action( 'wp_ajax_nopriv_slds_init_internal_session', 'slds_internal_session' );
@@ -40,7 +40,7 @@ add_action( 'wp_ajax_nopriv_slds_internal_request', 'slds_internal_request' );
  *
  * @return object
  */
-function _slds_control_panel_db() {
+function slds_control_panel_db() {
 
 	global $slds_meta_data;
 	$configs = $slds_meta_data['control_panel_db'];
@@ -61,13 +61,13 @@ function _slds_control_panel_db() {
  *
  * @return mixed
  */
-function _slds_control_panel_get_configs( $key = null, $def = null ) {
+function slds_control_panel_get_configs( $key = null, $def = null ) {
 
 	global $slds_meta_data;
 
 	$control_panel = $slds_meta_data['control_panel_db'];
 
-	$wpdb    = _slds_control_panel_db();
+	$wpdb    = slds_control_panel_db();
 	$configs = $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT option_value FROM {$control_panel['tables']['options']} WHERE option_name=%s",
@@ -88,9 +88,9 @@ function _slds_control_panel_get_configs( $key = null, $def = null ) {
  *
  * @return int Total minutes
  */
-function _slds_get_sandbox_inactivity_minutes() {
+function slds_get_sandbox_inactivity_minutes() {
 	
-	$settings = _slds_control_panel_get_configs( 'settings', array() );
+	$settings = slds_control_panel_get_configs( 'settings', array() );
 	$time     = ( int ) $settings['inactivity_time_allowed'] ?? 1;
 	$period   = $settings['inactivity_period_allowed'] ?? 'hour';
 	$minutes  = ( int ) ( $period === 'hour' ? $time*60 : $time );
@@ -103,7 +103,7 @@ function _slds_get_sandbox_inactivity_minutes() {
  *
  * @return void
  */
-function _slds_redirect_home_to_demo() {
+function slds_redirect_home_to_demo() {
 	// Redirect to demo if it is home, setup complete, and non admin
 	if ( 
 		! is_admin()
@@ -123,7 +123,7 @@ function _slds_redirect_home_to_demo() {
  *
  * @return void
  */
-function _slds_active_state_logger() {
+function slds_active_state_logger() {
 
 	if ( is_main_site() ) {
 		return;
@@ -131,10 +131,10 @@ function _slds_active_state_logger() {
 
 	$site_id      = get_current_blog_id();
 	$current_time = gmdate( 'Y-m-d H:i:s' );
-	$inactivity   = sprintf( '+%s minutes', _slds_get_sandbox_inactivity_minutes() );
+	$inactivity   = sprintf( '+%s minutes', slds_get_sandbox_inactivity_minutes() );
 	$expires_at   = gmdate( 'Y-m-d H:i:s', strtotime( $inactivity , strtotime( $current_time ) ) );
 
-	$wpdb = _slds_control_panel_db();
+	$wpdb = slds_control_panel_db();
 	global $slds_meta_data;
 	
 	// Update expires time in the control panel main site
@@ -175,7 +175,7 @@ function _slds_active_state_logger() {
  *
  * @return void
  */
-function _slds_handle_404_sandbox() {
+function slds_handle_404_sandbox() {
 
 	if ( ! is_404() ) {
 		return;
@@ -209,7 +209,7 @@ function slds_internal_session() {
 	wp_send_json_success();
 }
 
-function _slds_activate_plugin_by_directory( $plugin_directory ) {
+function slds_activate_plugin_by_directory( $plugin_directory ) {
 	
     // Path to the plugin directory
     $plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_directory;
@@ -271,7 +271,7 @@ function slds_internal_request() {
 
 			global $slds_meta_data;
 
-			$options = _slds_control_panel_get_configs( 'settings', array() );
+			$options = slds_control_panel_get_configs( 'settings', array() );
 			$parsed  = wp_parse_url( get_home_url() );
 
 			// Define the site details
@@ -306,7 +306,7 @@ function slds_internal_request() {
 							switch_theme( $ext['dir_name'] );
 						}
 					} else if ( 'plugin' === $ext['type'] && false === ( $ext['network'] ?? true ) ) {
-						_slds_activate_plugin_by_directory( $ext['dir_name'] );
+						slds_activate_plugin_by_directory( $ext['dir_name'] );
 					}
 				}
 
@@ -379,7 +379,7 @@ function slds_internal_request() {
  *
  * @return void
  */
-function _slds_complete_setup() {
+function slds_complete_setup() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_send_json_error( array( 'message' => 'Access denied!' ) );
 	}
@@ -393,7 +393,7 @@ function _slds_complete_setup() {
  *
  * @return void
  */
-function _slds_admin_login() {
+function slds_admin_login() {
 	if ( get_option( 'slds_setup_complete' ) ) {
 		wp_send_json_error( array( 'message' => 'This action is expired as multisite setup completed' ) );
 	}
@@ -408,7 +408,7 @@ function _slds_admin_login() {
  *
  * @return void
  */
-function _slds_multisite_scripts_load() {
+function slds_multisite_scripts_load() {
 	global $slds_meta_data;
 	$slds_load_extensions = $slds_meta_data['extensions'];
 

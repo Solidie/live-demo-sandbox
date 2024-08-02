@@ -56,7 +56,7 @@ class Sandbox extends Instance {
 				'success' => false,
 				'message' => array( 
 					__( 'Something went wrong!', 'live-demo-sandbox' ),
-					! empty( $response->data->message ) ?  $response->data->message : __( 'Could not create sandbox.' ),
+					! empty( $response->data->message ) ?  $response->data->message : __( 'Could not create sandbox.', 'live-demo-sandbox' ),
 					__( 'Please try again later.', 'live-demo-sandbox' ),
 				),
 			);
@@ -224,7 +224,7 @@ class Sandbox extends Instance {
 			return true;
 		}
 
-		return $response->data->message ?? __( 'Could not delete sandbox', 'live-demo-instance' );
+		return $response->data->message ?? __( 'Could not delete sandbox', 'live-demo-sandbox' );
 	}
 
 	/**
