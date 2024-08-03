@@ -54,9 +54,9 @@ class Sandbox extends Instance {
 		if ( ! $response->success ) {
 			return array(
 				'success' => false,
-				'message' => array( 
+				'message' => array(
 					__( 'Something went wrong!', 'live-demo-sandbox' ),
-					! empty( $response->data->message ) ?  $response->data->message : __( 'Could not create sandbox.', 'live-demo-sandbox' ),
+					! empty( $response->data->message ) ? $response->data->message : __( 'Could not create sandbox.', 'live-demo-sandbox' ),
 					__( 'Please try again later.', 'live-demo-sandbox' ),
 				),
 			);
@@ -64,10 +64,10 @@ class Sandbox extends Instance {
 
 		// Determine IP address
 		$user_ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '' ) );
-		
+
 		// Determine expiry
 		$current_time       = gmdate( 'Y-m-d H:i:s' );
-		$allowed_inactivity = sprintf( '+%s minutes', $this->getSandboxInactivityMinutes());
+		$allowed_inactivity = sprintf( '+%s minutes', $this->getSandboxInactivityMinutes() );
 		$expires_at         = gmdate( 'Y-m-d H:i:s', strtotime( $allowed_inactivity, strtotime( $current_time ) ) );
 
 		global $wpdb;
@@ -115,7 +115,7 @@ class Sandbox extends Instance {
 
 		global $wpdb;
 
-		$page         = max( absint( ( int ) ( $args['page'] ?? 1 ) ), 1 );
+		$page         = max( absint( (int) ( $args['page'] ?? 1 ) ), 1 );
 		$limit        = 30;
 		$offset       = ( $page - 1 ) * $limit;
 		$limit_clause = $wpdb->prepare( ' LIMIT %d OFFSET %d', $limit, $offset );
@@ -137,8 +137,8 @@ class Sandbox extends Instance {
 		}
 
 		if ( $segmentation ) {
-			
-			$total_count = ( int ) $wpdb->get_var(
+
+			$total_count = (int) $wpdb->get_var(
 				"SELECT COUNT(sandbox_id) FROM {$wpdb->slds_sandboxes} WHERE {$where_clause}"
 			);
 
@@ -195,7 +195,7 @@ class Sandbox extends Instance {
 		// Prepare sandbox IDs placeholder for SQL
 		$sandbox_ids = _Array::getArray( $sandbox_id, true, 0 );
 		$ids_places  = _String::getPlaceHolders( $sandbox_ids );
-		
+
 		global $wpdb;
 		$site_ids = $wpdb->get_col(
 			$wpdb->prepare(
@@ -209,9 +209,9 @@ class Sandbox extends Instance {
 		}
 
 		$response = ( new Postman( 'delete_sandbox', $this->multiSiteHomeURL() ) )->request(
-			array( 
-				'site_ids' => array_map( 'intval', $site_ids ) 
-			) 
+			array(
+				'site_ids' => array_map( 'intval', $site_ids ),
+			)
 		);
 
 		if ( $response->success ) {
@@ -237,16 +237,16 @@ class Sandbox extends Instance {
 	}
 
 	/**
-	 * Get how many minutes can a sandbox allowed to remain inactive. 
+	 * Get how many minutes can a sandbox allowed to remain inactive.
 	 *
 	 * @return int Total minutes
 	 */
 	public function getSandboxInactivityMinutes() {
-		
+
 		$settings = $this->getConfigs( 'settings', array() );
-		$time     = ( int ) $settings['inactivity_time_allowed'] ?? 1;
+		$time     = (int) $settings['inactivity_time_allowed'] ?? 1;
 		$period   = $settings['inactivity_period_allowed'] ?? 'hour';
-		$minutes  = ( int ) ( $period === 'hour' ? $time*60 : $time );
+		$minutes  = (int) ( 'hour' === $period ? $time * 60 : $time );
 
 		return $minutes > 0 ? $minutes : 40;
 	}

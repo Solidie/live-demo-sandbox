@@ -16,7 +16,7 @@ const SLDS_EXT_INSTALLER_VERSION = '1.0.0';
 
 $slds_meta_data = '[]';
 // dynamics
-$slds_meta_data = json_decode( $slds_meta_data, true );
+$slds_meta_data                   = json_decode( $slds_meta_data, true );
 $slds_meta_data['auto_user_info'] = 'slds_demo_user_auto_created';
 
 /**
@@ -48,16 +48,16 @@ function slds_control_panel_db() {
 	$configs = $slds_meta_data['control_panel_db'];
 
 	return new \wpdb(
-		$configs['user'], 
-		$configs['pass'], 
-		$configs['name'], 
+		$configs['user'],
+		$configs['pass'],
+		$configs['name'],
 		$configs['host']
 	);
 }
 
 /**
  * Get configs aray from control panel site
- * 
+ *
  * @param string $key To get specific value from congis
  * @param mixed  $def Default value to return for singular value
  *
@@ -86,16 +86,16 @@ function slds_control_panel_get_configs( $key = null, $def = null ) {
 
 
 /**
- * Get how many minutes can a sandbox allowed to remain inactive. 
+ * Get how many minutes can a sandbox allowed to remain inactive.
  *
  * @return int Total minutes
  */
 function slds_get_sandbox_inactivity_minutes() {
-	
+
 	$settings = slds_control_panel_get_configs( 'settings', array() );
-	$time     = ( int ) $settings['inactivity_time_allowed'] ?? 1;
+	$time     = (int) $settings['inactivity_time_allowed'] ?? 1;
 	$period   = $settings['inactivity_period_allowed'] ?? 'hour';
-	$minutes  = ( int ) ( $period === 'hour' ? $time*60 : $time );
+	$minutes  = (int) ( 'hour' === $period ? $time * 60 : $time );
 
 	return $minutes > 0 ? $minutes : 40;
 }
@@ -107,12 +107,11 @@ function slds_get_sandbox_inactivity_minutes() {
  */
 function slds_redirect_home_to_demo() {
 	// Redirect to demo if it is home, setup complete, and non admin
-	if ( 
-		! is_admin()
-		&& 'GET' == sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) 
-		&& is_main_site() 
-		&& get_option( 'slds_setup_complete' ) 
-		&& ! current_user_can( 'manage_options' ) 
+	if ( ! is_admin()
+		&& 'GET' === sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) )
+		&& is_main_site()
+		&& get_option( 'slds_setup_complete' )
+		&& ! current_user_can( 'manage_options' )
 	) {
 		global $slds_meta_data;
 		wp_safe_redirect( $slds_meta_data['sandbox_init_url'] );
@@ -134,33 +133,35 @@ function slds_active_state_logger() {
 	$site_id      = get_current_blog_id();
 	$current_time = gmdate( 'Y-m-d H:i:s' );
 	$inactivity   = sprintf( '+%s minutes', slds_get_sandbox_inactivity_minutes() );
-	$expires_at   = gmdate( 'Y-m-d H:i:s', strtotime( $inactivity , strtotime( $current_time ) ) );
+	$expires_at   = gmdate( 'Y-m-d H:i:s', strtotime( $inactivity, strtotime( $current_time ) ) );
 
 	$wpdb = slds_control_panel_db();
 	global $slds_meta_data;
-	
+
 	// Update expires time in the control panel main site
 	$wpdb->update(
 		$slds_meta_data['control_panel_db']['tables']['sandboxes'],
-		array( 'expires_at' => $expires_at, 'last_hit' => $current_time ),
+		array(
+			'expires_at' => $expires_at,
+			'last_hit'   => $current_time,
+		),
 		array( 'site_id' => $site_id )
 	);
 
 	if (
-		! is_user_logged_in() && 
+		! is_user_logged_in() &&
 		! is_admin() &&
-		'GET' == sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) )
+		'GET' === sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) )
 	) {
-		
+
 		$auto_user = get_option( $slds_meta_data['auto_user_info'] );
 		$auto_user = is_array( $auto_user ) ? $auto_user : array();
 
-		if ( 
-			! empty( $auto_user['user_id'] ) && 
-			( $auto_user['auto_login'] ?? false ) && 
-			! ( $auto_user['logged_in'] ?? false ) 
+		if ( ! empty( $auto_user['user_id'] ) &&
+			( $auto_user['auto_login'] ?? false ) &&
+			! ( $auto_user['logged_in'] ?? false )
 		) {
-			
+
 			$auto_user['logged_in'] = true;
 			update_option( $slds_meta_data['auto_user_info'], $auto_user, true );
 
@@ -202,7 +203,7 @@ function slds_handle_404_sandbox() {
  * @return void
  */
 function slds_internal_session() {
-	
+
 	if ( ! is_main_site() ) {
 		return;
 	}
@@ -211,39 +212,45 @@ function slds_internal_session() {
 	wp_send_json_success();
 }
 
+/**
+ * Activate plugin by directory name
+ *
+ * @param string $plugin_directory The plugin dir string
+ * @return void
+ */
 function slds_activate_plugin_by_directory( $plugin_directory ) {
-	
-    // Path to the plugin directory
-    $plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_directory;
 
-    // Make sure the directory exists
-    if (!is_dir($plugin_dir)) {
-        return;
-    }
+	// Path to the plugin directory
+	$plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_directory;
 
-    // Scan the plugin directory for files
-    $plugin_files = scandir($plugin_dir);
-    if ($plugin_files === false) {
-        return;
-    }
+	// Make sure the directory exists
+	if ( ! is_dir( $plugin_dir ) ) {
+		return;
+	}
 
-    // Iterate over the files to find the main plugin file
-    $plugin_file = '';
-    foreach ($plugin_files as $file) {
-        if (substr($file, -4) === '.php') {
-            $file_path = $plugin_dir . '/' . $file;
-            $file_data = get_file_data($file_path, array('Plugin Name' => 'Plugin Name'), 'plugin');
-            if (!empty($file_data['Plugin Name'])) {
-                $plugin_file = $plugin_directory . '/' . $file;
-                break;
-            }
-        }
-    }
+	// Scan the plugin directory for files
+	$plugin_files = scandir( $plugin_dir );
+	if ( false === $plugin_files ) {
+		return;
+	}
 
-    // If a main plugin file was found, activate the plugin
-    if ($plugin_file && !is_plugin_active($plugin_file)) {
-        activate_plugin($plugin_file);
-    }
+	// Iterate over the files to find the main plugin file
+	$plugin_file = '';
+	foreach ( $plugin_files as $file ) {
+		if ( substr( $file, -4 ) === '.php' ) {
+			$file_path = $plugin_dir . '/' . $file;
+			$file_data = get_file_data( $file_path, array( 'Plugin Name' => 'Plugin Name' ), 'plugin' );
+			if ( ! empty( $file_data['Plugin Name'] ) ) {
+				$plugin_file = $plugin_directory . '/' . $file;
+				break;
+			}
+		}
+	}
+
+	// If a main plugin file was found, activate the plugin
+	if ( $plugin_file && ! is_plugin_active( $plugin_file ) ) {
+		activate_plugin( $plugin_file );
+	}
 }
 
 /**
@@ -252,7 +259,7 @@ function slds_activate_plugin_by_directory( $plugin_directory ) {
  * @return void
  */
 function slds_internal_request() {
-	
+
 	if ( ! is_main_site() ) {
 		return;
 	}
@@ -270,7 +277,6 @@ function slds_internal_request() {
 	switch ( $action ) {
 
 		case 'create_sandbox':
-
 			global $slds_meta_data;
 
 			$options = slds_control_panel_get_configs( 'settings', array() );
@@ -289,7 +295,7 @@ function slds_internal_request() {
 			// Check if the path already exists
 			if ( ! domain_exists( $domain, $path ) ) {
 
-				// Create subsite 
+				// Create subsite
 				$new_site_id = wpmu_create_blog( $domain, $path, $title, $user_id, $meta );
 				if ( is_wp_error( $new_site_id ) ) {
 					wp_send_json_error( array( 'message' => $new_site_id->get_error_message() ) );
@@ -300,14 +306,14 @@ function slds_internal_request() {
 
 				// Activate theme and plugins which are not network wide
 				foreach ( $slds_meta_data['extensions'] as $ext ) {
-					
+
 					// Activate theme
-					if ( 'theme' == $ext['type'] ) {
+					if ( 'theme' === $ext['type'] ) {
 						$current_theme = wp_get_theme();
 						if ( $current_theme->get_stylesheet() !== $ext['dir_name'] ) {
 							switch_theme( $ext['dir_name'] );
 						}
-					} else if ( 'plugin' === $ext['type'] && false === ( $ext['network'] ?? true ) ) {
+					} elseif ( 'plugin' === $ext['type'] && false === ( $ext['network'] ?? true ) ) {
 						slds_activate_plugin_by_directory( $ext['dir_name'] );
 					}
 				}
@@ -315,34 +321,36 @@ function slds_internal_request() {
 				// Create a user if role is defined
 				if ( ! empty( $options['new_user_role'] ) ) {
 
+					$string_source = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%&*?';
+
 					// Create a new user
 					$user_id = wp_insert_user(
 						array(
-							'user_login'    => $unique,
-							'user_pass'     => substr(str_shuffle(str_repeat($x = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%&*?', ceil(16 / strlen($x)))), 1, 16),
-							'user_email'    => $unique . '@example.com',
-							'first_name'    => 'John',
-							'last_name'     => 'Doe',
-							'role'          => $options['new_user_role'],
+							'user_login' => $unique,
+							'user_pass'  => substr( str_shuffle( str_repeat( $string_source, ceil( 16 / strlen( $string_source ) ) ) ), 1, 16 ),
+							'user_email' => $unique . '@example.com',
+							'first_name' => 'John',
+							'last_name'  => 'Doe',
+							'role'       => $options['new_user_role'],
 						)
 					);
 
 					// Save auto login flags in option
 					if ( ! empty( $user_id ) && ! is_wp_error( $user_id ) ) {
 						update_option(
-							$slds_meta_data['auto_user_info'], 
+							$slds_meta_data['auto_user_info'],
 							array(
-								'user_id'    => $user_id, 
+								'user_id'    => $user_id,
 								'logged_in'  => false,
-								'auto_login' => $options['auto_login_new_user']
+								'auto_login' => $options['auto_login_new_user'],
 							),
 							true
 						);
 					}
 				}
-				
+
 				do_action( 'slds_sandbox_created', $new_site_id );
-				
+
 				// Get back to current site
 				restore_current_blog();
 
@@ -362,16 +370,20 @@ function slds_internal_request() {
 			break;
 
 		case 'delete_sandbox':
-
-			$site_ids = $_POST['site_ids'] ?? '';
-			$site_ids = is_array( $site_ids ) ? array_map( 'intval', $site_ids ) : array();
+			$site_ids = wp_unslash( $_POST['site_ids'] ?? '' );
+			$site_ids = is_array( $site_ids ) ? array_map( 'sanitize_text_field', $site_ids ) : array();
 
 			foreach ( $site_ids as $id ) {
-				wp_delete_site( $id );
+
+				$site_id = (int) $id;
+
+				if ( $site_id ) {
+					wp_delete_site( $site_id );
+				}
 			}
 
 			wp_send_json_success( array( 'message' => 'Sandbox deleted successfully' ) );
-			
+
 			break;
 	}
 }
@@ -441,7 +453,7 @@ function slds_multisite_scripts_load() {
 			}
 		}
 	} elseif ( ! is_user_logged_in() ) {
-		// If it is multisite but not logged in, it means setup complete. 
+		// If it is multisite but not logged in, it means setup complete.
 		// Now login to multsite admin using ajax and load the plugins page to activate network wide plugins.
 		$intent          = 'login';
 		$url_after_login = admin_url( 'plugins.php' );
@@ -482,9 +494,9 @@ function slds_multisite_scripts_load() {
 		'ajax_url'        => admin_url( 'admin-ajax.php' ),
 		'intent'          => $intent,
 		'extensions'      => $slds_load_extensions,
-		'redirect_to'     => $redirect_url
+		'redirect_to'     => $redirect_url,
 	);
 
-	wp_enqueue_script( 'slds-installer-script', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'ext-installer.js', array( 'jquery' ), SLDS_EXT_INSTALLER_VERSION );
+	wp_enqueue_script( 'slds-installer-script', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'ext-installer.js', array( 'jquery' ), SLDS_EXT_INSTALLER_VERSION, false );
 	wp_localize_script( 'slds-installer-script', 'slds_variables', $variables );
 }

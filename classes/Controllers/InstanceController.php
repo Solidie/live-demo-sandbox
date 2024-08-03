@@ -52,7 +52,7 @@ class InstanceController {
 		if ( $success ) {
 			wp_send_json_success();
 		} else {
-			
+
 			// Delete incomplete downloaded file
 			if ( file_exists( $source_path ) ) {
 				unlink( $source_path );
@@ -88,7 +88,7 @@ class InstanceController {
 
 	/**
 	 * Deploy multsite constants
-	 * 
+	 *
 	 * @param string $host_id Multisite host ID
 	 *
 	 * @return void
@@ -118,7 +118,7 @@ class InstanceController {
 	 *
 	 * @return void
 	 */
-	public static function deleteEntireHost( string $host_id) {
+	public static function deleteEntireHost( string $host_id ) {
 		( new Instance( $host_id ) )->deleteMultiSite();
 		wp_send_json_success();
 	}
@@ -129,12 +129,12 @@ class InstanceController {
 	 * @return void
 	 */
 	public static function getHosts() {
-		
+
 		$instance = new Instance( '' );
 
 		wp_send_json_success(
 			array(
-				'hosts' => ( object ) $instance->getConfigs( null, null, true)
+				'hosts' => (object) $instance->getConfigs( null, null, true ),
 			)
 		);
 	}

@@ -30,7 +30,8 @@ class Cron {
 	/**
 	 * Define custom cron interval to delete sub sites
 	 *
-	 * @param array $schedules
+	 * @param array $schedules Schedules array
+	 *
 	 * @return array
 	 */
 	public function customInterval( $schedules ) {
@@ -62,7 +63,7 @@ class Cron {
 	public function clearSites() {
 
 		$timestamp = gmdate( 'Y-m-d H:i:s' );
-		
+
 		global $wpdb;
 		$sandboxes = $wpdb->get_results(
 			$wpdb->prepare(

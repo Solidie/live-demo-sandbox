@@ -30,9 +30,9 @@ class Postman {
 	 * Post constructor
 	 *
 	 * @param string $action The ajax action
-	 * @param string $host Home URL of multisite
+	 * @param string $home_url Home URL of multisite
 	 */
-	public function __construct( string $action, string $home_url  ) {
+	public function __construct( string $action, string $home_url ) {
 
 		// Set ajax action
 		$this->action = $action;

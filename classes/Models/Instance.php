@@ -42,11 +42,9 @@ class Instance {
 
 	/**
 	 * Instance constructor
-	 * 
+	 *
 	 * @param string $host_id Multisite host ID
 	 * @param array  $configs Optional configs, passed esepcially when saving new configs for a host.
-	 *
-	 * @param array|null $configs The multsite config to initiate
 	 */
 	public function __construct( string $host_id, $configs = array() ) {
 
@@ -72,10 +70,12 @@ class Instance {
 	/**
 	 * Get multsite home url
 	 *
+	 * @param array $configs Optional configs array to get multisite home URL based on
+	 *
 	 * @return string|null
 	 */
 	public function multiSiteHomeURL( $configs = null ) {
-		if ( $configs === null ) {
+		if ( null === $configs ) {
 			$configs = $this->configs;
 		}
 		return ! empty( $configs['directory_name'] ) ? get_home_url() . '/' . $configs['directory_name'] . '/' : null;
@@ -122,18 +122,18 @@ class Instance {
 			if ( $host_id !== $this->host_id && $_host['directory_name'] === $this->configs['directory_name'] ) {
 				return array(
 					'success' => false,
-					'message' => sprintf( __( 'The directory \'%s\' is used in another multsite already', 'live-demo-sandbox' ), $this->configs['directory_name'] ),
+					'message' => __( 'The directory is used in another multsite already', 'live-demo-sandbox' ),
 				);
 			}
 		}
-		
+
 		// Check if directory exists already
 		if ( file_exists( $subsite_path ) ) {
 			if ( ! ( $site_configs['override'] ?? false ) ) {
 				return array(
 					'success'   => false,
 					'duplicate' => true,
-					'message'   => sprintf( __( 'The directory \'%s\' exists already.', 'live-demo-sandbox' ), $this->configs['directory_name'] ),
+					'message'   => __( 'The directory exists already.', 'live-demo-sandbox' ),
 				);
 			}
 
@@ -224,6 +224,7 @@ class Instance {
 	/**
 	 * Get the multisite root dir url
 	 *
+	 * @param string $host_id Optional Host ID
 	 * @return string
 	 */
 	public function getSandboxInitURL( $host_id = null ) {
@@ -248,7 +249,7 @@ class Instance {
 				return array(
 					'file_id' => $ext['file_id'],
 					'type'    => 'plugin',
-					'network' => ( bool ) ( $ext['network'] ?? true ),
+					'network' => (bool) ( $ext['network'] ?? true ),
 				);
 			},
 			$extensions
@@ -258,7 +259,7 @@ class Instance {
 		if ( is_array( $site_configs['theme'] ?? null ) && isset( $site_configs['theme']['file_id'] ) ) {
 			$extensions[] = array(
 				'file_id' => $site_configs['theme']['file_id'],
-				'type'    => 'theme'
+				'type'    => 'theme',
 			);
 		}
 
@@ -289,7 +290,7 @@ class Instance {
 					'sandboxes' => $wpdb->slds_sandboxes,
 					'options'   => $wpdb->prefix . 'options',
 				),
-			)
+			),
 		);
 
 		// Modify installer php and deploy
@@ -303,6 +304,8 @@ class Instance {
 
 	/**
 	 * Delete whole multsite including sub sites
+	 *
+	 * @param bool $clear_configs Whether to clear the configs
 	 *
 	 * @return void
 	 */
@@ -341,6 +344,7 @@ class Instance {
 	 * Update multsite ocnfigs
 	 *
 	 * @param array $configs Multsite configs array
+	 * @param bool  $replace Whether to replace the configs
 	 * @return void
 	 */
 	private function updateConfigs( $configs = array(), $replace = false ) {
@@ -357,12 +361,17 @@ class Instance {
 
 		$this->configs = $options;
 
-		$raw = $this->getConfigs( null, null, true );
+		$raw                   = $this->getConfigs( null, null, true );
 		$raw[ $this->host_id ] = $this->configs;
 
 		update_option( self::OPTION_KEY, $raw );
 	}
 
+	/**
+	 * Default host config provider
+	 *
+	 * @return array
+	 */
 	public function getDefaultHostConfigs() {
 		return array(
 			'db_name'      => DB_NAME,
@@ -376,8 +385,8 @@ class Instance {
 				'inactivity_period_allowed' => 'hour',
 				'sandbox_site_title'        => 'Sandbox - ' . get_bloginfo( 'name' ),
 				'new_user_role'             => '',
-				'auto_login_new_user'       => true
-			)
+				'auto_login_new_user'       => true,
+			),
 		);
 	}
 
@@ -410,19 +419,19 @@ class Instance {
 			return $options;
 		}
 
-		$defaults = $this->getDefaultHostConfigs();
+		$defaults                  = $this->getDefaultHostConfigs();
 		$options[ $this->host_id ] = array_replace_recursive( $defaults, $options[ $this->host_id ] ?? array() );
-		
+
 		// Get option for individual host context
 		$option = $options[ $this->host_id ] ?? array();
-		
+
 		return $key ? ( $option[ $key ] ?? $def ) : $option;
 	}
 
 	/**
 	 * Update settings array
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings array
 	 * @return void
 	 */
 	public function updateSettings( array $settings ) {

@@ -79,11 +79,11 @@ class AdminPage {
 	public function homePage() {
 
 		$instance = new Instance( 'new' );
-		$hosts    = ( object ) $instance->getConfigs( null, null, true);
-		$configs  = ( object ) $instance->getDefaultHostConfigs();
+		$hosts    = (object) $instance->getConfigs( null, null, true );
+		$configs  = (object) $instance->getDefaultHostConfigs();
 
 		$meta_data = array(
-			'is_apache' => strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ), 'Apache' ) !== false
+			'is_apache' => strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ), 'Apache' ) !== false,
 		);
 
 		echo '<div 

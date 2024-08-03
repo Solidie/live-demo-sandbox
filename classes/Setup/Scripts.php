@@ -68,8 +68,8 @@ class Scripts {
 		}
 
 		// Get the default variables
-		$variables = ( new Variables( Main::$configs ) )->get();
-		$variables['permalinks'] = array_merge( 
+		$variables               = ( new Variables( Main::$configs ) )->get();
+		$variables['permalinks'] = array_merge(
 			$variables['permalinks'],
 			array(
 				'settings'  => Utilities::getBackendPermalink( AdminPage::SETTINGS_SLUG ),
@@ -113,7 +113,7 @@ class Scripts {
 	public function scriptTranslation() {
 
 		if ( $this->isSLDS() ) {
-			
+
 			$domain = Main::$configs->text_domain;
 			$dir    = Main::$configs->dir . 'languages/';
 

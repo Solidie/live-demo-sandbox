@@ -64,8 +64,8 @@ class Main {
 		new SandboxSetup();
 		new Cron();
 
-		new Dispatcher( 
-			self::$configs->app_id, 
+		new Dispatcher(
+			self::$configs->app_id,
 			array(
 				InstanceController::class,
 				SandboxController::class,

@@ -107,26 +107,26 @@ class FileManager {
 	}
 
 	/**
-	 * Move directory to new location. 
+	 * Move directory to new location.
 	 * Sensitive function, do not use if you do not know exactly what would happen.
 	 *
 	 * @param string $src
 	 * @param string $dst
 	 * @return void
 	 */
-	public static function moveDirectory($src, $dst) {
-		$dir = opendir($src);
-		@mkdir($dst);
-		while (false !== ($file = readdir($dir))) {
-			if ($file != '.' && $file != '..') {
-				if (is_dir($src . '/' . $file)) {
-					self::moveDirectory($src . '/' . $file, $dst . '/' . $file);
-					rmdir($src . '/' . $file);
+	public static function moveDirectory( $src, $dst ) {
+		$dir = opendir( $src );
+		@mkdir( $dst );
+		while ( false !== ( $file = readdir( $dir ) ) ) {
+			if ( $file != '.' && $file != '..' ) {
+				if ( is_dir( $src . '/' . $file ) ) {
+					self::moveDirectory( $src . '/' . $file, $dst . '/' . $file );
+					rmdir( $src . '/' . $file );
 				} else {
-					rename($src . '/' . $file, $dst . '/' . $file);
+					rename( $src . '/' . $file, $dst . '/' . $file );
 				}
 			}
 		}
-		closedir($dir);
+		closedir( $dir );
 	}
 }
