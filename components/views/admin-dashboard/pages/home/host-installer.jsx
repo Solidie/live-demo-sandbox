@@ -252,7 +252,7 @@ export function HostInstaller({configs={}, slots}) {
 	}
 
 	useEffect(()=>{
-		window._slds_deployment_hook = (step)=>{
+		window.slds_deployment_hook = (step)=>{
 
 			if ( step === 3 ) {
 				deployConfigs();
@@ -270,7 +270,7 @@ export function HostInstaller({configs={}, slots}) {
 		}
 
 		return () => {
-			delete window._slds_deployment_hook;
+			delete window.slds_deployment_hook;
 		}
 	}, []);
 

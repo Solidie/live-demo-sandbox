@@ -10,6 +10,7 @@ namespace Solidie_Sandbox\Setup;
 use SolidieLib\Colors;
 use SolidieLib\Utilities;
 use Solidie_Sandbox\Main;
+use SolidieLib\Variables;
 
 /**
  * Script class
@@ -34,7 +35,25 @@ class Scripts {
 		add_action( 'init', array( $this, 'loadTextDomain' ) );
 
 		// JS Variables
-		add_action( 'admin_head', array( $this, 'loadVariables' ), 1000 );
+		add_action( 'admin_head', array( $this, 'loadStyles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'loadVariables' ) );
+	}
+
+	/**
+	 * Load styles
+	 *
+	 * @return void
+	 */
+	public function loadStyles() {
+
+		// Load dynamic colors
+		$dynamic_colors = Colors::getColors();
+		$slds_colors    = '';
+		foreach ( $dynamic_colors as $name => $code ) {
+			$slds_colors .= '--solidie-color-' . esc_attr( $name ) . ':' . esc_attr( $code ) . ';';
+		}
+
+		require Main::$configs->dir . 'templates/style.php';
 	}
 
 	/**
@@ -44,80 +63,26 @@ class Scripts {
 	 */
 	public function loadVariables() {
 
-		// Load dynamic colors
-		$dynamic_colors = Colors::getColors();
-		$_colors        = '';
-		foreach ( $dynamic_colors as $name => $code ) {
-			$_colors .= '--solidie-color-' . esc_attr( $name ) . ':' . esc_attr( $code ) . ';';
+		if ( ! $this->isSLDS() ) {
+			return;
 		}
-		?>
-			<style>
-				:root{
-		<?php echo esc_html( $_colors ); ?>
-				}
-			</style>
-		<?php
 
-		$nonce_action = '_solidie_' . str_replace( '-', '_', gmdate( 'Y-m-d' ) );
-		$nonce        = wp_create_nonce( $nonce_action );
-		$user         = wp_get_current_user();
-
-		// Determine the react react root path
-		$parsed    = wp_parse_url( get_home_url() );
-		$root_site = 'http' . ( is_ssl() ? 's' : '' ) . '://' . $parsed['host'] . ( ! empty( $parsed['port'] ) ? ':' . $parsed['port'] : '' );
-		$home_path = trim( $parsed['path'] ?? '', '/' );
-		$page_path = is_singular() ? trim( str_replace( $root_site, '', get_permalink( get_the_ID() ) ), '/' ) : null;
-
-		// Load data
-		$data = apply_filters(
-			'slds_frontend_variables',
+		// Get the default variables
+		$variables = ( new Variables( Main::$configs ) )->get();
+		$variables['permalinks'] = array_merge( 
+			$variables['permalinks'],
 			array(
-				'is_admin'     => is_admin(),
-				'action_hooks' => array(),
-				'filter_hooks' => array(),
-				'mountpoints'  => (object) array(),
-				'home_path'    => $home_path,
-				'page_path'    => $page_path,
-				'app_name'     => Main::$configs->app_id,
-				'nonce'        => $nonce,
-				'nonce_action' => $nonce_action,
-				'colors'       => $dynamic_colors,
-				'opacities'    => Colors::getOpacities(),
-				'contrast'     => Colors::CONTRAST_FACTOR,
-				'text_domain'  => Main::$configs->text_domain,
-				'date_format'  => get_option( 'date_format' ),
-				'time_format'  => get_option( 'time_format' ),
-				'bloginfo'     => array(
-					'name' => get_bloginfo( 'name' ),
-				),
-				'user'         => array(
-					'id'           => $user ? $user->ID : 0,
-					'first_name'   => $user ? $user->first_name : null,
-					'last_name'    => $user ? $user->last_name : null,
-					'email'        => $user ? $user->user_email : null,
-					'display_name' => $user ? $user->display_name : null,
-					'avatar_url'   => $user ? get_avatar_url( $user->ID ) : null,
-					'username'     => $user ? $user->user_login : null,
-				),
-				'settings'     => array(),
-				'permalinks'   => array(
-					'home_url'  => get_home_url(),
-					'ajaxurl'   => admin_url( 'admin-ajax.php' ),
-					'settings'  => Utilities::getBackendPermalink( AdminPage::SETTINGS_SLUG ),
-					'dashboard' => Utilities::getBackendPermalink( Main::$configs->root_menu_slug ),
-					'logout'    => htmlspecialchars_decode( wp_logout_url( get_home_url() ) ),
-				),
+				'settings'  => Utilities::getBackendPermalink( AdminPage::SETTINGS_SLUG ),
+				'dashboard' => Utilities::getBackendPermalink( Main::$configs->root_menu_slug ),
 			)
 		);
 
+		// Load data
+		$data    = apply_filters( 'slds_frontend_variables', $variables );
 		$pointer = Main::$configs->app_id;
 
-		?>
-		<script>
-			window.<?php echo esc_html( $pointer ); ?> = <?php echo wp_json_encode( $data ); ?>;
-			window.<?php echo esc_html( $pointer ); ?>pro = window.<?php echo esc_html( $pointer ); ?>;
-		</script>
-		<?php
+		wp_localize_script( 'slds-translations', $pointer, $data );
+		wp_localize_script( 'slds-translations', $pointer . 'pro', $data );
 	}
 
 	/**
@@ -126,7 +91,7 @@ class Scripts {
 	 * @return void
 	 */
 	public function adminScripts() {
-		if ( Utilities::isAdminScreen( Main::$configs->root_menu_slug ) ) {
+		if ( $this->isSLDS() ) {
 			wp_enqueue_script( 'slds-backend', Main::$configs->dist_url . 'admin-dashboard.js', array( 'jquery' ), Main::$configs->version, true );
 		}
 	}
@@ -147,7 +112,7 @@ class Scripts {
 	 */
 	public function scriptTranslation() {
 
-		if ( Utilities::isAdminScreen( Main::$configs->root_menu_slug ) ) {
+		if ( $this->isSLDS() ) {
 			
 			$domain = Main::$configs->text_domain;
 			$dir    = Main::$configs->dir . 'languages/';
@@ -155,5 +120,21 @@ class Scripts {
 			wp_enqueue_script( 'slds-translations', Main::$configs->dist_url . 'libraries/translation-loader.js', array( 'jquery' ), Main::$configs->version, true );
 			wp_set_script_translations( 'slds-translations', $domain, $dir );
 		}
+	}
+
+	/**
+	 * Check if it is slds admin screen
+	 *
+	 * @return boolean
+	 */
+	private function isSLDS() {
+
+		static $is = null;
+
+		if ( null === $is ) {
+			$is = Utilities::isAdminScreen( Main::$configs->root_menu_slug );
+		}
+
+		return $is;
 	}
 }

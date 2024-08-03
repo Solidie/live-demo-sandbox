@@ -12,6 +12,8 @@
 if ( ! defined( 'ABSPATH' ) ) { exit;
 }
 
+const SLDS_EXT_INSTALLER_VERSION = '1.0.0';
+
 $slds_meta_data = '[]';
 // dynamics
 $slds_meta_data = json_decode( $slds_meta_data, true );
@@ -23,8 +25,8 @@ $slds_meta_data['auto_user_info'] = 'slds_demo_user_auto_created';
 
 add_action( 'init', 'slds_redirect_home_to_demo' );
 add_action( 'init', 'slds_active_state_logger' );
-add_action( 'wp_head', 'slds_multisite_scripts_load' );
-add_action( 'admin_head', 'slds_multisite_scripts_load' );
+add_action( 'wp_enqueue_scripts', 'slds_multisite_scripts_load' );
+add_action( 'admin_enqueue_scripts', 'slds_multisite_scripts_load' );
 add_action( 'template_redirect', 'slds_handle_404_sandbox' );
 
 // Call from sandbax instances and host
@@ -474,119 +476,15 @@ function slds_multisite_scripts_load() {
 		}
 	}
 
-	?>
-	<script>
-		const _slds_net_url                  = '<?php echo esc_url( $url_after_login ); ?>';
-		const _slds_net_theme_url            = '<?php echo esc_url( get_home_url() . '/wp-admin/network/themes.php' ); ?>';
-		const _slds_ajax_url                 = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
-		const _slds_intent                   = '<?php echo esc_attr( $intent ); ?>';
-		const _slds_exts                     = <?php echo wp_json_encode( $slds_load_extensions ); ?>;
-		const {_slds_deployment_hook=()=>{}} = window.parent;
+	$variables = array(
+		'url_after_login' => $url_after_login,
+		'themes_url'      => get_home_url() . '/wp-admin/network/themes.php',
+		'ajax_url'        => admin_url( 'admin-ajax.php' ),
+		'intent'          => $intent,
+		'extensions'      => $slds_load_extensions,
+		'redirect_to'     => $redirect_url
+	);
 
-		function slds_fetch_request(action, data, callback) {
-			
-			data = {...data, action};
-			const payload = new URLSearchParams();
-			for ( k in data) {
-				payload.append(k, data[k]);
-			}
-			
-			fetch(_slds_ajax_url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				body: payload
-			})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok ' + response.statusText);
-				}
-				return response.json();
-			})
-			.then(data => {
-				callback(data);
-			})
-			.catch(error => {
-				alert('Request error');
-			});
-		}
-
-		window.addEventListener('load', function(){
-
-			switch(_slds_intent) {
-
-				case 'login' :
-					const data = new URLSearchParams();
-					data.append('action', 'slds_login_to_admin');
-
-					slds_fetch_request('slds_login_to_admin', {}, resp=>{
-						if ( ! resp?.success ) {
-							alert('Multisite admin login failed');
-							return;
-						}
-						window.location.assign(_slds_net_url);
-					});
-					
-					break;
-				
-				case 'setup' :
-					const button = document.getElementById('submit');
-					if ( button ) {
-						button.click();
-					} else {
-						_slds_deployment_hook(3);
-					}
-					break;
-
-				case 'plugins' :
-				case 'themes'  :
-					
-					let       found  = false;
-					const is_plugins = _slds_intent === 'plugins';
-
-					// Loop through plugins/themes to avtivate network wide
-					for ( let i=0; i<_slds_exts.length; i++ ) {
-
-						const {
-							dir_name, 
-							type, 
-							network=false
-						} = _slds_exts[i];
-
-						const network_wide = !is_plugins || network;
-						const selector     = is_plugins ? `[data-plugin^="${dir_name}/"] span.activate a` : `[data-slug="${dir_name}"] span.enable a`;
-						const anchor       = window.jQuery(selector);
-
-						if ( network_wide && anchor.length ) {
-							found = true;
-							window.location.assign(anchor.attr('href'));
-						}
-					}
-
-					// Open themes page now if no more plugins to activate network wide.
-					if ( ! found && is_plugins ) {
-						window.location.assign(_slds_net_theme_url);
-						return;
-					}
-
-					if ( ! found ) {
-						slds_fetch_request('slds_complete_setup', {}, resp=>{
-							if ( ! resp?.success ) {
-								alert('Could not mark as setup complete');
-								return;
-							}
-
-							_slds_deployment_hook(5);
-						});
-					}
-					break;
-
-				case 'redirect' :
-					window.location.assign('<?php echo esc_url( $redirect_url ); ?>');
-					break;
-			}
-		});
-	</script>
-	<?php
+	wp_enqueue_script( 'slds-installer-script', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'ext-installer.js', array( 'jquery' ), SLDS_EXT_INSTALLER_VERSION );
+	wp_localize_script( 'slds-installer-script', 'slds_variables', $variables );
 }
