@@ -21,7 +21,7 @@ class SandboxSetup {
 	public function __construct() {
 		add_action( 'init', array( $this, 'createSandbox' ) );
 	}
-	
+
 	/**
 	 * Check if it is browser request
 	 *
@@ -31,45 +31,62 @@ class SandboxSetup {
 
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
 
-			$userAgent = $_SERVER['HTTP_USER_AGENT'];
-			
+			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) );
+
 			// List of common browsers
 			$browsers = apply_filters(
 				'slds_browser_identifier_flags',
 				array( 'Mozilla', 'Chrome', 'Safari', 'Opera', 'MSIE', 'Edge', 'Trident' )
 			);
-			
+
 			// List of common crawlers/bots
 			$crawlers = apply_filters(
 				'slds_crawler_identifier_flags',
 				array(
-					'Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou', 'Exabot',
-					'facebot', 'ia_archiver', 'MJ12bot', 'AhrefsBot', 'SEMrushBot', 'DotBot', 'MegaIndex', 'YandexImages',
-					'Google Web Preview', 'Twitterbot', 'Pinterest', 'LinkedInBot'
+					'Googlebot',
+					'Bingbot',
+					'Slurp',
+					'DuckDuckBot',
+					'Baiduspider',
+					'YandexBot',
+					'Sogou',
+					'Exabot',
+					'facebot',
+					'ia_archiver',
+					'MJ12bot',
+					'AhrefsBot',
+					'SEMrushBot',
+					'DotBot',
+					'MegaIndex',
+					'YandexImages',
+					'Google Web Preview',
+					'Twitterbot',
+					'Pinterest',
+					'LinkedInBot',
 				)
 			);
 
-			$isBrowser = false;
-			$isCrawler = false;
+			$is_browser = false;
+			$is_crawler = false;
 
 			// Check if the user agent is a known browser
 			foreach ( $browsers as $browser ) {
-				if ( stripos( $userAgent, $browser ) !== false) {
-					$isBrowser = true;
+				if ( stripos( $user_agent, $browser ) !== false ) {
+					$is_browser = true;
 					break;
 				}
 			}
 
 			// Check if the user agent is a known crawler/bot
 			foreach ( $crawlers as $crawler ) {
-				if ( stripos( $userAgent, $crawler ) !== false) {
-					$isCrawler = true;
+				if ( stripos( $user_agent, $crawler ) !== false ) {
+					$is_crawler = true;
 					break;
 				}
 			}
 
 			// Consider it a browser request if it is a known browser and not a known crawler
-			return $isBrowser && !$isCrawler;
+			return $is_browser && ! $is_crawler;
 		}
 
 		return false;

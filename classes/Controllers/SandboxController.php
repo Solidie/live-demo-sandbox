@@ -18,10 +18,10 @@ class SandboxController {
 
 
 	const PREREQUISITES = array(
-		'getSandboxes'  => array(
+		'getSandboxes'        => array(
 			'role' => 'administrator',
 		),
-		'deleteSandbox' => array(
+		'deleteSandbox'       => array(
 			'role' => 'administrator',
 		),
 		'saveSandboxSettings' => array(
@@ -33,21 +33,22 @@ class SandboxController {
 	 * Get sandbox list in browser
 	 *
 	 * @param string $host_id Multsite host
-	 * 
+	 * @param int    $page Page number for pagination
+	 *
 	 * @return void
 	 */
 	public static function getSandboxes( string $host_id, int $page = 1 ) {
 
 		do_action( Cron::HOOK_NAME );
 
-		$args      = array( 'page' => $page );
-		$instance  = new Sandbox( $host_id );
-		
+		$args     = array( 'page' => $page );
+		$instance = new Sandbox( $host_id );
+
 		wp_send_json_success(
-			array( 
+			array(
 				'sandboxes'    => $instance->getSandboxes( $args ),
 				'segmentation' => $instance->getSandboxes( $args, true ),
-			) 
+			)
 		);
 	}
 
@@ -56,7 +57,7 @@ class SandboxController {
 	 *
 	 * @param string  $host_id Multsite host
 	 * @param integer $sandbox_id The sandbox ID to delete
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function deleteSandbox( string $host_id, int $sandbox_id ) {
@@ -78,8 +79,8 @@ class SandboxController {
 	/**
 	 * Save sandbox settings
 	 *
-	 * @param array $settings
-	 * @param string $host_id
+	 * @param array  $settings Settings array
+	 * @param string $host_id Host ID
 	 *
 	 * @return void
 	 */
