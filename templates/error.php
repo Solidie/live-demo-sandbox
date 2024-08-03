@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title><?php echo $error_messages[0]; ?></title>
+		<title><?php echo esc_html( $error_messages[0] ); ?></title>
 		<style>
 			body {
 				font-family: Arial, sans-serif;
@@ -38,9 +38,9 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1><?php echo $error_messages[0]; ?></h1>
-			<p><?php echo $error_messages[1]; ?></p>
-			<p class="suggestion"><?php echo $error_messages[2]; ?></p>
+			<h1><?php echo esc_html( $error_messages[0] ); ?></h1>
+			<p><?php echo esc_html( $error_messages[1] ); ?></p>
+			<p class="suggestion"><?php echo esc_html( $error_messages[2] ); ?></p>
 		</div>
 	</body>
 </html>

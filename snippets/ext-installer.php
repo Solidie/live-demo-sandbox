@@ -1,13 +1,4 @@
 <?php
-/**
- * Plugin Name: Live Demo Extension Loader
- * Description: Multisite theme and plugin installer, and sandbox creator for visitors.
- * Author: Solidie
- * Author URI: https://solidie.com
- * Version: 1.0.0
- *
- * @package live-demo-sandbox
- */
 
 if ( ! defined( 'ABSPATH' ) ) { exit;
 }

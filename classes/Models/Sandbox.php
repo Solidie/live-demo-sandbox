@@ -248,6 +248,6 @@ class Sandbox extends Instance {
 		$period   = $settings['inactivity_period_allowed'] ?? 'hour';
 		$minutes  = (int) ( 'hour' === $period ? $time * 60 : $time );
 
-		return $minutes > 0 ? $minutes : 40;
+		return $minutes > 0 ? $minutes : 60;
 	}
 }

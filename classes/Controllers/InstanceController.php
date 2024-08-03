@@ -55,7 +55,7 @@ class InstanceController {
 
 			// Delete incomplete downloaded file
 			if ( file_exists( $source_path ) ) {
-				unlink( $source_path );
+				wp_delete_file( $source_path );
 			}
 
 			wp_send_json_error( array( 'message' => __( 'WordPress download error', 'live-demo-sandbox' ) ) );

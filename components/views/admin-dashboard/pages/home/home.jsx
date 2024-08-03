@@ -180,7 +180,7 @@ export function HomeBackend(props) {
 		}
 
 		{
-			page_name !== 'hosts' ? null : <Promotional/>
+			/* page_name !== 'hosts' ? null : <Promotional/> */
 		}
 	</div>
 }

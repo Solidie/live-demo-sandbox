@@ -12,13 +12,16 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:Solidie/solidie-lib.git",
-                "reference": "7e7fb73d3950f74da6c7d7c069f1a00bc10c3f3b"
+                "reference": "2fb252a4f4524ca48693de45f9c51fb058fc6b22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Solidie/solidie-lib/zipball/7e7fb73d3950f74da6c7d7c069f1a00bc10c3f3b",
-                "reference": "7e7fb73d3950f74da6c7d7c069f1a00bc10c3f3b",
+                "url": "https://api.github.com/repos/Solidie/solidie-lib/zipball/2fb252a4f4524ca48693de45f9c51fb058fc6b22",
+                "reference": "2fb252a4f4524ca48693de45f9c51fb058fc6b22",
                 "shasum": ""
+            },
+            "require-dev": {
+                "10up/phpcs-composer": "dev-master"
             },
             "default-branch": true,
             "type": "library",
@@ -27,12 +30,20 @@
                     "SolidieLib\\": "src/"
                 }
             },
+            "scripts": {
+                "lint": [
+                    "phpcs --extensions=php -s ."
+                ],
+                "lint:fix": [
+                    "phpcbf --extensions=php ."
+                ]
+            },
             "description": "WP PHP scripts for plugins and themes",
             "support": {
                 "source": "https://github.com/Solidie/solidie-lib/tree/main",
                 "issues": "https://github.com/Solidie/solidie-lib/issues"
             },
-            "time": "2024-08-03T15:06:09+00:00"
+            "time": "2024-08-03T18:52:22+00:00"
         }
     ],
     "packages-dev": [

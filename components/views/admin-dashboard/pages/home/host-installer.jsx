@@ -275,9 +275,9 @@ export function HostInstaller({configs={}, slots}) {
 	}, []);
 
 	const has_empty = field_keys.filter(name=>!fields[name].optional && isEmpty(state.values[name])).length;
-	const form = slots >= 1 && ! applyFilters( 'slds_multi', false );
+	const upgrade_notice = slots >= 1 && ! applyFilters( 'slds_is_upgraded', false );
 
-	if ( form ) {
+	if ( upgrade_notice ) {
 		return <div className={section_class + 'text-align-center'.classNames()} style={{padding: '30px 10px'}}>
 			<strong className={'d-block font-size-16 color-text-90 margin-bottom-15'.classNames()}>
 				{__('Multiple multsite is a Pro feature')}
@@ -368,8 +368,15 @@ export function HostInstaller({configs={}, slots}) {
 						<div className={'flex-1'.classNames()}>
 							{
 								!has_empty ? null :
-								<span className={'color-error'.classNames()}>
+								<span className={'d-block color-error'.classNames()}>
 									All fields are required
+								</span>
+							}
+
+							{
+								(!state.values.theme && !state.values.plugins?.length) ? null :
+								<span className={'d-block color-warning'.classNames()}>
+									To ensure a successful installation, make sure the <code>wp_enqueue_scripts</code> or <code>admin_enqueue_scripts</code> hook is triggered on the page redirected to after activating the selected plugins or theme.
 								</span>
 							}
 						</div>

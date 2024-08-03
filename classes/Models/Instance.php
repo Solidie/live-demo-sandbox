@@ -166,7 +166,7 @@ class Instance {
 
 			// Delete if the archive is incompatible
 			if ( file_exists( $zip_file ) ) {
-				unlink( $zip_file );
+				wp_delete_file( $zip_file );
 			}
 
 			return array(

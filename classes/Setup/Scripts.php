@@ -82,7 +82,6 @@ class Scripts {
 		$pointer = Main::$configs->app_id;
 
 		wp_localize_script( 'slds-translations', $pointer, $data );
-		wp_localize_script( 'slds-translations', $pointer . 'pro', $data );
 	}
 
 	/**
