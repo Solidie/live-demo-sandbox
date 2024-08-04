@@ -43,7 +43,6 @@ class Main {
 		self::$configs           = $configs;
 		self::$configs->dir      = dirname( $configs->file ) . '/';
 		self::$configs->basename = plugin_basename( $configs->file );
-		self::$configs->api_host = 'development' === $configs->mode ? 'http://localhost:10019' : 'https://solidie.com';
 
 		// Loading Autoloader
 		spl_autoload_register( array( $this, 'loader' ) );
