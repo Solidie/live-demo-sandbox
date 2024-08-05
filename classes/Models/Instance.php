@@ -280,13 +280,13 @@ class Instance {
 		$dynamics = array(
 			'extensions'       => $extensions,
 			'sandbox_init_url' => $this->getSandboxInitURL(),
+			'host_id'          => $this->host_id,
 			'control_panel_db' => array(
 				'name'                => DB_NAME,
 				'user'                => DB_USER,
 				'host'                => DB_HOST,
 				'pass'                => DB_PASSWORD,
 				'configs_option_name' => self::OPTION_KEY,
-				'host_id'             => $this->host_id,
 				'tables'              => array(
 					'sandboxes' => $wpdb->slds_sandboxes,
 					'options'   => $wpdb->prefix . 'options',
@@ -297,7 +297,7 @@ class Instance {
 		// Modify installer php and deploy
 		$ext_codes = file_get_contents( Main::$configs->dir . 'snippets/ext-installer.php' );
 		$ext_codes = str_replace( '// dynamics', '$slds_meta_data = \'' . wp_json_encode( $dynamics ) . '\';', $ext_codes );
-		file_put_contents( $mu_dir . '/sandbox-extension-installer.php', $ext_codes );
+		file_put_contents( $mu_dir . '/ext-installer.php', $ext_codes );
 
 		// Copy installer js
 		copy( Main::$configs->dir . 'snippets/ext-installer.js', $mu_dir . '/ext-installer.js' );

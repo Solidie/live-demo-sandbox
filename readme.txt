@@ -16,7 +16,7 @@ Introducing a powerful WordPress plugin that creates a unique sandbox environmen
 
 Typically, we create a single site for all visitors, allowing them to post random content that ultimately spoils the experience for others. If we want to implement a sandbox mechanism where every visitor gets a fresh setup that is deleted after a certain period, we usually have to rely on third-party services, which might not be ideal in all cases.
 
-To resolve the issue, this plugin offers sandbox capabilities on the same server as the main site. It eliminates the need for additional servers and quickly sets up a new instance for each visitor by leveraging WP Multisite. Doesn't alternate the existing site BTW.
+To resolve the issue, this plugin offers sandbox mechanism on the same server as the main site. It eliminates the need for additional servers and quickly sets up a new instance for each visitor by leveraging WP Multisite. Doesn't alternate the existing site BTW.
 
 ==Get In Touch==
 
@@ -33,6 +33,6 @@ There are several minified JavaScript file that are built with React JS and comp
 
 == Changelog ==
 
-= v1.0.0 -> Jun 27, 2024 =
+= v1.0.0 -> Aug 06, 2024 =
 --------------------------
 * New: Initial release
