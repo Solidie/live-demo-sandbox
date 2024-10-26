@@ -1,10 +1,11 @@
 === Live Demo Sandbox - Demo Site per Visitor ===
 Contributors: jayedul
+Donate Link: https://solidie.com/live-demo-sandbox-pro/
 Tags: live demo, sandbox, instance
 Requires at least: 5.3
 Tested up to: 6.6.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv3
 License URI: https://opensource.org/licenses/GPL-3.0
 
@@ -32,6 +33,12 @@ If you have any questions or problems using this plugin, you can write here in [
 There are several minified JavaScript file that are built with React JS and compiled with Webpack. If you want to access the unminified files for this plugin, you can do so from [here](https://github.com/Solidie/live-demo-sandbox).
 
 == Changelog ==
+
+= v1.0.1 -> Oct 26, 2024 =
+--------------------------
+* New: Multiple multisite support
+* Update: Codebase optimization
+* Update: Solidie promotional screen removed
 
 = v1.0.0 -> Aug 06, 2024 =
 --------------------------

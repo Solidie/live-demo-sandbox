@@ -35,25 +35,7 @@ class Scripts {
 		add_action( 'init', array( $this, 'loadTextDomain' ) );
 
 		// JS Variables
-		add_action( 'admin_head', array( $this, 'loadStyles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'loadVariables' ) );
-	}
-
-	/**
-	 * Load styles
-	 *
-	 * @return void
-	 */
-	public function loadStyles() {
-
-		// Load dynamic colors
-		$dynamic_colors = Colors::getColors();
-		$slds_colors    = '';
-		foreach ( $dynamic_colors as $name => $code ) {
-			$slds_colors .= '--solidie-color-' . esc_attr( $name ) . ':' . esc_attr( $code ) . ';';
-		}
-
-		require Main::$configs->dir . 'templates/style.php';
 	}
 
 	/**

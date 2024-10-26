@@ -1,6 +1,6 @@
 {
   "name": "live-demo-sandbox",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Live demo sandbox using WP multisite",
   "main": "index.js",
   "scripts": {

@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit;
 }
 
-const SLDS_EXT_INSTALLER_VERSION = '1.0.0';
+const SLDS_EXT_INSTALLER_VERSION = '1.0.1';
 
 $slds_meta_data = '[]';
 // dynamics

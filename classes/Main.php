@@ -11,12 +11,12 @@ use SolidieLib\_Array;
 use SolidieLib\Utilities;
 use Solidie_Sandbox\Setup\AdminPage;
 use Solidie_Sandbox\Setup\Cron;
-use Solidie_Sandbox\Setup\Database;
 use Solidie_Sandbox\Setup\SandboxSetup;
 use Solidie_Sandbox\Setup\Scripts;
 use SolidieLib\Dispatcher;
 use Solidie_Sandbox\Controllers\InstanceController;
 use Solidie_Sandbox\Controllers\SandboxController;
+use SolidieLib\DB;
 
 /**
  * Main class to initiate app
@@ -53,11 +53,14 @@ class Main {
 
 		// Prepare the unique app name
 		self::$configs->app_id = Utilities::getAppId( self::$configs->url );
+		self::$configs->sql_path         = self::$configs->dir . 'dist/libraries/db.sql';
+		self::$configs->activation_hook  = 'slds_activated';
+		self::$configs->db_deployed_hook = 'slds_db_deployed';
 
 		// Register Activation/Deactivation Hook
 		register_activation_hook( self::$configs->file, array( $this, 'activate' ) );
 
-		new Database();
+		new DB( self::$configs );
 		new Scripts();
 		new AdminPage();
 		new SandboxSetup();

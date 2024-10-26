@@ -7,7 +7,6 @@ import { ContextToast } from "solidie-materials/toast/toast.jsx";
 
 import {HostInfoSingle, HostInstance, section_class} from './host-instance.jsx';
 import { HostInstaller } from "./host-installer";
-import { Promotional } from "./promotional.jsx";
 import { LoadingIcon } from "solidie-materials/loading-icon/loading-icon.jsx";
 
 const new_host = 'new-host';
@@ -177,10 +176,6 @@ export function HomeBackend(props) {
 			<div className={'font-size-14 color-error text-align-center margin-bottom-20'.classNames()}>
 				<i>{__('Sandbox functionality is currently supported only on Apache servers.')}</i>
 			</div>
-		}
-
-		{
-			page_name !== 'hosts' ? null : <Promotional/>
 		}
 	</div>
 }

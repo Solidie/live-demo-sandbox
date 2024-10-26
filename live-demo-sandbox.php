@@ -3,7 +3,7 @@
  * Plugin Name: Sandbox
  * Plugin URI: https://solidie.com/live-demo-sandbox/
  * Description: Live demo sandbox instance creator utilizing WordPress multisite setup
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Solidie
  * Author URI: https://solidie.com
  * Requires at least: 5.3

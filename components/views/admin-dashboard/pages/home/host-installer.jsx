@@ -275,22 +275,6 @@ export function HostInstaller({configs={}, slots}) {
 	}, []);
 
 	const has_empty = field_keys.filter(name=>!fields[name].optional && isEmpty(state.values[name])).length;
-	const upgrade_notice = slots >= 1 && ! applyFilters( 'slds_is_upgraded', false );
-
-	if ( upgrade_notice ) {
-		return <div className={section_class + 'text-align-center'.classNames()} style={{padding: '30px 10px'}}>
-			<strong className={'d-block font-size-16 color-text-90 margin-bottom-15'.classNames()}>
-				{__('Multiple multsite is a Pro feature')}
-			</strong>
-			<a 
-				href='https://solidie.com/live-demo-sandbox-pro/'
-				target='_blank'
-				className={'button button-primary'.classNames()}
-			>
-				{__('Upgrade Now')}
-			</a>
-		</div>
-	}
 
 	return <div style={{margin: '50px auto', maxWidth: '800px'}}>
 		<div 
